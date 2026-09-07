@@ -170,16 +170,21 @@ const footOff = () => { const b = D().querySelector('.foot .btn'); return b ? b.
   say(!!sb && !!sb.auth, 'клиент Supabase загрузился (отдельным чанком)');
   const { data: ses, error: sesErr } = await sb.auth.getSession();
   say(!sesErr && ses.session === null, 'сессии нет и ошибки нет (аноним)');
+  // Адрес возврата НЕ зашит: спрашиваем его у самого приложения. Раньше здесь
+  // стоял хост строкой, и стенд пришлось бы править при каждом переезде — а
+  // главное, он проверял бы не то, что приложение реально отправляет провайдеру,
+  // а то, что когда-то вписали в стенд. Теперь сверяется настоящее значение.
+  const wantRedirect = W().__authRedirect();
   const { data: oa, error: oaErr } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://galacticstuff37-dev.github.io/web-app/react/',
-               skipBrowserRedirect: true } });
+    options: { redirectTo: wantRedirect, skipBrowserRedirect: true } });
   const u = (oa && oa.url) || '';
   say(!oaErr && !!u, 'ссылка входа построена' + (oaErr ? ': ' + oaErr.message : ''));
   say(u.startsWith('https://bslttprzsbigcfplpxff.supabase.co/auth/v1/authorize?provider=google'),
       'ведёт в authorize провайдера google');
   say(u.includes('code_challenge'), 'PKCE: в ссылке code_challenge, токены не уедут в хеш');
-  say(u.includes('galacticstuff37-dev.github.io'), 'возврат на адрес приложения');
+  say(u.includes(encodeURIComponent(wantRedirect)) || u.includes(wantRedirect),
+      'возврат на адрес приложения: ' + wantRedirect);
   say(!S().account, 'демо-аккаунт при этом не создаётся');
 
   // ── 2b. Apple: кнопки нет, пока нет ключей — и она никого не впускает

@@ -58,6 +58,10 @@ export function hasStoredSession(): boolean {
 
 /** Куда Google возвращает человека. Работает и на Pages, и на localhost. */
 export const authRedirect = () => location.origin + import.meta.env.BASE_URL
+// Крючок для стендов, как __state()/__supa(). Нужен, чтобы authcheck сверял
+// НАСТОЯЩИЙ адрес возврата, а не зашитую в него строку: при переезде на другой
+// хост зашитая строка проверяла бы прошлое, а не то, что уходит провайдеру.
+;(window as unknown as { __authRedirect?: typeof authRedirect }).__authRedirect = authRedirect
 
 /**
  * Что вернул провайдер. Читаем и ?query, и #hash: GoTrue кладёт код в query

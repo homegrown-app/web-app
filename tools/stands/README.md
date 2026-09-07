@@ -34,7 +34,7 @@ http://localhost:5205/web-app/tools/stands/authcheck.html
 Проверить другую сборку — параметром `app`:
 
 ```
-…/authcheck.html?app=https://galacticstuff37-dev.github.io/web-app/react/index.html
+…/authcheck.html?app=https://homegrown-app.github.io/web-app/react/index.html
 ```
 (только для того же origin: iframe с другого домена читать нельзя).
 
