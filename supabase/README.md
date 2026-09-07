@@ -71,13 +71,16 @@ Supabase = Postgres + PostgREST + Auth + Storage + Cron в одном проек
    `{{ .Token }}`; она доступна именно в этом шаблоне и в Reauthentication.
 4. **Google.** Authentication → Providers → Google: включить и вставить Client
    ID и Client Secret из Google Cloud Console. В самой Console, в OAuth-клиенте:
-   - Authorized JavaScript origins: `https://galacticstuff37-dev.github.io`
+   - Authorized JavaScript origins: `https://homegrown-app.github.io`
+     (не несёт нагрузки в этом потоке: браузер идёт на authorize Supabase, а не
+     к Google напрямую, поэтому Google проверяет только redirect_uri своего
+     колбэка. Держим актуальным на случай перехода на Google One Tap / GSI.)
    - Authorized redirect URIs: `https://<project-ref>.supabase.co/auth/v1/callback`
 5. **Apple.** Authentication → Providers → Apple: Services ID, Team ID, Key ID и
    `.p8`-ключ из Apple Developer. Return URL там же — тот же
    `https://<project-ref>.supabase.co/auth/v1/callback`.
 6. **URL приложения.** Authentication → URL Configuration:
-   - Site URL: `https://galacticstuff37-dev.github.io/web-app/react/`
+   - Site URL: `https://homegrown-app.github.io/web-app/react/`
    - Redirect URLs: добавить и её, и `http://localhost:5173/**` для разработки.
 7. **Снимки.** Storage → New bucket `photos`, **приватный**. Политики: путь
    начинается с `auth.uid()`, то есть человек пишет и читает только свою папку.
