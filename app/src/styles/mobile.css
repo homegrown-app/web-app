@@ -26,3 +26,15 @@ body[data-mode="app"]{display:block;padding:0;background:var(--ground);overflow:
   .hd{padding-top:16px}
   .overlay,.dark{padding-top:24px}
 }
+
+/* Стенд идёт на планшете: там нужен весь экран, а не телефон в рамке.
+   Карточка текста при этом не шире телефонной колонки — длинные строки
+   на 800px читаются хуже. */
+@media (min-width:768px){
+  body[data-mode="app"] .mob.mob-full{position:fixed;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none}
+  .mob-full .scan-ov{padding:32px;align-items:center}
+  .mob-full .scan-frame{align-self:stretch}
+  .mob-full .scan-foot{width:100%;max-width:560px}
+  .mob-full #s-booth .dark{align-items:center}
+  .mob-full #s-booth .dark>*{width:100%;max-width:560px}
+}

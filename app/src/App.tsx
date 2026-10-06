@@ -257,7 +257,7 @@ export function App() {
   const base = sheet ? ROUTE('settings') : ROUTE(id)
 
   return (
-    <main className="mob">
+    <main className={'mob' + (booth ? ' mob-full' : '')}>
       {(base || ROUTES[0]).render({ go: goTracked, openSpecies })}
       {sheet && sheet.render({ go: goTracked, openSpecies })}
       {greet && (

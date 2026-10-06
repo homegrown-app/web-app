@@ -8,7 +8,7 @@
 // устройства. Отметка полива держится до конца дня: следующий посетитель не
 // льёт в тот же горшок второй раз.
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Arc } from '../components/bits'
 import { useCamera } from '../components/parts'
 import { Icon } from '../icons/Icon'
@@ -63,6 +63,48 @@ function actionImg(id: BoothId, step: string, st: Stand): string {
   return 'booth-tomato'
 }
 
+/**
+ * Живая камера в рамке. Включается на стартовом шаге и гасится на остальных:
+ * держать камеру открытой, пока посетитель читает ответ, незачем, а на iOS
+ * открытый поток ещё и греет планшет. Отказ или отсутствие API — не ошибка:
+ * on остаётся false, и экран работает через системную камеру.
+ */
+function useLiveCamera(active: boolean) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    if (!active || !navigator.mediaDevices?.getUserMedia) return
+    let stream: MediaStream | null = null
+    let dead = false
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .then(s => {
+        if (dead) { s.getTracks().forEach(t => t.stop()); return }
+        stream = s
+        if (ref.current) { ref.current.srcObject = s; ref.current.play().catch(() => {}) }
+        setOn(true)
+      })
+      .catch(() => setOn(false))
+    return () => {
+      dead = true
+      stream?.getTracks().forEach(t => t.stop())
+      if (ref.current) ref.current.srcObject = null
+      setOn(false)
+    }
+  }, [active])
+  /** Текущий кадр видео в JPEG; null, если камера не идёт. */
+  const grab = (): string | null => {
+    const v = ref.current
+    if (!on || !v || !v.videoWidth) return null
+    const k = Math.min(1, 1280 / Math.max(v.videoWidth, v.videoHeight))
+    const c = document.createElement('canvas')
+    c.width = Math.round(v.videoWidth * k)
+    c.height = Math.round(v.videoHeight * k)
+    c.getContext('2d')!.drawImage(v, 0, 0, c.width, c.height)
+    return c.toDataURL('image/jpeg', 0.8)
+  }
+  return { ref, on, grab }
+}
+
 // ── экран секции ────────────────────────────────────────────────────
 export function BoothScreen({ id }: { id: BoothId }) {
   const p = PLANTS[id]
@@ -72,7 +114,11 @@ export function BoothScreen({ id }: { id: BoothId }) {
   // Снимок посетителя держится на экране миг, потом его сменяет фото-подсказка
   // к действию этого шага: как проверить почву, как полить, как срезать.
   const [held, setHeld] = useState(false)
-  const cam = useCamera(url => { setShot(url); setStep('result'); setHeld(true) })
+  const onShot = (url: string) => { setShot(url); setStep('result'); setHeld(true) }
+  const cam = useCamera(onShot)
+  const live = useLiveCamera(step === 'start')
+  // Снимок берём кадром из живого видоискателя; камеры нет — системная камера.
+  const takePhoto = () => { const url = live.grab(); if (url) onShot(url); else cam.open() }
   useEffect(() => {
     if (!held) return
     const t = window.setTimeout(() => setHeld(false), SHOT_HOLD_MS)
@@ -95,6 +141,10 @@ export function BoothScreen({ id }: { id: BoothId }) {
         {/* До снимка в рамке фото культуры из библиотеки: посетитель сразу
             видит, что снимать. Снимок посетителя его заменяет. */}
         <div className="scan-shot" style={{ backgroundImage: `url(${shot || img(p.s.img || '')})` }} />
+        {/* Живой видоискатель поверх фото культуры: пока камера не ответила
+            или её не дали, под ним видно, что снимать. */}
+        <video ref={live.ref} className={'scan-shot booth-live' + (live.on && step === 'start' ? ' on' : '')}
+               autoPlay playsInline muted />
         {step !== 'start' && (
           <div className={'scan-shot booth-act' + (held ? '' : ' on')}
                style={{ backgroundImage: `url(${img(actionImg(id, step, st))})` }} />
@@ -105,7 +155,7 @@ export function BoothScreen({ id }: { id: BoothId }) {
           </div>
           <div className="scan-foot booth-foot">
             {step === 'start'
-              ? <Start p={p} id={id} st={st} onShot={cam.open} />
+              ? <Start p={p} id={id} st={st} onShot={takePhoto} />
               : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} save={save} />
               : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} save={save} />
               : <Grow p={p} />}
