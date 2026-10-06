@@ -123,22 +123,23 @@ function photoTex(name: string): THREE.CanvasTexture {
   return t
 }
 
-/** Колышек в земле горшка, на нём фото. Фото — спрайт: всегда лицом к камере.
-    Колышек держится переднего края горшка (см. tick): иначе на повороте он
-    уходил за растение и листья закрывали фото. */
-function photoStake(name: string, soil: number, slot: number): THREE.Group {
+/** Табличка над растением: фото на колышке, воткнутом в центр горшка (ствол
+    колышка прячется в листве). Фото — спрайт, всегда лицом к камере. */
+const PHOTO = 0.5
+function photoStake(name: string, soil: number, at: number, slot: number): THREE.Group {
   const g = new THREE.Group()
-  const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6),
+  const len = at - soil
+  const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, len, 6),
     new THREE.MeshStandardMaterial({ color: 0xC9A27A, roughness: 0.9 }))
-  stick.position.y = 0.15; stick.castShadow = true; stick.userData.slot = slot
-  const ph = new THREE.Sprite(new THREE.SpriteMaterial({ map: photoTex(name) }))
-  ph.scale.setScalar(0.36); ph.position.y = 0.32; ph.userData.slot = slot
+  stick.position.y = soil + len / 2; stick.castShadow = true; stick.userData.slot = slot
+  // alphaTest: прозрачные углы квадрата иначе писали глубину и срезали то, что за ними.
+  const ph = new THREE.Sprite(new THREE.SpriteMaterial({ map: photoTex(name), alphaTest: 0.5 }))
+  ph.scale.setScalar(PHOTO); ph.position.y = at; ph.userData.slot = slot
   g.add(stick, ph)
-  g.position.y = soil - 0.08
   return g
 }
 
-interface Slot { i: number; root: THREE.Group; plant: THREE.Object3D; tag?: THREE.Group; tagR: number; drop?: THREE.Sprite; ring?: THREE.Mesh; h: number; bounce: number }
+interface Slot { i: number; root: THREE.Group; plant: THREE.Object3D; drop?: THREE.Sprite; ring?: THREE.Mesh; h: number; dropY: number; bounce: number }
 
 export default function Garden3D({ plants, onOpen, onWater }:
     { plants: Plant[]; onOpen: (i: number) => void; onWater: (i: number) => void }) {
@@ -237,13 +238,12 @@ export default function Garden3D({ plants, onOpen, onWater }:
         root.position.set((c - (cols - 1) / 2) * gap, 0, (r - (rows - 1) / 2) * gap)
         pots.add(root)
         const [potName, potW] = potOf(p)
-        const slot: Slot = { i, root, plant: new THREE.Group(), tagR: potW / 2 * 0.75, h: 0, bounce: 0 }
+        const slot: Slot = { i, root, plant: new THREE.Group(), h: 0, dropY: 0, bounce: 0 }
         slots.push(slot)
         Promise.all([model(potName), model(modelOf(p))]).then(([pot, pl]) => {
           const ph = fit(pot, potW, 'w')
           pot.traverse(o => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.userData.slot = i } })
           root.add(pot)
-          if (p.s.img) { slot.tag = photoStake(p.s.img, ph * 0.86, i); root.add(slot.tag) }
           // Рост: от 45% до полного размера к сроку урожая (комнатные — сразу полные).
           const grow = isEdible(p) ? 0.45 + 0.55 * Math.min(1, hPct(p) / 100) : 1
           const tall = tallPlant(p) ? 1.35 : 0.95
@@ -259,8 +259,14 @@ export default function Garden3D({ plants, onOpen, onWater }:
           })
           root.add(wrap)
           slot.plant = wrap; slot.h = ph * 0.86 + h
+          // Фото над верхушкой, капля — бейджем на его правом верхнем углу:
+          // столбиком над фото она уходила за край кадра под плашки.
+          const at = slot.h + PHOTO / 2 + 0.02
+          if (p.s.img) root.add(photoStake(p.s.img, ph * 0.86, at, i))
+          slot.dropY = p.s.img ? at : slot.h + 0.32
           if (wDue(p) <= 0) {
-            const d = dropSprite(); d.position.y = slot.h + 0.32; d.userData.drop = i
+            const d = dropSprite(); d.position.y = slot.dropY; d.userData.drop = i
+            if (p.s.img) { d.scale.setScalar(0.3); d.center.set(0.5 - 0.2 / 0.3, 0.5 - 0.2 / 0.3) }
             root.add(d); slot.drop = d
           }
           if (isEdible(p) && hPct(p) >= 100) {
@@ -291,7 +297,9 @@ export default function Garden3D({ plants, onOpen, onWater }:
       const r = el.getBoundingClientRect()
       ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
       ray.setFromCamera(ndc, cam)
-      const hit = ray.intersectObjects(pots.children, true)[0]
+      const hits = ray.intersectObjects(pots.children, true)
+      // Капля рисуется поверх фото и стоит на том же расстоянии — она главнее.
+      const hit = hits.find(h => h.object.userData.drop !== undefined) || hits[0]
       if (!hit) return
       const di = hit.object.userData.drop
       if (di !== undefined) { water(di); return }
@@ -338,9 +346,7 @@ export default function Garden3D({ plants, onOpen, onWater }:
       }
       world.rotation.y = rot
       for (const s of slots) {
-        // Передний край горшка, чуть правее центра — со стороны камеры.
-        if (s.tag) s.tag.position.set(s.tagR * Math.sin(0.5 - rot), s.tag.position.y, s.tagR * Math.cos(0.5 - rot))
-        if (s.drop) s.drop.position.y = s.h + 0.32 + (reduce ? 0 : Math.sin(t * 3 + s.i) * 0.05)
+        if (s.drop) s.drop.position.y = s.dropY + (reduce ? 0 : Math.sin(t * 3 + s.i) * 0.05)
         if (s.ring) {
           const k = reduce ? 1 : 1 + Math.sin(t * 2.4 + s.i) * 0.06
           s.ring.scale.set(k, k, k)
