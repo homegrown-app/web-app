@@ -186,32 +186,51 @@ export default function Garden3D({ plants, onOpen, onWater }:
       })
     }
 
-    // Окружение. Деревья — на неподвижном заднике: площадка крутится как
-    // поворотный стол, а деревья, вращаясь с ней, выходили бы перед горшками.
-    // Трава, цветы и камни — низкие, по краю площадки, крутятся с ней.
-    const backdrop = new THREE.Group(); scene.add(backdrop)
-    // Луг под деревьями: без него они стояли в небе. Край растворяется по
-    // альфе — горизонт камеры выше кадра, и сплошной луг закрыл бы всё небо.
+    // Окружение — деревня: дома соседей с огородами и деревья по кольцу вокруг
+    // площадки. Кольцо крутится вместе с ней (неподвижный задник висел в
+    // воздухе мёртвой картинкой). Радиус больше дистанции камеры: передняя дуга
+    // уходит ЗА камеру, а боковые — за края кадра, так что перед горшками
+    // ничего не проходит. Блеклость — туман, а не перекраска моделей.
+    scene.fog = new THREE.Fog(0xDCEBD9, 8, 24)
+    // Луг до горизонта; край растворяется по альфе в CSS-небо.
     const fade = document.createElement('canvas'); fade.width = fade.height = 256
     const fc = fade.getContext('2d')!
     const fg = fc.createRadialGradient(128, 128, 0, 128, 128, 128)
-    fg.addColorStop(0.6, '#fff'); fg.addColorStop(1, '#000')
+    fg.addColorStop(0.7, '#fff'); fg.addColorStop(1, '#000')
     fc.fillStyle = fg; fc.fillRect(0, 0, 256, 256)
-    const meadow = new THREE.Mesh(new THREE.CircleGeometry(9.5, 64),
+    const meadow = new THREE.Mesh(new THREE.CircleGeometry(24, 64),
       new THREE.MeshStandardMaterial({ color: 0x6FAE5C, roughness: 1, transparent: true,
         alphaMap: new THREE.CanvasTexture(fade), depthWrite: false }))
     meadow.rotation.x = -Math.PI / 2; meadow.position.y = -0.18; meadow.receiveShadow = true
-    backdrop.add(meadow)
-    const place = (name: string, size: number, by: 'h' | 'w', x: number, z: number, parent: THREE.Group, ry = 0) =>
+    scene.add(meadow)
+    const place = (name: string, size: number, by: 'h' | 'w', x: number, z: number, parent: THREE.Group, ry = 0, shadow = strong) =>
       model(name).then(m => {
         fit(m, size, by); const w = new THREE.Group(); w.add(m)
         w.position.set(x, 0, z); w.rotation.y = ry
-        m.traverse(o => { if ((o as THREE.Mesh).isMesh) o.castShadow = strong })
+        m.traverse(o => { if ((o as THREE.Mesh).isMesh) o.castShadow = shadow })
         parent.add(w)
       })
-    ;([['tree_oak', 2.4, -3.6, -6.4], ['tree_pineRoundA', 2.8, -1.3, -7.4], ['tree_default', 2.2, 1.5, -7.0],
-       ['tree_fat', 2.0, 3.8, -6.2], ['tree_default', 1.8, -5.6, -4.6], ['tree_oak', 1.9, 5.7, -4.4]] as const)
-      .forEach(([n, h, x, z]) => place(n, h, 'h', x, z, backdrop))
+    const HOUSES = ['i', 'j', 'm', 'n', 'r', 's', 't', 'u']
+    const TREES = ['tree_oak', 'tree_default', 'tree_fat', 'tree_pineRoundA']
+    const BEDS = ['crops_leafsStageB', 'crop_pumpkin', 'crop_carrot', 'plant_bushSmall']
+    const village = new THREE.Group(); world.add(village)
+    // Локальные координаты двора: дом смотрит на +z, то есть на площадку.
+    const at = (phi: number, r: number, dx: number, dz: number): [number, number] => {
+      const fx = -Math.sin(phi), fz = -Math.cos(phi) // к центру
+      const rx = Math.cos(phi), rz = -Math.sin(phi)  // вправо
+      return [Math.sin(phi) * r + rx * dx + fx * dz, Math.cos(phi) * r + rz * dx + fz * dz]
+    }
+    const N = 12
+    for (let k = 0; k < N; k++) {
+      const h = HOUSES[k % HOUSES.length]
+      const phi = (k / N) * Math.PI * 2 + 0.3, r = 13 + (k % 3) * 0.9, ry = phi + Math.PI
+      place('suburban/building-type-' + h, 2.2, 'w', ...at(phi, r, 0, 0), village, ry, false)
+      // Огород соседа перед домом: грядка в три куста.
+      for (let j = 0; j < 3; j++)
+        place(BEDS[(k + j) % BEDS.length], 0.45, 'h', ...at(phi, r, -0.6 + j * 0.6, 1.9), village, ry, false)
+      // Дерево между дворами.
+      place(TREES[k % TREES.length], 2.0 + (k % 2) * 0.5, 'h', ...at(phi + Math.PI / N, r + 0.8, 0, 0), village, 0, false)
+    }
     let seed = 7
     const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 }
     const DECOR: Array<[string, number]> = [['grass', 0.32], ['grass_large', 0.4], ['flower_redB', 0.42],
@@ -329,7 +348,13 @@ export default function Garden3D({ plants, onOpen, onWater }:
       renderer.setSize(w, h, false)
       cam.aspect = w / h
       const d = 5.6 + Math.max(0, Math.sqrt(slots.length || 4) - 2) * 1.5
-      cam.position.set(0, d * 0.55, d); cam.lookAt(0, 0.55, 0)
+      // Ширина охвата — как у прежнего кадра 358×340 (FOV 32 по вертикали),
+      // чтобы горшки не резались по бокам в высокой карточке. Низ кадра там
+      // же, где был, а вся добавленная высота уходит вверх — на деревню.
+      const half = Math.atan(Math.tan(THREE.MathUtils.degToRad(16)) * (358 / 340) / cam.aspect)
+      const pitch = Math.atan((d * 0.55 - 0.55) / d) + THREE.MathUtils.degToRad(16) - half
+      cam.fov = THREE.MathUtils.radToDeg(half * 2)
+      cam.position.set(0, d * 0.55, d); cam.rotation.set(-pitch, 0, 0)
       cam.updateProjectionMatrix()
     }
     const ro = new ResizeObserver(size); ro.observe(el); size()

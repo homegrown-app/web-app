@@ -173,7 +173,7 @@
 /* isolation: плашки и подсказка (z-index 2) держатся внутри блока сцены.
    Без неё они выходили в общий слой ленты и при прокрутке пролетали поверх
    липкого заголовка «My plants» (у него тот же z-index 2). */
-.g3d { position: relative; isolation: isolate; height: 340px; border-radius: var(--r-2xl); overflow: hidden;
+.g3d { position: relative; isolation: isolate; height: 440px; /* было 340, +30% → 440 по сетке 8 */ border-radius: var(--r-2xl); overflow: hidden;
   /* Дневное небо с солнцем справа вверху и тёплой дымкой у горизонта. */
   background: radial-gradient(60% 45% at 82% 6%, rgba(255,236,170,.95), rgba(255,236,170,0) 70%),
               linear-gradient(180deg, #9FD3F2 0%, #CFEAF7 46%, #EAF4E4 72%, #CFE6C6 100%) }
