@@ -6,6 +6,8 @@
 
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { Icon } from '../icons/Icon'
+import { dismissOffer, useOfferOff } from '../lib/offer'
+import { useStore } from '../state/store'
 
 export function StatusBar() {
   return (
@@ -71,13 +73,28 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
 
 export function Offer({ txt = 'Unlock the full care plan', sub = '$29/yr', onClick }:
                       { txt?: string; sub?: string; onClick?: () => void }) {
+  const off = useOfferOff()
+  const { d } = useStore()
+  if (off) return null
+  const close = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation()
+    dismissOffer()
+    d({ t: 'toast', v: { html: '<span>Pro is always in <b>Settings</b></span><a href="#settings">Open Settings</a>',
+                         ms: 6000, at: Date.now() } })
+  }
   return (
-    <div className="ofr" role="button" tabIndex={0} onClick={onClick}
+    <div className="ofr" role="button" tabIndex={0} onClick={onClick} aria-label={`${txt}, ${sub}`}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}>
       <div className="ofr-in">
         <div className="ofr-ic"><Icon name="sprout" color="var(--lime)" size={19} sw={2} /></div>
         <div className="ofr-tx"><b>{txt}</b><s>{sub}</s></div>
         <div className="ofr-go"><Icon name="chevron-right" color="var(--lime)" size={18} sw={2.4} /></div>
+      </div>
+      {/* Крестик снаружи .ofr-in: у той overflow:hidden, кружок в углу обрезался. */}
+      <div className="ofr-x" role="button" tabIndex={0} aria-label="Close"
+           onClick={close}
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close(e) } }}>
+        <Icon name="x" color="var(--deepest)" size={12} sw={3} />
       </div>
     </div>
   )

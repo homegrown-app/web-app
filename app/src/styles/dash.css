@@ -193,3 +193,6 @@
 }
 
 /* Ритм блока недели переехал в system.css — он теперь общий. */
+/* Секции стенда под карточкой недели: тот же ряд, что «My plants». */
+.dash-stand { margin-top: var(--s2) }
+.dash-stand .plcard s { color: var(--muted) }

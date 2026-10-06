@@ -694,3 +694,23 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .is-titled .wm-swap .wm{opacity:0;transform:translateY(-6px)}
 .is-titled .wm-swap .hd-t{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.wm-swap>*{transition:none}}
+/* Крестик баннера Pro: тап-зона 44px, сам кружок спокойный — баннер не должен
+   маячить сильнее, чем стрелка «перейти». */
+.ofr-x{position:absolute;top:-10px;right:6px;z-index:1;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;background:var(--surface);box-shadow:0 2px 6px rgba(11,31,20,.25)}
+/* тап-зона 44px вокруг кружка 24px */
+.ofr-x::after{content:'';position:absolute;inset:-10px}
+.ofr-x:focus-visible{outline:2px solid var(--deepest);outline-offset:2px}
+#toast a{color:var(--lime);font-weight:700;text-decoration:none;margin-left:12px;white-space:nowrap}
+.dash-stand .plcard s{overflow:visible}
+
+/* Тост. Стили потерялись при переносе из proto.py (строки 536–541), и все
+   тосты — Undo удаления, покупка, подсказка про Pro — были невидимы. */
+#toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
+       border-radius:var(--r-lg);padding:16px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+       font-size:var(--t-14);opacity:0;transform:translateY(-12px);pointer-events:none;
+       transition:opacity .22s ease-out,transform .22s cubic-bezier(.32,.72,0,1);z-index:70}
+#toast.on{opacity:1;transform:none;pointer-events:auto}
+#toast b{color:var(--lime);font-weight:700;cursor:pointer}
+#toast span b{color:#fff;cursor:auto}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
