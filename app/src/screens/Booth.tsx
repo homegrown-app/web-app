@@ -14,6 +14,7 @@ import { useCamera } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { img } from '../lib/assets'
 import { hPct, mkPlant, weekTasks, type Plant } from '../lib/plants'
+import { supa } from '../lib/supabase'
 
 type Go = (id: string) => void
 export type BoothId = 'basil' | 'lettuce' | 'tomato'
@@ -41,6 +42,77 @@ function writeStand(v: Stand) {
 }
 const wateredToday = (st: Stand) =>
   st.wateredAt !== null && new Date(st.wateredAt).toDateString() === today()
+
+// ── общее состояние на сервере ──────────────────────────────────────
+// Посетители сканируют QR своими телефонами, поэтому отметка полива и счётчик
+// срезок общие для всех: функции booth_* в Supabase (миграция 0003_booth).
+// localStorage остаётся кешем, чтобы экран рисовался сразу. Пока миграции
+// нет или нет сети, стенд работает как раньше — на памяти этого устройства,
+// и хаб честно это пишет.
+
+/** «Сегодня» по местному времени в виде YYYY-MM-DD — так его ждёт booth_pick. */
+const isoDay = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+interface Row { watered_at: string | null; picks: number; pick_day: string | null }
+const fromRow = (r: Row): Stand => ({
+  wateredAt: r.watered_at ? Date.parse(r.watered_at) : null,
+  picks: r.pick_day === isoDay() ? r.picks : 0,
+  pickDay: today(),
+})
+/** Состояние стенда с сервера; null — сервер недоступен или миграции нет. */
+async function fetchStand(): Promise<Stand | null> {
+  try {
+    const { data, error } = await (await supa()).rpc('booth_get')
+    if (error || !Array.isArray(data) || !data[0]) return null
+    const v = fromRow(data[0] as Row)
+    writeStand(v)
+    return v
+  } catch { return null }
+}
+async function remoteWater(): Promise<number | null> {
+  try {
+    const { data, error } = await (await supa()).rpc('booth_water')
+    return error || !data ? null : Date.parse(data as string)
+  } catch { return null }
+}
+async function remotePick(): Promise<number | null> {
+  try {
+    const { data, error } = await (await supa()).rpc('booth_pick', { day: isoDay() })
+    return error || typeof data !== 'number' ? null : data
+  } catch { return null }
+}
+/** true/false — ответ сервера про пин; null — сервер недоступен. */
+async function remoteReset(pin: string): Promise<boolean | null> {
+  try {
+    const { data, error } = await (await supa()).rpc('booth_reset', { pin })
+    return error ? null : data === true
+  } catch { return null }
+}
+
+/** Состояние стенда: сразу из кеша, затем с сервера. shared — сервер ответил. */
+function useStand() {
+  const [st, setSt] = useState<Stand>(readStand)
+  const [shared, setShared] = useState<boolean | null>(null)
+  const refresh = () => {
+    setSt(readStand())
+    fetchStand().then(v => { setShared(!!v); if (v) setSt(v) })
+  }
+  useEffect(refresh, [])
+  /** Полив: сразу на экране, затем время, которое записал сервер. */
+  const water = () => {
+    const v = { ...st, wateredAt: Date.now() }
+    writeStand(v); setSt(v)
+    remoteWater().then(t => { if (t) { const w = { ...v, wateredAt: t }; writeStand(w); setSt(w) } })
+  }
+  const pick = () => {
+    const v = { ...st, picks: st.picks + 1, pickDay: today() }
+    writeStand(v); setSt(v)
+    remotePick().then(n => { if (n !== null) { const w = { ...v, picks: n }; writeStand(w); setSt(w) } })
+  }
+  return { st, shared, refresh, water, pick, setSt }
+}
 
 const hhmm = (t: number) =>
   new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
@@ -110,7 +182,8 @@ export function BoothScreen({ id }: { id: BoothId }) {
   const p = PLANTS[id]
   const [shot, setShot] = useState<string | null>(null)
   const [step, setStep] = useState<string>('start')
-  const [st, setSt] = useState<Stand>(readStand)
+  const stand = useStand()
+  const st = stand.st
   // Снимок посетителя держится на экране миг, потом его сменяет фото-подсказка
   // к действию этого шага: как проверить почву, как полить, как срезать.
   const [held, setHeld] = useState(false)
@@ -125,14 +198,13 @@ export function BoothScreen({ id }: { id: BoothId }) {
     return () => window.clearTimeout(t)
   }, [held, shot])
 
-  const reset = () => { setShot(null); setHeld(false); setStep('start'); setSt(readStand()) }
+  const reset = () => { setShot(null); setHeld(false); setStep('start'); stand.refresh() }
   useEffect(() => {
     if (step === 'start') return
     const t = window.setTimeout(reset, IDLE_MS)
     return () => window.clearTimeout(t)
   }, [step, shot])
 
-  const save = (v: Stand) => { writeStand(v); setSt(v) }
 
   return (
     <div className="screen on" id={'s-booth-' + id}>
@@ -156,8 +228,8 @@ export function BoothScreen({ id }: { id: BoothId }) {
           <div className="scan-foot booth-foot">
             {step === 'start'
               ? <Start p={p} id={id} st={st} onShot={takePhoto} />
-              : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} save={save} />
-              : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} save={save} />
+              : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} act={stand.water} />
+              : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} act={stand.pick} />
               : <Grow p={p} />}
             {step !== 'start' && (
               <div className="btn booth-next" role="button" tabIndex={0} onClick={reset}>
@@ -202,11 +274,11 @@ function Start({ p, id, st, onShot }: { p: Plant; id: BoothId; st: Stand; onShot
 }
 
 interface StepProps {
-  p: Plant; step: string; setStep: (s: string) => void; st: Stand; save: (v: Stand) => void
+  p: Plant; step: string; setStep: (s: string) => void; st: Stand; act: () => void
 }
 
 // 🌱 Нужен уход. По фото листьев сухость почвы не узнать, поэтому спрашиваем.
-function Care({ p, step, setStep, st, save }: StepProps) {
+function Care({ p, step, setStep, st, act }: StepProps) {
   if (wateredToday(st) && step !== 'thanks') {
     return (
       <>
@@ -236,7 +308,7 @@ function Care({ p, step, setStep, st, save }: StepProps) {
         <b style={{ marginTop: 12 }}>Water the basil</b>
         <s>About 1 cup (250 ml), slowly, at the base — stop when it starts to drain. Leaves stay dry.</s>
         <div className="btn b-lime" role="button" tabIndex={0}
-             onClick={() => { save({ ...st, wateredAt: Date.now() }); setStep('thanks') }}>
+             onClick={() => { act(); setStep('thanks') }}>
           Done — I watered it
         </div>
       </>
@@ -261,7 +333,7 @@ function Care({ p, step, setStep, st, save }: StepProps) {
 }
 
 // 🥬 Пора собирать. Схема показывает, где резать, и что оставить.
-function Pick({ step, setStep, st, save }: StepProps) {
+function Pick({ step, setStep, st, act }: StepProps) {
   if (step === 'picked') {
     return (
       <>
@@ -283,7 +355,7 @@ function Pick({ step, setStep, st, save }: StepProps) {
         <li>Leave the heart. It regrows from the middle.</li>
       </ol>
       <div className="btn b-lime" role="button" tabIndex={0}
-           onClick={() => { save({ ...st, picks: st.picks + 1, pickDay: today() }); setStep('picked') }}>
+           onClick={() => { act(); setStep('picked') }}>
         I picked some
       </div>
     </>
@@ -343,13 +415,26 @@ const SECTIONS: { id: BoothId; route: string; label: string }[] = [
 ]
 
 export function BoothHubScreen({ go }: { go: Go }) {
-  const [st, setSt] = useState<Stand>(readStand)
+  const { st, shared, setSt } = useStand()
+  const [pin, setPin] = useState('')
+  const [msg, setMsg] = useState<string | null>(null)
   const base = location.origin + location.pathname
+  const clear = () => { const v = { wateredAt: null, picks: 0, pickDay: today() }; writeStand(v); setSt(v) }
+  const reset = async () => {
+    if (!shared) { clear(); setMsg('Reset on this device.'); return }
+    const ok = await remoteReset(pin.trim())
+    if (ok === true) { clear(); setPin(''); setMsg('Reset for every phone.') }
+    else setMsg(ok === false ? 'Wrong PIN — nothing was reset.' : 'No connection — try again.')
+  }
   return (
     <div className="screen on" id="s-booth">
       <div className="dark">
         <b className="booth-h">Stand</b>
-        <s className="booth-sub">Each section has its own QR. Tap a section to run it on this tablet.</s>
+        <s className="booth-sub">Each section has its own QR. Visitors scan it with their own phones.</s>
+        <span className={'pill booth-mode' + (shared ? ' on' : '')}>
+          {shared === null ? 'Checking the server…'
+            : shared ? 'Shared across all phones' : 'This device only — server not set up'}
+        </span>
         {SECTIONS.map(x => (
           <div key={x.id} className="booth-row" role="button" tabIndex={0} onClick={() => go(x.route)}>
             <div>
@@ -361,11 +446,14 @@ export function BoothHubScreen({ go }: { go: Go }) {
             <Icon name="chevron-right" color="#A9BCB0" size={20} sw={2.2} />
           </div>
         ))}
-        <div className="btn booth-alt" role="button" tabIndex={0}
-             onClick={() => { const v = { wateredAt: null, picks: 0, pickDay: today() }; writeStand(v); setSt(v) }}>
+        {shared && (
+          <input className="booth-pin" type="password" inputMode="numeric" autoComplete="off"
+                 placeholder="Staff PIN" value={pin} onChange={e => { setPin(e.target.value); setMsg(null) }} />
+        )}
+        <div className="btn booth-alt" role="button" tabIndex={0} onClick={reset}>
           Reset the stand
         </div>
-        <s className="booth-sub">Clears today’s watering mark and harvest count — after swapping pots or at the start of a day.</s>
+        <s className="booth-sub">{msg || 'Clears today’s watering mark and harvest count — after swapping pots or at the start of a day.'}</s>
       </div>
     </div>
   )

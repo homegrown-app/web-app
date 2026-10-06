@@ -665,3 +665,7 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .booth-saved{position:absolute;left:16px;top:16px}
 .booth-live{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease-out}
 .booth-live.on{opacity:1}
+.booth-mode{align-self:flex-start;margin-top:12px;height:28px;padding:0 12px;background:#2A2416;color:#F2C46B}
+.booth-mode.on{background:#1B3527;color:var(--lime)}
+.booth-pin{margin-top:16px;height:48px;border-radius:999px;border:0;background:#16301F;color:#fff;padding:0 20px;font:500 var(--t-16) 'Inter Tight',sans-serif;outline:none}
+.booth-pin:focus{box-shadow:inset 0 0 0 2px var(--lime)}
