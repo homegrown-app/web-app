@@ -734,3 +734,27 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .screen.has-hero:has(.ni-scan) .bd{padding-bottom:0}
 /* Таб-бар без белой подложки: тот же фон, что экран, без линии сверху. */
 .nav{background:var(--ground);border-top:0}
+
+/* ───── Маршрут-лист (RouteSheet): добавление растения, настройки.
+   Лист 92% высоты: полоса скрима сверху остаётся видимой — это вторая дверь. */
+.rsh{position:absolute;inset:0;z-index:30}
+.rsh-sc{position:absolute;inset:0;background:rgba(11,31,20,.5);animation:cf-fade .18s ease-out;transition:opacity .22s ease-out}
+.rsh-box{position:absolute;left:0;right:0;bottom:0;height:92%;background:var(--ground);
+  border-radius:var(--r-2xl) var(--r-2xl) 0 0;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 -12px 32px rgba(11,31,20,.18);animation:cf-up .3s cubic-bezier(.16,1,.3,1);
+  transition:transform .22s cubic-bezier(.32,.72,0,1)}
+.rsh.out .rsh-sc{opacity:0}
+.rsh-grab{flex:none;height:24px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.rsh-grab i{width:40px;height:5px;border-radius:999px;background:#C9D1C6}
+.rsh-grab:focus-visible i{background:var(--primary)}
+.rsh-body{flex:1;position:relative;min-height:0}
+/* Внутри листа экран — без своих хромовых частей: статус-бара, таб-бара и
+   шестерёнки. «Назад» у корня листа заменяет ручка; у подстраниц он остаётся. */
+.rsh-body .sb,.rsh-body .nav,.rsh-body .hd-gear{display:none}
+/* Логотип уже есть в шапке экрана под листом — в листе его не повторяем.
+   У корня листа шапки нет вовсе (ручка + крупный заголовок), у подстраниц
+   остаётся только «назад». */
+.rsh-body #s-settings .hd,.rsh-body #s-add-plant .hd{display:none}
+.rsh-body .hd{padding-top:0;background:var(--ground)}
+.rsh-body .hd .wm,.rsh-body .hd .wm-swap{visibility:hidden}
+@media (prefers-reduced-motion:reduce){.rsh-sc,.rsh-box{animation:none;transition:none}}

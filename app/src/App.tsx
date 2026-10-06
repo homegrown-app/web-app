@@ -6,6 +6,7 @@ import { useAuthSession } from './screens/Auth'
 import { hasStoredSession, supa } from './lib/supabase'
 import { lastReport, runSync, type SyncReport } from './lib/sync'
 import { Toast } from './components/parts'
+import { RouteSheet } from './components/RouteSheet'
 import { Welcome } from './components/Welcome'
 import { Review } from './review/Review'
 import { ROUTE, ROUTES } from './routes'
@@ -115,6 +116,17 @@ export function App() {
   const { s, d } = useStore()
   const route = ROUTE(hash)
   const id = route ? hash : 'home'
+
+  // Листы: добавление растения и настройки (с их подстраницами) приходят снизу
+  // поверх места, откуда их открыли. Место помним в lastBase — его рисуем под
+  // листом и туда возвращаемся при закрытии. В онбординге добавление остаётся
+  // экраном: под ним нет места приложения, которое стоило бы показывать.
+  const asSheet = (x: string) =>
+    x === 'settings' || x === 'pick' || x === 'account' || (x === 'add-plant' && s.onbMode === null)
+  const lastBase = useRef('home')
+  const canBase = (x: string) => !asSheet(x) && x !== 'scan' && !x.startsWith('booth')
+    && ROUTE(x)?.group !== 'Онбординг'
+  if (canBase(id)) lastBase.current = id
 
   // Режим для CSS: мобильные оверрайды применяются только к приложению,
   // на /review нужна рамка телефона со статус-баром и обычный скролл.
@@ -257,11 +269,19 @@ export function App() {
   // как раньше, а go('settings') закрывает лист. Под листом рисуем настройки:
   // иначе за скримом была бы пустота и таб-бар взять было бы негде.
   const sheet = id === 'account' ? ROUTE('account') : null
-  const base = sheet ? ROUTE('settings') : ROUTE(id)
+  const inSheet = asSheet(id)
+  const sheetRoute = inSheet ? ROUTE(id === 'account' ? 'settings' : id) : null
+  const base = inSheet ? ROUTE(lastBase.current) : ROUTE(id)
+  const closeSheet = () => goTracked(lastBase.current)
 
   return (
     <main className={'mob' + (booth ? ' mob-full' : '')}>
       {(base || ROUTES[0]).render({ go: goTracked, openSpecies })}
+      {sheetRoute && (
+        <RouteSheet key="route-sheet" label={sheetRoute.title} onClose={closeSheet}>
+          {sheetRoute.render({ go: goTracked, openSpecies })}
+        </RouteSheet>
+      )}
       {sheet && sheet.render({ go: goTracked, openSpecies })}
       {greet && (
         <Welcome onClose={() => setGreet(false)}
