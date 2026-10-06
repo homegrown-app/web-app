@@ -137,6 +137,18 @@ export default function Garden3D({ plants, onOpen, onWater }:
     // поворотный стол, а деревья, вращаясь с ней, выходили бы перед горшками.
     // Трава, цветы и камни — низкие, по краю площадки, крутятся с ней.
     const backdrop = new THREE.Group(); scene.add(backdrop)
+    // Луг под деревьями: без него они стояли в небе. Край растворяется по
+    // альфе — горизонт камеры выше кадра, и сплошной луг закрыл бы всё небо.
+    const fade = document.createElement('canvas'); fade.width = fade.height = 256
+    const fc = fade.getContext('2d')!
+    const fg = fc.createRadialGradient(128, 128, 0, 128, 128, 128)
+    fg.addColorStop(0.6, '#fff'); fg.addColorStop(1, '#000')
+    fc.fillStyle = fg; fc.fillRect(0, 0, 256, 256)
+    const meadow = new THREE.Mesh(new THREE.CircleGeometry(9.5, 64),
+      new THREE.MeshStandardMaterial({ color: 0x6FAE5C, roughness: 1, transparent: true,
+        alphaMap: new THREE.CanvasTexture(fade), depthWrite: false }))
+    meadow.rotation.x = -Math.PI / 2; meadow.position.y = -0.18; meadow.receiveShadow = true
+    backdrop.add(meadow)
     const place = (name: string, size: number, by: 'h' | 'w', x: number, z: number, parent: THREE.Group, ry = 0) =>
       model(name).then(m => {
         fit(m, size, by); const w = new THREE.Group(); w.add(m)
