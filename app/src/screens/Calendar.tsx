@@ -352,12 +352,11 @@ export function CalendarScreen({ go, openSpecies }:
   const f = frostDates(ctx.zip)
   const openNow = crops.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
 
+  const calTitle = houses.length && harvest ? 'Calendar'
+    : houses.length ? 'Care calendar' : 'Harvest calendar'
   return (
-    <Screen id="calendar" nav={{ active: 'Calendar', go }} scrollKey="calendar">
-      <div className="h1" style={{ marginTop: 16 }}>
-        {houses.length && harvest ? 'Calendar'
-         : houses.length ? 'Care calendar' : 'Harvest calendar'}
-      </div>
+    <Screen id="calendar" title={calTitle} nav={{ active: 'Calendar', go }} scrollKey="calendar">
+      <div className="h1" style={{ marginTop: 16 }}>{calTitle}</div>
       {harvest && <Context ctx={ctx} openCount={openNow} />}
 
       {!!houses.length && <CareCalendar plants={houses} />}

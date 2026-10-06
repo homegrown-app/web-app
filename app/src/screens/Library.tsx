@@ -10,7 +10,7 @@
 
 import { useMemo } from 'react'
 import { Screen } from '../components/Chrome'
-import { useCamera } from '../components/parts'
+import { useCamera, useLiveCamera } from '../components/parts'
 import { Note, SpThumb } from '../components/bits'
 import { Icon, IcCheck, IcCheckG, IcPlus } from '../icons/Icon'
 import { LIBNOTE } from '../data/onboarding'
@@ -204,6 +204,13 @@ export function AddPlantScreen({ go }: { go: Go }) {
 export function ScanScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const cam = useCamera(url => d({ t: 'scanUrl', v: url }))
+  // Живая камера в рамке, пока снимка нет; не дали — системная камера.
+  const live = useLiveCamera(!s.scanUrl)
+  const takePhoto = () => {
+    const url = live.grab()
+    if (url) d({ t: 'scanUrl', v: url })
+    else cam.open()
+  }
   // Распознавание подключается адресом воркера; в прототипе он пуст.
   const endpoint = (window as unknown as { HG_SCAN_ENDPOINT?: string }).HG_SCAN_ENDPOINT
 
@@ -211,17 +218,21 @@ export function ScanScreen({ go }: { go: Go }) {
     <div className="screen on" id="s-scan">
       <div className="dark" style={{ padding: 0 }}>
         {cam.input}
-        <div className="scan-shot"
-             style={s.scanUrl ? { backgroundImage: `url(${s.scanUrl})` } : undefined} />
         <div className="scan-ov">
-          <div className={'scan-frame' + (s.scanUrl ? ' ok' : '')} />
+          {/* Рамка — окно камеры: до снимка в ней живое видео, после — кадр. */}
+          <div className="booth-frame">
+            {s.scanUrl && <div className="booth-media" style={{ backgroundImage: `url(${s.scanUrl})` }} />}
+            <video ref={live.ref} className={'booth-media booth-live' + (live.on && !s.scanUrl ? ' on' : '')}
+                   autoPlay playsInline muted />
+            <div className={'scan-frame booth-border' + (s.scanUrl ? ' ok' : '')} />
+          </div>
           <div className="scan-foot">
             {!s.scanUrl ? (
               <>
                 <b>Point the camera at the plant</b>
                 <s>One clear leaf fills the frame. We send the photo to PlantNet and match
                    the answer against our 29 species.</s>
-                <div className="btn b-lime" role="button" tabIndex={0} onClick={cam.open}>
+                <div className="btn b-lime" role="button" tabIndex={0} onClick={takePhoto}>
                   Take a photo
                 </div>
                 <div className="btn" style={{ background: '#1B3527', color: '#fff' }}

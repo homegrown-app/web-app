@@ -8,9 +8,9 @@
 // устройства. Отметка полива держится до конца дня: следующий посетитель не
 // льёт в тот же горшок второй раз.
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Arc } from '../components/bits'
-import { useCamera } from '../components/parts'
+import { useCamera, useLiveCamera } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { img } from '../lib/assets'
 import { hPct, mkPlant, weekTasks, type Plant } from '../lib/plants'
@@ -140,48 +140,6 @@ function actionImg(id: BoothId, step: string, st: Stand): string {
   }
   if (id === 'lettuce') return step === 'picked' ? 'booth-picked' : 'booth-pick'
   return 'booth-tomato'
-}
-
-/**
- * Живая камера в рамке. Включается на стартовом шаге и гасится на остальных:
- * держать камеру открытой, пока посетитель читает ответ, незачем, а на iOS
- * открытый поток ещё и греет планшет. Отказ или отсутствие API — не ошибка:
- * on остаётся false, и экран работает через системную камеру.
- */
-function useLiveCamera(active: boolean) {
-  const ref = useRef<HTMLVideoElement>(null)
-  const [on, setOn] = useState(false)
-  useEffect(() => {
-    if (!active || !navigator.mediaDevices?.getUserMedia) return
-    let stream: MediaStream | null = null
-    let dead = false
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-      .then(s => {
-        if (dead) { s.getTracks().forEach(t => t.stop()); return }
-        stream = s
-        if (ref.current) { ref.current.srcObject = s; ref.current.play().catch(() => {}) }
-        setOn(true)
-      })
-      .catch(() => setOn(false))
-    return () => {
-      dead = true
-      stream?.getTracks().forEach(t => t.stop())
-      if (ref.current) ref.current.srcObject = null
-      setOn(false)
-    }
-  }, [active])
-  /** Текущий кадр видео в JPEG; null, если камера не идёт. */
-  const grab = (): string | null => {
-    const v = ref.current
-    if (!on || !v || !v.videoWidth) return null
-    const k = Math.min(1, 1280 / Math.max(v.videoWidth, v.videoHeight))
-    const c = document.createElement('canvas')
-    c.width = Math.round(v.videoWidth * k)
-    c.height = Math.round(v.videoHeight * k)
-    c.getContext('2d')!.drawImage(v, 0, 0, c.width, c.height)
-    return c.toDataURL('image/jpeg', 0.8)
-  }
-  return { ref, on, grab }
 }
 
 // ── самочувствие растения (демо) ────────────────────────────────────

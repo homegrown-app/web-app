@@ -684,3 +684,13 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
   letter-spacing:.04em;padding:4px 8px;border-radius:999px}
 @keyframes pipIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.booth-pip{animation:none}}
+
+/* Шапка: логотип уступает место названию раздела, когда .h1 ушёл под шапку
+   (Settings, Calendar). Оба слоя в одной клетке сетки — без скачка ширины. */
+.wm-swap{display:grid;justify-items:center;align-items:center;min-width:0}
+.wm-swap>*{grid-area:1/1;transition:opacity .2s ease-out,transform .2s ease-out}
+.hd-t{font:600 var(--t-16) 'Inter Tight',sans-serif;letter-spacing:-.02em;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;opacity:0;transform:translateY(6px)}
+.is-titled .wm-swap .wm{opacity:0;transform:translateY(-6px)}
+.is-titled .wm-swap .hd-t{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.wm-swap>*{transition:none}}

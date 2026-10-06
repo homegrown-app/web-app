@@ -18,7 +18,7 @@ export function StatusBar() {
   )
 }
 
-export function Header({ back, onBack }: { back?: boolean; onBack?: () => void }) {
+export function Header({ back, onBack, title }: { back?: boolean; onBack?: () => void; title?: string }) {
   return (
     <div className="hd">
       <div className="hd-l">
@@ -31,7 +31,11 @@ export function Header({ back, onBack }: { back?: boolean; onBack?: () => void }
           </div>
         )}
       </div>
-      <div className="wm">HOMEGROWN</div>
+      {/* С title логотип уступает место названию раздела, когда крупный
+          заголовок страницы уезжает под шапку (класс is-titled на .screen). */}
+      {title
+        ? <div className="wm-swap"><div className="wm">HOMEGROWN</div><div className="hd-t">{title}</div></div>
+        : <div className="wm">HOMEGROWN</div>}
       <div className="hd-r" />
     </div>
   )
@@ -81,6 +85,8 @@ export function Offer({ txt = 'Unlock the full care plan', sub = '$29/yr', onCli
 
 interface ScreenProps {
   id: string
+  /** Название раздела в шапке вместо логотипа, когда .h1 страницы ушёл под шапку. */
+  title?: string
   children: ReactNode
   back?: () => void
   nav?: { active: string; badge?: boolean; go: (id: string) => void }
@@ -107,7 +113,7 @@ interface ScreenProps {
   hero?: ReactNode
 }
 
-export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero, overlay }: ScreenProps) {
+export function Screen({ id, title, children, back, nav, offer, foot, scrollKey, hero, overlay }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -126,6 +132,22 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero, 
   })
 
   useLayoutEffect(() => { if (bd.current) bd.current.scrollTop = 0 }, [scrollKey])
+
+  // Логотип → название раздела. Порог — низ первого .h1 страницы: пока
+  // заголовок виден, дублировать его в шапке незачем. Класс, а не state:
+  // перерисовывать React на каждый кадр скролла незачем.
+  useLayoutEffect(() => {
+    const el = root.current, box = bd.current
+    if (!title || !el || !box) return
+    const on = () => {
+      const h1 = box.querySelector<HTMLElement>('.h1')
+      const edge = h1 ? h1.offsetTop - box.offsetTop + h1.offsetHeight - 8 : 48
+      el.classList.toggle('is-titled', box.scrollTop > edge)
+    }
+    on()
+    box.addEventListener('scroll', on, { passive: true })
+    return () => box.removeEventListener('scroll', on)
+  }, [title])
 
   // Высота героя и прогресс прокрутки идут в CSS-переменные, а не в state:
   // перерисовывать React на каждый кадр скролла незачем.
@@ -199,7 +221,7 @@ export function Screen({ id, children, back, nav, offer, foot, scrollKey, hero, 
     <div className={'screen on' + (hero ? ' has-hero' : '')} id={'s-' + id} ref={root}>
       {hero && <div className="hero">{hero}</div>}
       <StatusBar />
-      <Header back={!!back} onBack={back} />
+      <Header back={!!back} onBack={back} title={title} />
       {/* Распорка под фото, а НЕ padding-top у .bd: sticky внутри скролл-
           контейнера отсчитывает top:0 ниже его padding, и липкий заголовок
           вставал бы на 468px ниже шапки вместо того, чтобы встать под неё. */}

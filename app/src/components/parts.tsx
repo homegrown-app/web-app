@@ -2,7 +2,7 @@
 // Разметка повторяет proto.py буквально: перенесённый CSS рассчитывает
 // на те же имена классов и ту же вложенность.
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Icon, IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
 import { useStore } from '../state/store'
 import { STEPS } from '../data/onboarding'
@@ -183,4 +183,46 @@ export function useCamera(onShot: (url: string) => void) {
            }} />
   )
   return { input, open: () => ref.current?.click() }
+}
+
+/**
+ * Живая камера в рамке. Включается на стартовом шаге и гасится на остальных:
+ * держать камеру открытой, пока посетитель читает ответ, незачем, а на iOS
+ * открытый поток ещё и греет планшет. Отказ или отсутствие API — не ошибка:
+ * on остаётся false, и экран работает через системную камеру.
+ */
+export function useLiveCamera(active: boolean) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    if (!active || !navigator.mediaDevices?.getUserMedia) return
+    let stream: MediaStream | null = null
+    let dead = false
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .then(s => {
+        if (dead) { s.getTracks().forEach(t => t.stop()); return }
+        stream = s
+        if (ref.current) { ref.current.srcObject = s; ref.current.play().catch(() => {}) }
+        setOn(true)
+      })
+      .catch(() => setOn(false))
+    return () => {
+      dead = true
+      stream?.getTracks().forEach(t => t.stop())
+      if (ref.current) ref.current.srcObject = null
+      setOn(false)
+    }
+  }, [active])
+  /** Текущий кадр видео в JPEG; null, если камера не идёт. */
+  const grab = (): string | null => {
+    const v = ref.current
+    if (!on || !v || !v.videoWidth) return null
+    const k = Math.min(1, 1280 / Math.max(v.videoWidth, v.videoHeight))
+    const c = document.createElement('canvas')
+    c.width = Math.round(v.videoWidth * k)
+    c.height = Math.round(v.videoHeight * k)
+    c.getContext('2d')!.drawImage(v, 0, 0, c.width, c.height)
+    return c.toDataURL('image/jpeg', 0.8)
+  }
+  return { ref, on, grab }
 }
