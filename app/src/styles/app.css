@@ -272,16 +272,6 @@ body.is-pro .ofr{display:none}
 .sec-h span{font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
 .sec-h i{font-style:normal;font-size:var(--t-14);font-weight:600;color:var(--primary);
      cursor:pointer;padding:14px 10px;margin:-14px -10px;border-radius:var(--r-xs)}
-.prow-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
-.prow-scroll::-webkit-scrollbar{display:none}
-.plcard{width:158px;flex:none;background:var(--surface);border-radius:var(--r-2xl);padding:8px;cursor:pointer}
-.plcard-ph{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;position:relative}
-.plcard-fav{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;
-      background:rgba(11,31,20,.55);display:flex;align-items:center;justify-content:center}
-.plcard b{display:block;font-size:var(--t-14);font-weight:600;margin:8px 4px 0;letter-spacing:-.02em;
-      line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.plcard s{display:block;font-size:var(--t-12);text-decoration:none;margin:3px 4px 4px;font-weight:600;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-ok{color:var(--primary)}.st-warn{color:#B8860B}.st-bad{color:#C2410C}
 .jgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .jc{background:var(--surface);border-radius:var(--r-lg);padding:8px;margin:0}
@@ -410,12 +400,12 @@ body.is-pro .ofr{display:none}
 .nav :focus-visible{outline-offset:-3px}
 
 /* ───── отклик на нажатие: было на трёх элементах из двадцати четырёх */
-.btn:active,.btn-dash:active,.opt:active,.pl:active,.plcard:active,.chead:active,
+.btn:active,.btn-dash:active,.opt:active,.pl:active,.chead:active,
 .br-row:active,.chip:active,.ofr:active .ofr-in,.zip:active,.seg div:active,
 .cempty:active,.ccard:active .chead{transform:scale(.985)}
 .ni:active{opacity:.6}
 .xbtn:active{transform:scale(.92)}
-.btn,.btn-dash,.opt,.pl,.plcard,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div{
+.btn,.btn-dash,.opt,.pl,.chead,.br-row,.ofr-in,.xbtn,.zip,.seg div{
      transition:transform .16s cubic-bezier(.32,.72,0,1),background-color .16s ease-out,
                 opacity .16s ease-out}
 
@@ -429,7 +419,7 @@ body.is-pro .ofr{display:none}
 .empty,.scan-foot s,.br-t s{text-wrap:pretty}
 
 /* ───── скролл внутри экрана не должен тянуть страницу за собой */
-.bd,.dark,.prow-scroll{overscroll-behavior:contain}
+.bd,.dark{overscroll-behavior:contain}
 
 /* ───── уважение к системной настройке «меньше движения» */
 @media (prefers-reduced-motion: reduce){

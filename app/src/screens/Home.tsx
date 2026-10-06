@@ -1,34 +1,18 @@
 // Home. Один экран, два состояния: пусто — акцентный блок зовёт добавить
-// растение; есть растения — health score, виджеты и список.
+// растение; есть растения — health score, виджеты и 3D-огород.
 // Задачи недели СЧИТАЮТСЯ из растений, а не захардкожены.
 
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy } from 'react'
 import { Screen } from '../components/Chrome'
-import { DropLevel, MetricRow, PhotoTile, RingBig, dropTone } from '../components/bits'
+import { DropLevel, MetricRow, RingBig, dropTone } from '../components/bits'
 import { Icon, IcCheck2, IcChevD, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
-  hEta, hPct, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
-  healthScore, type Plant, type Task,
+  hEta, hPct, isEdible, lc, lightShort, tkey, verdict, wDue, weekTasks,
+  healthScore, type Task,
 } from '../lib/plants'
 import { useStore } from '../state/store'
 import '../styles/dash.css'
-
-function PlantCard({ p, i, onOpen }: { p: Plant; i: number; onOpen: (i: number) => void }) {
-  const st = pState(p)
-  return (
-    <div className="plcard" role="button" tabIndex={0} onClick={() => onOpen(i)}
-         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i) } }}>
-      <PhotoTile s={p.s} cls="plcard-ph">
-        {/* Была статичная белая капля — одинаковая на всех карточках, то есть
-            декорация. Теперь показывает уровень воды этого растения. */}
-        <span className="plcard-fav"><DropLevel tone={dropTone(p)} size={15} onDark /></span>
-      </PhotoTile>
-      <b>{p.s.name}</b>
-      <s className={'st-' + st[1]}>{st[0]}</s>
-    </div>
-  )
-}
 
 function EmptyHero({ go }: { go: (id: string) => void }) {
   const { s } = useStore()
@@ -62,50 +46,33 @@ function EmptyHero({ go }: { go: (id: string) => void }) {
 
 // 3D-огород грузится отдельным куском: three тяжелее всего приложения.
 const Garden3D = lazy(() => import('../components/Garden3D'))
-const VIEW_KEY = 'hg.view'
 
 function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) => void }) {
   const { s, d } = useStore()
-  const [view, setView] = useState<'3d' | 'cards'>(() => {
-    try { return localStorage.getItem(VIEW_KEY) === 'cards' ? 'cards' : '3d' } catch { return '3d' }
-  })
-  const pick = (v: '3d' | 'cards') => { setView(v); try { localStorage.setItem(VIEW_KEY, v) } catch { /* */ } }
   const thirsty = s.plants.filter(p => wDue(p) <= 0).length
   const ready = s.plants.filter(p => isEdible(p) && hPct(p) >= 100).length
   return (
     <div className="dash">
-      {/* Ярлык и карусель — одна обёртка: она же граница залипания ярлыка.
+      {/* Ярлык и сцена — одна обёртка: она же граница залипания ярлыка.
           Прямым ребёнком .dash он липнул над всем листом, включая карточку
           недели, которую не подписывает. */}
       <div className="dash-plants">
         <div className="sec-h dash-sec">
           <span>My plants</span>
-          <div className="g3d-seg" role="radiogroup" aria-label="Plants view">
-            <b role="radio" tabIndex={0} aria-checked={view === '3d'} className={view === '3d' ? 'on' : undefined}
-               onClick={() => pick('3d')}>3D</b>
-            <b role="radio" tabIndex={0} aria-checked={view === 'cards'} className={view === 'cards' ? 'on' : undefined}
-               onClick={() => pick('cards')}>Cards</b>
-          </div>
           <i role="button" tabIndex={0} onClick={() => go('add-plant')}>Add</i>
         </div>
-        {view === '3d' ? (
-          <div className="g3d">
-            <div className="g3d-hud">
-              <span className={'g3d-chip' + (thirsty ? ' warn' : '')}>
-                <Icon name="drop" size={14} color="currentColor" /> {thirsty ? `${thirsty} thirsty` : 'All watered'}
-              </span>
-              {ready > 0 && <span className="g3d-chip lime"><Icon name="scissors" size={14} color="currentColor" /> {ready} ready</span>}
-            </div>
-            <Suspense fallback={<div className="g3d-canvas g3d-load" />}>
-              <Garden3D plants={s.plants} onOpen={onOpen} onWater={i => d({ t: 'water', v: i })} />
-            </Suspense>
-            <div className="g3d-tip">{thirsty ? 'Tap a drop to water · drag to turn' : 'Drag to turn · tap a pot to open it'}</div>
+        <div className="g3d">
+          <div className="g3d-hud">
+            <span className={'g3d-chip' + (thirsty ? ' warn' : '')}>
+              <Icon name="drop" size={14} color="currentColor" /> {thirsty ? `${thirsty} thirsty` : 'All watered'}
+            </span>
+            {ready > 0 && <span className="g3d-chip lime"><Icon name="scissors" size={14} color="currentColor" /> {ready} ready</span>}
           </div>
-        ) : (
-          <div className="prow-scroll">
-            {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
-          </div>
-        )}
+          <Suspense fallback={<div className="g3d-canvas g3d-load" />}>
+            <Garden3D plants={s.plants} onOpen={onOpen} onWater={i => d({ t: 'water', v: i })} />
+          </Suspense>
+          <div className="g3d-tip">{thirsty ? 'Tap a drop to water · drag to turn' : 'Drag to turn · tap a pot to open it'}</div>
+        </div>
       </div>
       <Week />
     </div>

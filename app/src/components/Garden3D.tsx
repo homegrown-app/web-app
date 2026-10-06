@@ -4,7 +4,8 @@
 //
 // Модели — Kenney Nature Kit и Furniture Kit (CC0, models/LICENSE-kenney-*.txt),
 // не рисованные руками. Процедурные здесь только служебные метки: пол-сцена,
-// кольцо готовности и капля — это интерфейс поверх сцены, а не арт.
+// кольцо готовности, капля и колышек с фото растения — это интерфейс поверх
+// сцены, а не арт.
 //
 // Модуль грузится лениво (React.lazy в Home): three весит больше всего
 // приложения, первый кадр главной его ждать не должен.
@@ -12,7 +13,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { ASSET_ROOT } from '../lib/assets'
+import { ASSET_ROOT, img } from '../lib/assets'
 import { hPct, isEdible, wDue, type Plant } from '../lib/plants'
 
 /** Модель по виду. Точных моделей на все 29 культур в наборе нет — берём
@@ -101,7 +102,43 @@ function dropSprite(): THREE.Sprite {
   return sp
 }
 
-interface Slot { i: number; root: THREE.Group; plant: THREE.Object3D; drop?: THREE.Sprite; ring?: THREE.Mesh; h: number; bounce: number }
+/** Фото с карточки растения — круглое, в белой рамке: табличка на колышке. */
+const photos = new Map<string, THREE.CanvasTexture>()
+function photoTex(name: string): THREE.CanvasTexture {
+  let t = photos.get(name)
+  if (t) return t
+  const c = document.createElement('canvas'); c.width = c.height = 128
+  t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
+  photos.set(name, t)
+  const im = new Image()
+  im.onload = () => {
+    const g = c.getContext('2d')!
+    g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(64, 64, 62, 0, Math.PI * 2); g.fill()
+    g.save(); g.beginPath(); g.arc(64, 64, 54, 0, Math.PI * 2); g.clip()
+    const k = Math.max(108 / im.width, 108 / im.height)
+    g.drawImage(im, 64 - im.width * k / 2, 64 - im.height * k / 2, im.width * k, im.height * k)
+    g.restore(); t!.needsUpdate = true
+  }
+  im.src = img(name)
+  return t
+}
+
+/** Колышек в земле горшка, на нём фото. Фото — спрайт: всегда лицом к камере.
+    Колышек держится переднего края горшка (см. tick): иначе на повороте он
+    уходил за растение и листья закрывали фото. */
+function photoStake(name: string, soil: number, slot: number): THREE.Group {
+  const g = new THREE.Group()
+  const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6),
+    new THREE.MeshStandardMaterial({ color: 0xC9A27A, roughness: 0.9 }))
+  stick.position.y = 0.15; stick.castShadow = true; stick.userData.slot = slot
+  const ph = new THREE.Sprite(new THREE.SpriteMaterial({ map: photoTex(name) }))
+  ph.scale.setScalar(0.36); ph.position.y = 0.32; ph.userData.slot = slot
+  g.add(stick, ph)
+  g.position.y = soil - 0.08
+  return g
+}
+
+interface Slot { i: number; root: THREE.Group; plant: THREE.Object3D; tag?: THREE.Group; tagR: number; drop?: THREE.Sprite; ring?: THREE.Mesh; h: number; bounce: number }
 
 export default function Garden3D({ plants, onOpen, onWater }:
     { plants: Plant[]; onOpen: (i: number) => void; onWater: (i: number) => void }) {
@@ -199,13 +236,14 @@ export default function Garden3D({ plants, onOpen, onWater }:
         const root = new THREE.Group()
         root.position.set((c - (cols - 1) / 2) * gap, 0, (r - (rows - 1) / 2) * gap)
         pots.add(root)
-        const slot: Slot = { i, root, plant: new THREE.Group(), h: 0, bounce: 0 }
-        slots.push(slot)
         const [potName, potW] = potOf(p)
+        const slot: Slot = { i, root, plant: new THREE.Group(), tagR: potW / 2 * 0.75, h: 0, bounce: 0 }
+        slots.push(slot)
         Promise.all([model(potName), model(modelOf(p))]).then(([pot, pl]) => {
           const ph = fit(pot, potW, 'w')
           pot.traverse(o => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.userData.slot = i } })
           root.add(pot)
+          if (p.s.img) { slot.tag = photoStake(p.s.img, ph * 0.86, i); root.add(slot.tag) }
           // Рост: от 45% до полного размера к сроку урожая (комнатные — сразу полные).
           const grow = isEdible(p) ? 0.45 + 0.55 * Math.min(1, hPct(p) / 100) : 1
           const tall = tallPlant(p) ? 1.35 : 0.95
@@ -300,6 +338,8 @@ export default function Garden3D({ plants, onOpen, onWater }:
       }
       world.rotation.y = rot
       for (const s of slots) {
+        // Передний край горшка, чуть правее центра — со стороны камеры.
+        if (s.tag) s.tag.position.set(s.tagR * Math.sin(0.5 - rot), s.tag.position.y, s.tagR * Math.cos(0.5 - rot))
         if (s.drop) s.drop.position.y = s.h + 0.32 + (reduce ? 0 : Math.sin(t * 3 + s.i) * 0.05)
         if (s.ring) {
           const k = reduce ? 1 : 1 + Math.sin(t * 2.4 + s.i) * 0.06

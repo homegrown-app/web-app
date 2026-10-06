@@ -155,45 +155,12 @@
 /* тап-зона 48px при полосе в 32: раздуваем на 12, а не на 16 — с 16 «Add»
    вылезал за правый край полосы */
 .dash-sec i { padding: 12px var(--s1); margin: -12px calc(-1 * var(--s1)); line-height: 24px }
-.dash .prow-scroll {
-  gap: var(--s1); margin: 0 calc(-1 * var(--s2)); padding: 0 var(--s2) var(--s1);
-}
 .dash .wk { margin-top: var(--s2) }
 
 /* Типографические 2px внутри одного числа (97 /100, 0 d) — на сетку их не
    посадить, 8 там разорвёт число, поэтому 0. */
 #s-home .score-n { gap: 0 }
 #s-home .wg .num span { margin-left: 0 }
-
-/* Карточка карусели. Замер показал три вещи, и все три чинятся здесь.
-
-   1. УГЛЫ БЫЛИ КРИВЫЕ БУКВАЛЬНО. Радиус карточки 20, инсет 8, радиус фото 10 —
-      а концентричность требует внешний минус инсет, то есть 12. Кривизна на
-      2px по каждому из четырёх углов, и глаз это ловит как «неаккуратно».
-      Инсет 12 даёт ровно --r-xs (8) у фото: 20 − 12 = 8.
-   2. ПОЛЕ 8 ПРОТИВ 16 у соседнего виджета на том же экране. 12 — настоящая
-      ступень шкалы (полушаг), фото при этом остаётся крупным: 134 вместо 142.
-   3. РИТМ ТЕКСТА БЫЛ НЕРОВНЫЙ. По чернилам: 10.7 от фото до имени, 3.4 между
-      именем и статусом, 11.9 от статуса до низа. Объявлено при этом 8 / 0 / 8.
-      Разница — интерлиньяж 16 при кегле 14 и 12, поэтому строки обрезаны так
-      же, как в виджете, и объявленное стало оптическим: 8 / 8 / 12.
-
-      Почему между именем и статусом 8, а не 4 как в паре «подпись/значение»
-      виджета: cap alphabetic обрезает бокс до БАЗОВОЙ ЛИНИИ, и выносные хвосты
-      висят снаружи. У подписей виджета («Soon», «Light») хвостов нет, поэтому
-      там 4 работает. В именах растений они есть почти всегда — «Snake plant»,
-      «Spider plant», «Peace lily», — и на четвёрке замер дал 1.4 чернил, то
-      есть хвост p почти касался следующей строки. Это было ХУЖЕ прежнего
-      состояния (3.4), поэтому здесь ступень выше. */
-#s-home .plcard { padding: var(--sp-12) }
-#s-home .plcard-ph { border-radius: var(--r-xs) }
-/* Бейдж полива: было 6 от фото — единственное число вне шкалы на карточке. */
-#s-home .plcard-fav { top: var(--s1); right: var(--s1) }
-#s-home .plcard b { margin: var(--s1) 0 0; line-height: 16px }
-#s-home .plcard s { margin: var(--s1) 0 0; line-height: 16px }
-@supports (text-box: trim-both cap alphabetic) {
-  #s-home .plcard b, #s-home .plcard s { text-box: trim-both cap alphabetic }
-}
 
 /* Ритм блока недели переехал в system.css — он теперь общий. */
 
@@ -220,6 +187,3 @@
 .g3d-chip.lime { background: var(--lime); color: var(--deepest) }
 .g3d-tip { position: absolute; left: 0; right: 0; bottom: 12px; z-index: 2; text-align: center; pointer-events: none;
   font: 600 var(--t-12) 'Inter Tight', sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(11,31,20,.55) }
-.g3d-seg { display: inline-flex; background: #E3E8E1; border-radius: 999px; padding: 2px; margin-left: auto; margin-right: 12px }
-.g3d-seg b { font: 600 var(--t-12) 'Inter Tight', sans-serif; padding: 4px 12px; border-radius: 999px; cursor: pointer; color: var(--muted) }
-.g3d-seg b.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(11,31,20,.12) }
