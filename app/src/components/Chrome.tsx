@@ -20,7 +20,8 @@ export function StatusBar() {
   )
 }
 
-export function Header({ back, onBack, title }: { back?: boolean; onBack?: () => void; title?: string }) {
+export function Header({ back, onBack, title, gear }:
+    { back?: boolean; onBack?: () => void; title?: string; gear?: () => void }) {
   return (
     <div className="hd">
       <div className="hd-l">
@@ -38,15 +39,27 @@ export function Header({ back, onBack, title }: { back?: boolean; onBack?: () =>
       {title
         ? <div className="wm-swap"><div className="wm">HOMEGROWN</div><div className="hd-t">{title}</div></div>
         : <div className="wm">HOMEGROWN</div>}
-      <div className="hd-r" />
+      <div className="hd-r">
+        {/* Настройки живут в шапке: середина таб-бара отдана сканеру. */}
+        {gear && (
+          <div className="hd-gear" role="button" tabIndex={0} aria-label="Settings"
+               onClick={gear} onKeyDown={e => {
+                 if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); gear() }
+               }}>
+            <Icon name="settings-2" color="currentColor" size={22} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
+// Середина — сканер: главное действие приложения, крупной лаймовой кнопкой.
+// Настройки переехали в шапку (шестерёнка справа).
 const NAVI: Array<[string, string, string]> = [
   ['Week', 'calendar-days', 'home'],
+  ['Scan', 'camera', 'scan'],
   ['Calendar', 'plant', 'calendar'],
-  ['Settings', 'settings-2', 'settings'],
 ]
 
 export function Nav({ active, badge, go }: { active: string; badge?: boolean; go: (id: string) => void }) {
@@ -62,7 +75,9 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(target) }
                }}>
             {badge && name === 'Week' && <div className="bdg" aria-hidden="true" />}
-            <Icon name={icon} color="currentColor" size={23} />
+            {name === 'Scan'
+              ? <div className="ni-scan" aria-hidden="true"><Icon name={icon} color="currentColor" size={24} /></div>
+              : <Icon name={icon} color="currentColor" size={23} />}
             <span>{name}</span>
           </div>
         )
@@ -144,7 +159,9 @@ export function Screen({ id, title, children, back, nav, offer, foot, scrollKey,
     const nh = navEl ? navEl.offsetHeight : 0
     if (footEl) footEl.style.bottom = nh + 'px'
     const fh = footEl ? footEl.offsetHeight : 0
-    el.style.setProperty('--ofr-bottom', fh + nh + 12 + 'px')
+    // Кнопка Scan выступает над таб-баром на 24px — баннер встаёт выше неё.
+    const lift = navEl ? 24 : 0
+    el.style.setProperty('--ofr-bottom', fh + nh + lift + 12 + 'px')
     el.style.setProperty('--foot-h', fh + nh + 16 + 'px')
   })
 
@@ -238,7 +255,8 @@ export function Screen({ id, title, children, back, nav, offer, foot, scrollKey,
     <div className={'screen on' + (hero ? ' has-hero' : '')} id={'s-' + id} ref={root}>
       {hero && <div className="hero">{hero}</div>}
       <StatusBar />
-      <Header back={!!back} onBack={back} title={title} />
+      <Header back={!!back} onBack={back} title={title}
+              gear={nav && nav.active !== 'Settings' ? () => nav.go('settings') : undefined} />
       {/* Распорка под фото, а НЕ padding-top у .bd: sticky внутри скролл-
           контейнера отсчитывает top:0 ниже его padding, и липкий заголовок
           вставал бы на 468px ниже шапки вместо того, чтобы встать под неё. */}

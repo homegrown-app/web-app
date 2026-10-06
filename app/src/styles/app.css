@@ -702,7 +702,6 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .ofr-x::after{content:'';position:absolute;inset:-10px}
 .ofr-x:focus-visible{outline:2px solid var(--deepest);outline-offset:2px}
 #toast a{color:var(--lime);font-weight:700;text-decoration:none;margin-left:12px;white-space:nowrap}
-.dash-stand .plcard s{overflow:visible}
 
 /* Тост. Стили потерялись при переносе из proto.py (строки 536–541), и все
    тосты — Undo удаления, покупка, подсказка про Pro — были невидимы. */
@@ -714,3 +713,12 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 #toast b{color:var(--lime);font-weight:700;cursor:pointer}
 #toast span b{color:#fff;cursor:auto}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+
+/* Шапка: настройки справа. Кнопка таб-бара Scan — главное действие. */
+.hd-gear{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink)}
+.hd-gear:active{background:#E6EBE4}
+.ni-scan{width:52px;height:52px;margin-top:-24px;border-radius:50%;background:var(--lime);color:var(--deepest);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--surface),0 8px 18px rgba(120,190,40,.4)}
+.ni.on .ni-scan{background:var(--deepest);color:var(--lime)}
+.scan-x{position:absolute;left:12px;top:12px;width:40px;height:40px;border-radius:50%;background:rgba(11,31,20,.55);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}

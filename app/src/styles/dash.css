@@ -193,6 +193,7 @@
 }
 
 /* Ритм блока недели переехал в system.css — он теперь общий. */
-/* Секции стенда под карточкой недели: тот же ряд, что «My plants». */
-.dash-stand { margin-top: var(--s2) }
-.dash-stand .plcard s { color: var(--muted) }
+
+/* Шестерёнка на фото — тем же цветом, что вордмарк: белая на фото, фирменная
+   под листом. */
+.has-hero .hd .hd-gear { color: #fff; color: color-mix(in srgb, var(--ink) calc(var(--q) * 100%), #fff) }

@@ -11,7 +11,6 @@ import {
   healthScore, type Plant, type Task,
 } from '../lib/plants'
 import { useStore } from '../state/store'
-import { SP } from '../data/species'
 import '../styles/dash.css'
 
 function PlantCard({ p, i, onOpen }: { p: Plant; i: number; onOpen: (i: number) => void }) {
@@ -26,37 +25,6 @@ function PlantCard({ p, i, onOpen }: { p: Plant; i: number; onOpen: (i: number) 
       </PhotoTile>
       <b>{p.s.name}</b>
       <s className={'st-' + st[1]}>{st[0]}</s>
-    </div>
-  )
-}
-
-// Секции стенда — те же экраны, что открываются по QR на ящике. На главной,
-// чтобы их можно было открыть и без QR: с планшета стенда или после того,
-// как посетитель ушёл от ящика.
-const STAND: Array<[string, string, string]> = [
-  ['basil', 'booth-basil', 'Needs care'],
-  ['lettuce', 'booth-lettuce', 'Ready to pick'],
-  ['cherrytomato', 'booth-tomato', 'Keeps growing'],
-]
-
-function StandRow({ go }: { go: (id: string) => void }) {
-  return (
-    <div className="dash-plants dash-stand">
-      <div className="sec-h dash-sec"><span>At the stand</span></div>
-      <div className="prow-scroll">
-        {STAND.map(([sid, route, label]) => {
-          const sp = SP(sid)
-          if (!sp) return null
-          return (
-            <div key={route} className="plcard" role="button" tabIndex={0} onClick={() => go(route)}
-                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(route) } }}>
-              <PhotoTile s={sp} cls="plcard-ph" />
-              <b>{sp.name}</b>
-              <s>{label}</s>
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }
@@ -108,7 +76,6 @@ function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) =>
         </div>
       </div>
       <Week />
-      <StandRow go={go} />
     </div>
   )
 }
@@ -232,8 +199,7 @@ export function HomeScreen({ go }: { go: (id: string) => void }) {
           <div className="greet" />
           <div className="h1">Let’s get you growing.</div>
           <EmptyHero go={go} />
-          <StandRow go={go} />
-        </>
+            </>
       )}
     </Screen>
   )

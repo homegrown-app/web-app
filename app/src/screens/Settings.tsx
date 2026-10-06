@@ -40,7 +40,7 @@ export function SettingsScreen({ go }: { go: Go }) {
                  : s.proPlan === 'month' ? 'Monthly' : null
 
   return (
-    <Screen id="settings" title="Settings" nav={{ active: 'Settings', go }} scrollKey="settings">
+    <Screen id="settings" title="Settings" back={() => go('home')} nav={{ active: 'Settings', go }} scrollKey="settings">
       <div className="h1" style={{ marginTop: 16 }}>Settings</div>
 
       {/* Кто вошёл — выше тарифа: это ответ на «мой ли это аккаунт». */}

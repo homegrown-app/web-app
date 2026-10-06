@@ -206,6 +206,11 @@ export function ScanScreen({ go }: { go: Go }) {
   const cam = useCamera(url => d({ t: 'scanUrl', v: url }))
   // Живая камера в рамке, пока снимка нет; не дали — системная камера.
   const live = useLiveCamera(!s.scanUrl)
+  const close = () => {
+    d({ t: 'scanUrl', v: null })
+    if (history.length > 1) history.back()
+    else go('home')
+  }
   const takePhoto = () => {
     const url = live.grab()
     if (url) d({ t: 'scanUrl', v: url })
@@ -225,13 +230,22 @@ export function ScanScreen({ go }: { go: Go }) {
             <video ref={live.ref} className={'booth-media booth-live' + (live.on && !s.scanUrl ? ' on' : '')}
                    autoPlay playsInline muted />
             <div className={'scan-frame booth-border' + (s.scanUrl ? ' ok' : '')} />
+            {/* Сканер открывается из таб-бара — нужен выход. Снимок сбрасываем,
+                иначе следующий заход показал бы прошлый кадр. */}
+            <div className="scan-x" role="button" tabIndex={0} aria-label="Close"
+                 onClick={close} onKeyDown={e => {
+                   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close() }
+                 }}>
+              <Icon name="x" color="#fff" size={18} sw={2.6} />
+            </div>
           </div>
           <div className="scan-foot">
             {!s.scanUrl ? (
               <>
                 <b>Point the camera at the plant</b>
-                <s>One clear leaf fills the frame. We send the photo to PlantNet and match
-                   the answer against our 29 species.</s>
+                <s>{endpoint
+                  ? 'One clear leaf fills the frame. We send the photo to PlantNet and match the answer against our 29 species.'
+                  : 'One clear leaf fills the frame. Then pick the plant from the library — this photo becomes its first journal shot.'}</s>
                 <div className="btn b-lime" role="button" tabIndex={0} onClick={takePhoto}>
                   Take a photo
                 </div>

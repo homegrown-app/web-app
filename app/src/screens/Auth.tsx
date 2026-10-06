@@ -14,6 +14,7 @@
 // экраны переделывать не придётся.
 
 import { useEffect, useRef, useState } from 'react'
+import { NO_AUTH } from '../lib/demo'
 import { Screen } from '../components/Chrome'
 import { ASSET_ROOT, bg } from '../lib/assets'
 import { cap } from '../lib/plan'
@@ -469,6 +470,8 @@ export function CodeScreen({ go }: { go: Go }) {
  */
 export function AccountRow({ go }: { go: Go }) {
   const { s } = useStore()
+  // Демо без регистрации: входа нет — нет и кнопки, иначе она молча вела бы на Home.
+  if (!s.account && NO_AUTH) return null
   if (!s.account) {
     // Причина прошлого провала живёт ЗДЕСЬ, а не только на экране входа. Раньше
     // она лежала на экран глубже: человек смотрел в настройки, видел «Sign in» и
