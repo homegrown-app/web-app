@@ -50,6 +50,18 @@ const plusDays = (n: number) =>
 /** Через минуту без касаний экран секции возвращается к началу: следующий
     посетитель не должен видеть чужой снимок и чужой ответ. */
 const IDLE_MS = 60_000
+/** Сколько держится снимок посетителя, прежде чем его сменит подсказка. */
+const SHOT_HOLD_MS = 1200
+
+/** Фото-подсказка к шагу: что делать руками прямо сейчас (img/booth-*.jpg). */
+function actionImg(id: BoothId, step: string, st: Stand): string {
+  if (id === 'basil') {
+    if (wateredToday(st) || step === 'dry' || step === 'thanks') return 'booth-water'
+    return 'booth-soil'
+  }
+  if (id === 'lettuce') return step === 'picked' ? 'booth-picked' : 'booth-pick'
+  return 'booth-tomato'
+}
 
 // ── экран секции ────────────────────────────────────────────────────
 export function BoothScreen({ id }: { id: BoothId }) {
@@ -57,9 +69,17 @@ export function BoothScreen({ id }: { id: BoothId }) {
   const [shot, setShot] = useState<string | null>(null)
   const [step, setStep] = useState<string>('start')
   const [st, setSt] = useState<Stand>(readStand)
-  const cam = useCamera(url => { setShot(url); setStep('result') })
+  // Снимок посетителя держится на экране миг, потом его сменяет фото-подсказка
+  // к действию этого шага: как проверить почву, как полить, как срезать.
+  const [held, setHeld] = useState(false)
+  const cam = useCamera(url => { setShot(url); setStep('result'); setHeld(true) })
+  useEffect(() => {
+    if (!held) return
+    const t = window.setTimeout(() => setHeld(false), SHOT_HOLD_MS)
+    return () => window.clearTimeout(t)
+  }, [held, shot])
 
-  const reset = () => { setShot(null); setStep('start'); setSt(readStand()) }
+  const reset = () => { setShot(null); setHeld(false); setStep('start'); setSt(readStand()) }
   useEffect(() => {
     if (step === 'start') return
     const t = window.setTimeout(reset, IDLE_MS)
@@ -74,9 +94,15 @@ export function BoothScreen({ id }: { id: BoothId }) {
         {cam.input}
         {/* До снимка в рамке фото культуры из библиотеки: посетитель сразу
             видит, что снимать. Снимок посетителя его заменяет. */}
-        <div className="scan-shot" style={{ backgroundImage: `url(${shot || img(p.s.img || "")})` }} />
+        <div className="scan-shot" style={{ backgroundImage: `url(${shot || img(p.s.img || '')})` }} />
+        {step !== 'start' && (
+          <div className={'scan-shot booth-act' + (held ? '' : ' on')}
+               style={{ backgroundImage: `url(${img(actionImg(id, step, st))})` }} />
+        )}
         <div className="scan-ov">
-          <div className={'scan-frame' + (shot ? ' ok' : '')} />
+          <div className={'scan-frame' + (shot && held ? ' ok' : '') + (step !== 'start' && !held ? ' booth-quiet' : '')}>
+            {held && <span className="pill b-lime booth-saved">Photo saved</span>}
+          </div>
           <div className="scan-foot booth-foot">
             {step === 'start'
               ? <Start p={p} id={id} st={st} onShot={cam.open} />

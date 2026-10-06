@@ -658,3 +658,8 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .booth-row b{display:block;font-size:var(--t-16);font-weight:600}
 .booth-row s{display:block;font-size:var(--t-13);color:#A9BCB0;text-decoration:none;margin-top:4px}
 .booth-row code{display:block;font-size:var(--t-11);color:#6E8175;margin-top:8px;word-break:break-all}
+.booth-act{opacity:0;transition:opacity .6s ease-out}
+.booth-act.on{opacity:1}
+[id^="s-booth-"] .scan-frame{position:relative}
+.scan-frame.booth-quiet{box-shadow:none;animation:none}
+.booth-saved{position:absolute;left:16px;top:16px}

@@ -73,3 +73,10 @@ google-g.png — официальный логотип Google для кнопо�
   https://developers.google.com/static/identity/images/g-logo.png
   (уменьшен до 96px, не перерисован). Использование — только на кнопке
   «Continue with Google» по брендбуку Google Identity.
+
+# Стенд (Unsplash License)
+booth-soil.jpg — https://unsplash.com/photos/person-holding-silver-ring-with-brown-stone-fxyRimO0khY
+booth-water.jpg — https://unsplash.com/photos/woman-watering-plant-beside-window-EOJRrenjc4c
+booth-pick.jpg — https://unsplash.com/photos/person-picking-green-cabbage-aqrIcYonB-o
+booth-picked.jpg — https://unsplash.com/photos/a-plate-of-food-VReUHdsjvZ8
+booth-tomato.jpg — https://unsplash.com/photos/green-plant-on-brown-clay-pot-LrrslIBV_9g
