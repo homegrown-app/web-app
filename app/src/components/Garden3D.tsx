@@ -34,6 +34,8 @@ const modelOf = (p: Plant) => MODEL[p.s.id] || 'plant_bush'
 const bigPot = (p: Plant) => /gal/.test(p.s.pot) && !/^0\.5/.test(p.s.pot)
 
 const LIME = 0xB4F461, GREEN = 0x3FA34D
+/** Палитра набора → палитра бренда: бирюза Kenney читалась как пластик. */
+const TINT: Record<string, number> = { grass: GREEN, leafsGreen: 0x5DBB5A, leafsDark: 0x2F8A4C, stone: 0xC9CFC7 }
 
 const cache = new Map<string, Promise<THREE.Group>>()
 const loader = new GLTFLoader()
@@ -48,7 +50,7 @@ function model(name: string): Promise<THREE.Group> {
         if (!m.isMesh) return
         for (const x of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) {
           x.metalness = 0; x.roughness = 0.85
-          if (x.name === 'grass') x.color = new THREE.Color(GREEN)
+          if (TINT[x.name] !== undefined) x.color = new THREE.Color(TINT[x.name])
         }
       })
       return g.scene
@@ -73,9 +75,10 @@ function fit(obj: THREE.Object3D, size: number, by: 'h' | 'w') {
 function dropSprite(): THREE.Sprite {
   const c = document.createElement('canvas'); c.width = c.height = 128
   const g = c.getContext('2d')!
-  g.fillStyle = '#0B1F14'; g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill()
+  // Синяя: капля должна читаться как вода с первого взгляда.
+  g.fillStyle = '#2F8FE0'; g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill()
   g.translate(24, 22); g.scale(80 / 256, 80 / 256)
-  g.fillStyle = '#B4F461'
+  g.fillStyle = '#FFFFFF'
   g.fill(new Path2D('M174,47.75a254.19,254.19,0,0,0-41.45-38.3,8,8,0,0,0-9.18,0A254.19,254.19,0,0,0,82,47.75C54.51,79.32,40,112.6,40,144a88,88,0,0,0,176,0C216,112.6,201.49,79.32,174,47.75Z'))
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }))
@@ -118,7 +121,7 @@ export default function Garden3D({ plants, onOpen, onWater }:
 
     const world = new THREE.Group(); scene.add(world)
     const floor = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.5, 0.18, 48),
-      new THREE.MeshStandardMaterial({ color: 0x17683C, roughness: 0.95 }))
+      new THREE.MeshStandardMaterial({ color: 0x4E9A45, roughness: 0.95 }))
     floor.position.y = -0.09; floor.receiveShadow = true; world.add(floor)
     // Заборчик по задней дуге: балкон, а не поле.
     for (let k = 0; k < 7; k++) {
@@ -128,6 +131,32 @@ export default function Garden3D({ plants, onOpen, onWater }:
         w.position.set(Math.cos(a) * 3.1, 0, Math.sin(a) * 3.1)
         w.rotation.y = -a + Math.PI / 2; world.add(w)
       })
+    }
+
+    // Окружение. Деревья — на неподвижном заднике: площадка крутится как
+    // поворотный стол, а деревья, вращаясь с ней, выходили бы перед горшками.
+    // Трава, цветы и камни — низкие, по краю площадки, крутятся с ней.
+    const backdrop = new THREE.Group(); scene.add(backdrop)
+    const place = (name: string, size: number, by: 'h' | 'w', x: number, z: number, parent: THREE.Group, ry = 0) =>
+      model(name).then(m => {
+        fit(m, size, by); const w = new THREE.Group(); w.add(m)
+        w.position.set(x, 0, z); w.rotation.y = ry
+        m.traverse(o => { if ((o as THREE.Mesh).isMesh) o.castShadow = strong })
+        parent.add(w)
+      })
+    ;([['tree_oak', 2.4, -3.6, -6.4], ['tree_pineRoundA', 2.8, -1.3, -7.4], ['tree_default', 2.2, 1.5, -7.0],
+       ['tree_fat', 2.0, 3.8, -6.2], ['tree_default', 1.8, -5.6, -4.6], ['tree_oak', 1.9, 5.7, -4.4]] as const)
+      .forEach(([n, h, x, z]) => place(n, h, 'h', x, z, backdrop))
+    let seed = 7
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 }
+    const DECOR: Array<[string, number]> = [['grass', 0.32], ['grass_large', 0.4], ['flower_redB', 0.42],
+      ['flower_yellowB', 0.4], ['flower_purpleA', 0.4], ['stone_smallA', 0.28], ['stone_smallFlatA', 0.3],
+      ['mushroom_redGroup', 0.3]]
+    for (let k = 0; k < 26; k++) {
+      const [n, s] = DECOR[k % DECOR.length]
+      const a = (k / 26) * Math.PI * 2 + rnd() * 0.2, r = 2.55 + rnd() * 0.7
+      // Камни плоские: их меряем по ширине, иначе масштаб по высоте раздувал их в глыбы.
+      place(n, s * (0.8 + rnd() * 0.5), n.startsWith('stone') ? 'w' : 'h', Math.cos(a) * r, Math.sin(a) * r, world, rnd() * 6)
     }
 
     let slots: Slot[] = []

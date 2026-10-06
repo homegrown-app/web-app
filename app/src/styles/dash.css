@@ -207,8 +207,9 @@
    Без неё они выходили в общий слой ленты и при прокрутке пролетали поверх
    липкого заголовка «My plants» (у него тот же z-index 2). */
 .g3d { position: relative; isolation: isolate; height: 340px; border-radius: var(--r-2xl); overflow: hidden;
-  background: radial-gradient(120% 80% at 50% 0%, rgba(180,244,97,.22), rgba(180,244,97,0) 60%),
-              linear-gradient(180deg, #17683C 0%, #0B1F14 100%) }
+  /* Дневное небо с солнцем справа вверху и тёплой дымкой у горизонта. */
+  background: radial-gradient(60% 45% at 82% 6%, rgba(255,236,170,.95), rgba(255,236,170,0) 70%),
+              linear-gradient(180deg, #9FD3F2 0%, #CFEAF7 46%, #EAF4E4 72%, #CFE6C6 100%) }
 .g3d-canvas { position: absolute; inset: 0; touch-action: pan-y; cursor: grab }
 .g3d-canvas canvas { display: block; width: 100%; height: 100% }
 .g3d-load { background: none }
@@ -218,7 +219,7 @@
 .g3d-chip.warn { color: #F2C46B }
 .g3d-chip.lime { background: var(--lime); color: var(--deepest) }
 .g3d-tip { position: absolute; left: 0; right: 0; bottom: 12px; z-index: 2; text-align: center; pointer-events: none;
-  font: 500 var(--t-12) 'Inter Tight', sans-serif; color: rgba(242,244,240,.75) }
+  font: 600 var(--t-12) 'Inter Tight', sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(11,31,20,.55) }
 .g3d-seg { display: inline-flex; background: #E3E8E1; border-radius: 999px; padding: 2px; margin-left: auto; margin-right: 12px }
 .g3d-seg b { font: 600 var(--t-12) 'Inter Tight', sans-serif; padding: 4px 12px; border-radius: 999px; cursor: pointer; color: var(--muted) }
 .g3d-seg b.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(11,31,20,.12) }
