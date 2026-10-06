@@ -172,7 +172,8 @@ export function App() {
   // стена рубила онбординг на первом же шаге ветки «уже есть».
   const onboarding = ROUTE(id)?.group === 'Онбординг'
     || (s.onbMode !== null && (id === 'add-plant' || id === 'scan'))
-  const walled = known && !access && !onboarding && hash !== 'review'
+  const booth = ROUTE(id)?.group === 'Стенд'
+  const walled = known && !access && !onboarding && !booth && hash !== 'review'
   // Цель одна — экран входа, и это не упрощение. Ветка «посреди онбординга →
   // Save» проигрывала гонку: эффект «home завершает онбординг» гасит onbMode
   // раньше, чем стена успевает его прочитать, и ветка всё равно уводила на
@@ -221,7 +222,7 @@ export function App() {
     // В онбординге и на лендинге приветствовать нечего: человек в другом деле,
     // и попап туда влез бы поперёк шага. На /review — тоже: это стенд сверки, а
     // не приложение, и приветствие там сожгло бы флаг визита впустую.
-    if (hash === 'review' || ROUTE(id)?.group === 'Онбординг') return
+    if (hash === 'review' || ROUTE(id)?.group === 'Онбординг' || ROUTE(id)?.group === 'Стенд') return
     try {
       if (sessionStorage.getItem(GREET_KEY)) return
       sessionStorage.setItem(GREET_KEY, '1')

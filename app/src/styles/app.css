@@ -631,3 +631,30 @@ body.is-pro .ofr{display:none}
 button.wk-h{display:block;width:100%;border:0;background:none;font-family:inherit;
   text-align:left;color:var(--ink)}
 button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
+
+/* ───── стенд: три секции ящика, каждую открывает свой QR */
+.booth-foot{max-height:78%;overflow-y:auto;scrollbar-width:none}
+.booth-tag{height:28px;padding:0 12px}
+.booth-ok{height:28px;padding:0 12px;background:#1B3527;color:var(--lime)}
+.booth-hist{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.booth-hist span{font-size:var(--t-12);color:#A9BCB0;background:#16301F;border-radius:999px;padding:6px 12px}
+.booth-hist b{font:600 var(--t-12) 'Inter Tight',sans-serif;color:#fff;display:inline}
+.booth-two{display:flex;gap:8px}
+.booth-two .btn{flex:1}
+.booth-alt{background:#1B3527;color:#fff}
+.booth-next{background:transparent;color:#A9BCB0;height:44px;margin-top:4px}
+.booth-cut{display:block;width:100%;height:auto;margin-top:12px;background:#16301F;border-radius:var(--r-lg)}
+.booth-steps{margin:12px 0 0 20px;padding:0;font-size:var(--t-14);line-height:1.45;color:#CFE0D4}
+.booth-steps li+li{margin-top:4px}
+.booth-steps em{font-style:normal;color:var(--lime);font-weight:600}
+.booth-tasks{list-style:none;margin:12px 0 0;padding:0}
+.booth-tasks li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #1E3B2A;font-size:var(--t-15);color:#fff}
+.booth-tasks li i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px #3E6A4E;flex:none}
+.booth-tasks li span{margin-left:auto;font-size:var(--t-13);color:#A9BCB0;flex:none}
+.booth-h{font-family:Caprasimo,Georgia,serif;font-weight:400;font-size:var(--t-31);line-height:1.1;display:block}
+.booth-sub{display:block;font-size:var(--t-14);color:#A9BCB0;text-decoration:none;margin-top:8px;line-height:1.4}
+.booth-row{display:flex;align-items:center;gap:12px;background:#16301F;border-radius:var(--r-lg);padding:16px;margin-top:12px;cursor:pointer}
+.booth-row>div{flex:1;min-width:0}
+.booth-row b{display:block;font-size:var(--t-16);font-weight:600}
+.booth-row s{display:block;font-size:var(--t-13);color:#A9BCB0;text-decoration:none;margin-top:4px}
+.booth-row code{display:block;font-size:var(--t-11);color:#6E8175;margin-top:8px;word-break:break-all}

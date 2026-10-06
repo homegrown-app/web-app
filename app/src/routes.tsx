@@ -16,6 +16,7 @@ import {
   Q5Screen, QWhatScreen,
 } from './screens/Onboarding'
 import { AccountScreen } from './screens/Account'
+import { BoothHubScreen, BoothScreen } from './screens/Booth'
 import { CodeScreen, EmailScreen, SignInScreen } from './screens/Auth'
 import { PreviewScreen, SaveScreen } from './screens/Preview'
 import { PickScreen, SettingsScreen } from './screens/Settings'
@@ -166,6 +167,25 @@ export const ROUTES: Route[] = [
     note: 'Не чаще раза в 7 дней. Прозрачного скрима нет — полный экран. Цифры и строка '
         + '«что дальше» берутся из настоящих растений.',
     render: p => <WeekDoneScreen go={p.go} /> },
+
+  // ── Стенд. Планшет у ящика с тремя секциями; каждую открывает свой QR.
+  // Открыты без входа: на стенде нет аккаунта, и стена отрезала бы демо.
+  { id: 'booth', title: 'Стенд · хаб', group: 'Стенд',
+    note: 'Для персонала: ссылки секций для QR, отметка полива и счётчик срезок за день, '
+        + 'сброс стенда после замены горшков.',
+    render: p => <BoothHubScreen go={p.go} /> },
+  { id: 'booth-basil', title: 'Стенд · уход', group: 'Стенд',
+    note: 'Базилик. Сухость почвы по фото не узнать, поэтому спрашиваем: сухая — задача '
+        + 'полить с объёмом; влажная — ничего не делать. Полив отмечается на весь день.',
+    render: () => <BoothScreen key="basil" id="basil" /> },
+  { id: 'booth-lettuce', title: 'Стенд · сбор', group: 'Стенд',
+    note: 'Салат готов к срезке. Схема: внешние листья на 2–3 см над почвой, сердцевину '
+        + 'оставить. Счётчик срезок за день — подсказка персоналу менять горшки.',
+    render: () => <BoothScreen key="lettuce" id="lettuce" /> },
+  { id: 'booth-tomato', title: 'Стенд · растёт', group: 'Стенд',
+    note: 'Молодой черри. Прогресс до урожая и три задачи из того же движка weekTasks, '
+        + 'что и неделя на Home.',
+    render: () => <BoothScreen key="tomato" id="tomato" /> },
 
   // ── Система
   { id: 'settings', title: 'Settings', group: 'Система',
