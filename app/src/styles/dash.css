@@ -203,7 +203,10 @@
 
 /* ───── 3D-огород: тёмная сцена с лаймовым свечением — тот же акцентный блок,
    что у бренда, только живой. */
-.g3d { position: relative; height: 340px; border-radius: var(--r-2xl); overflow: hidden;
+/* isolation: плашки и подсказка (z-index 2) держатся внутри блока сцены.
+   Без неё они выходили в общий слой ленты и при прокрутке пролетали поверх
+   липкого заголовка «My plants» (у него тот же z-index 2). */
+.g3d { position: relative; isolation: isolate; height: 340px; border-radius: var(--r-2xl); overflow: hidden;
   background: radial-gradient(120% 80% at 50% 0%, rgba(180,244,97,.22), rgba(180,244,97,0) 60%),
               linear-gradient(180deg, #17683C 0%, #0B1F14 100%) }
 .g3d-canvas { position: absolute; inset: 0; touch-action: pan-y; cursor: grab }
