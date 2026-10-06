@@ -2,8 +2,8 @@
 // жаждущие помечены каплей (тап по ней — полив), готовые к сбору — лаймовым
 // кольцом. Вращается пальцем, тап по горшку открывает карточку растения.
 //
-// Модели — Kenney Nature Kit (CC0, models/LICENSE-kenney-nature-kit.txt), не
-// рисованные руками. Процедурные здесь только служебные метки: пол-сцена,
+// Модели — Kenney Nature Kit и Furniture Kit (CC0, models/LICENSE-kenney-*.txt),
+// не рисованные руками. Процедурные здесь только служебные метки: пол-сцена,
 // кольцо готовности и капля — это интерфейс поверх сцены, а не арт.
 //
 // Модуль грузится лениво (React.lazy в Home): three весит больше всего
@@ -32,6 +32,11 @@ const MODEL: Record<string, string> = {
 }
 const modelOf = (p: Plant) => MODEL[p.s.id] || 'plant_bush'
 const bigPot = (p: Plant) => /gal/.test(p.s.pot) && !/^0\.5/.test(p.s.pot)
+const tallPlant = (p: Plant) => /bushLarge|flatTall|bushDetailed/.test(modelOf(p))
+/** Три горшка: высокий под высокие кусты (Furniture pottedPlant), широкий под
+    крупные овощи (Nature pot_large), малый под зелень и травы (Furniture plantSmall1). */
+const potOf = (p: Plant): [string, number] =>
+  tallPlant(p) ? ['pot_tall', 0.56] : bigPot(p) ? ['pot_large', 0.8] : ['pot_herb', 0.56]
 
 const LIME = 0xB4F461, GREEN = 0x3FA34D
 /** Палитра набора → палитра бренда: бирюза Kenney читалась как пластик. */
@@ -45,13 +50,23 @@ function model(name: string): Promise<THREE.Group> {
       // В материалах набора не задан metallic, а по glTF его умолчание — 1.
       // Металл без карты окружения в тени чёрный: листья шли чёрными клиньями.
       // Заодно бирюзовая «трава» набора → зелень бренда.
+      // Горшки Furniture Kit продаются с растением внутри — его снимаем.
+      const strip: THREE.Object3D[] = []
       g.scene.traverse(o => {
         const m = o as THREE.Mesh
         if (!m.isMesh) return
+        if (name.startsWith('pot_') && (m.material as THREE.Material).name === 'plant') { strip.push(m); return }
         for (const x of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) {
           x.metalness = 0; x.roughness = 0.85
           if (TINT[x.name] !== undefined) x.color = new THREE.Color(TINT[x.name])
         }
+      })
+      strip.forEach(o => o.removeFromParent())
+      // Горшок и растение там делят один буфер вершин: без пересборки рамка
+      // горшка включала снятое растение, и посадка уезжала вверх.
+      if (strip.length) g.scene.traverse(o => {
+        const m = o as THREE.Mesh
+        if (m.isMesh) m.geometry = m.geometry.toNonIndexed()
       })
       return g.scene
     }))
@@ -186,13 +201,14 @@ export default function Garden3D({ plants, onOpen, onWater }:
         pots.add(root)
         const slot: Slot = { i, root, plant: new THREE.Group(), h: 0, bounce: 0 }
         slots.push(slot)
-        Promise.all([model(bigPot(p) ? 'pot_large' : 'pot_small'), model(modelOf(p))]).then(([pot, pl]) => {
-          const ph = fit(pot, bigPot(p) ? 0.8 : 0.62, 'w')
+        const [potName, potW] = potOf(p)
+        Promise.all([model(potName), model(modelOf(p))]).then(([pot, pl]) => {
+          const ph = fit(pot, potW, 'w')
           pot.traverse(o => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.userData.slot = i } })
           root.add(pot)
           // Рост: от 45% до полного размера к сроку урожая (комнатные — сразу полные).
           const grow = isEdible(p) ? 0.45 + 0.55 * Math.min(1, hPct(p) / 100) : 1
-          const tall = /bushLarge|flatTall|bushDetailed/.test(modelOf(p)) ? 1.35 : 0.95
+          const tall = tallPlant(p) ? 1.35 : 0.95
           const h = fit(pl, tall * grow, 'h')
           const wrap = new THREE.Group(); wrap.add(pl); wrap.position.y = ph * 0.86
           // Листья в наборе односторонние: с обратной стороны лист пропадал.
