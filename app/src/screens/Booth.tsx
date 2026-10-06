@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import { Arc } from '../components/bits'
 import { useCamera } from '../components/parts'
 import { Icon } from '../icons/Icon'
+import { img } from '../lib/assets'
 import { hPct, mkPlant, weekTasks, type Plant } from '../lib/plants'
 
 type Go = (id: string) => void
@@ -71,8 +72,9 @@ export function BoothScreen({ id }: { id: BoothId }) {
     <div className="screen on" id={'s-booth-' + id}>
       <div className="dark" style={{ padding: 0 }}>
         {cam.input}
-        <div className="scan-shot"
-             style={{ backgroundImage: `url(${shot || ''})`, opacity: shot ? 1 : 0 }} />
+        {/* До снимка в рамке фото культуры из библиотеки: посетитель сразу
+            видит, что снимать. Снимок посетителя его заменяет. */}
+        <div className="scan-shot" style={{ backgroundImage: `url(${shot || img(p.s.img || "")})` }} />
         <div className="scan-ov">
           <div className={'scan-frame' + (shot ? ' ok' : '')} />
           <div className="scan-foot booth-foot">
@@ -94,11 +96,11 @@ export function BoothScreen({ id }: { id: BoothId }) {
 }
 
 /** История растения одной строкой: то, что приложение уже знает до снимка. */
-function History({ p }: { p: Plant }) {
+function History({ p, watered }: { p: Plant; watered: boolean }) {
   return (
     <div className="booth-hist">
       <span><b>Day {p.day}</b> since sowing</span>
-      <span><b>{p.since}d</b> since water</span>
+      <span><b>{watered ? 0 : p.since}d</b> since water</span>
       <span>harvest at <b>day {p.s.days}{p.s.daysMax !== p.s.days ? '–' + p.s.daysMax : ''}</b></span>
     </div>
   )
@@ -115,7 +117,7 @@ function Start({ p, id, st, onShot }: { p: Plant; id: BoothId; st: Stand; onShot
           ? `Already watered today at ${hhmm(st.wateredAt!)}. Take a photo anyway — we’ll show what comes next.`
           : 'We know this plant and its history. Take a photo and we’ll tell you what it needs today.'}
       </s>
-      <History p={p} />
+      <History p={p} watered={done} />
       <div className="btn b-lime" role="button" tabIndex={0} onClick={onShot}>
         <Icon name="camera" size={20} color="var(--deepest)" />&nbsp; Take a photo
       </div>
