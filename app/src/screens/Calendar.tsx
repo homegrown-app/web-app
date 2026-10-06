@@ -288,7 +288,7 @@ function CareRow({ p }: { p: Plant }) {
   const due = wDue(p)
   const next = due <= 0 ? 'today' : due === 1 ? 'tomorrow' : dayName(due)
   return (
-    <div className="crow">
+    <div className="care-row">
       <span className="crow-ph" style={{ backgroundImage: bg(p.s.img) }} />
       <div className="crow-tx">
         <b>{p.s.name}</b>

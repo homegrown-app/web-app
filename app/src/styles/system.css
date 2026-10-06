@@ -313,7 +313,7 @@
    экране помечен посев. */
 
 .clist { display: grid; gap: var(--sp-8) }
-.crow { display: grid; grid-template-columns: 40px 1fr; align-items: center;
+.care-row { display: grid; grid-template-columns: 40px 1fr; align-items: center;
         gap: var(--sp-12); background: var(--surface); border-radius: var(--r-lg);
         padding: var(--sp-12) }
 .crow-ph { width: 40px; height: 40px; border-radius: 50%; background-size: cover;

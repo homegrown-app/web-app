@@ -137,7 +137,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── кнопки */
 .btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:999px;
-     font-size:var(--t-16);font-weight:600;margin-top:12px;cursor:pointer}
+     font-size:var(--t-16);font-weight:600;margin-top:12px;cursor:pointer;flex-shrink:0}
 .b-pri{background:var(--primary);color:#fff}
 .b-lime{background:var(--lime);color:var(--deepest)}
 .b-white{background:#fff;color:var(--deepest)}
