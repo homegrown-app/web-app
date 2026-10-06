@@ -275,11 +275,11 @@ export function BoothScreen({ id, go }: { id: BoothId; go: Go }) {
               : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} act={stand.water} />
               : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} act={stand.pick} />
               : <Grow p={p} />}
-            {/* Сценарий закончен — вход в приложение: свой огород дома.
-                Онбординг открыт без аккаунта, регистрация в его конце. */}
+            {/* Сценарий закончен — сразу в приложение, на Home: посетитель уже
+                увидел, что оно умеет, онбординг перед этим лишний. */}
             {isFinal(id, step, st) && (
-              <div className="btn b-white" role="button" tabIndex={0} onClick={() => go('landing')}>
-                Grow your own with HOMEGROWN
+              <div className="btn b-white" role="button" tabIndex={0} onClick={() => go('home')}>
+                Open HOMEGROWN
               </div>
             )}
             {step !== 'start' && (
