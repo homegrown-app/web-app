@@ -2,12 +2,13 @@
 // растение; есть растения — health score, виджеты и список.
 // Задачи недели СЧИТАЮТСЯ из растений, а не захардкожены.
 
+import { Suspense, lazy, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { DropLevel, MetricRow, PhotoTile, RingBig, dropTone } from '../components/bits'
-import { IcCheck2, IcChevD, IcLeafLime } from '../icons/Icon'
+import { Icon, IcCheck2, IcChevD, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
-  hEta, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
+  hEta, hPct, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
   healthScore, type Plant, type Task,
 } from '../lib/plants'
 import { useStore } from '../state/store'
@@ -59,8 +60,18 @@ function EmptyHero({ go }: { go: (id: string) => void }) {
   )
 }
 
+// 3D-огород грузится отдельным куском: three тяжелее всего приложения.
+const Garden3D = lazy(() => import('../components/Garden3D'))
+const VIEW_KEY = 'hg.view'
+
 function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) => void }) {
-  const { s } = useStore()
+  const { s, d } = useStore()
+  const [view, setView] = useState<'3d' | 'cards'>(() => {
+    try { return localStorage.getItem(VIEW_KEY) === 'cards' ? 'cards' : '3d' } catch { return '3d' }
+  })
+  const pick = (v: '3d' | 'cards') => { setView(v); try { localStorage.setItem(VIEW_KEY, v) } catch { /* */ } }
+  const thirsty = s.plants.filter(p => wDue(p) <= 0).length
+  const ready = s.plants.filter(p => isEdible(p) && hPct(p) >= 100).length
   return (
     <div className="dash">
       {/* Ярлык и карусель — одна обёртка: она же граница залипания ярлыка.
@@ -69,11 +80,32 @@ function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) =>
       <div className="dash-plants">
         <div className="sec-h dash-sec">
           <span>My plants</span>
+          <div className="g3d-seg" role="radiogroup" aria-label="Plants view">
+            <b role="radio" tabIndex={0} aria-checked={view === '3d'} className={view === '3d' ? 'on' : undefined}
+               onClick={() => pick('3d')}>3D</b>
+            <b role="radio" tabIndex={0} aria-checked={view === 'cards'} className={view === 'cards' ? 'on' : undefined}
+               onClick={() => pick('cards')}>Cards</b>
+          </div>
           <i role="button" tabIndex={0} onClick={() => go('add-plant')}>Add</i>
         </div>
-        <div className="prow-scroll">
-          {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
-        </div>
+        {view === '3d' ? (
+          <div className="g3d">
+            <div className="g3d-hud">
+              <span className={'g3d-chip' + (thirsty ? ' warn' : '')}>
+                <Icon name="drop" size={14} color="currentColor" /> {thirsty ? `${thirsty} thirsty` : 'All watered'}
+              </span>
+              {ready > 0 && <span className="g3d-chip lime"><Icon name="scissors" size={14} color="currentColor" /> {ready} ready</span>}
+            </div>
+            <Suspense fallback={<div className="g3d-canvas g3d-load" />}>
+              <Garden3D plants={s.plants} onOpen={onOpen} onWater={i => d({ t: 'water', v: i })} />
+            </Suspense>
+            <div className="g3d-tip">{thirsty ? 'Tap a drop to water · drag to turn' : 'Drag to turn · tap a pot to open it'}</div>
+          </div>
+        ) : (
+          <div className="prow-scroll">
+            {s.plants.map((p, i) => <PlantCard key={i} p={p} i={i} onOpen={onOpen} />)}
+          </div>
+        )}
       </div>
       <Week />
     </div>
