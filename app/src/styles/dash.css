@@ -94,7 +94,10 @@
    проигрывало молча. Поэтому селектор повторяет ту же форму плюс класс героя. */
 .screen.has-hero:has(.ofr) .bd,
 .screen.has-hero:has(.foot) .bd { padding-bottom: 0 }
-.has-hero .dash { padding-bottom: calc(var(--ofr-bottom, 68px) + 64px) }
+/* Низ листа: выступ кнопки Scan (16) + воздух 24. Баннер Pro добавляет свои
+   52 + 24 — только пока он есть: закрыли баннер, и пустоты под лентой нет. */
+.has-hero .dash { padding-bottom: 40px }
+.has-hero:has(.ofr) .dash { padding-bottom: 116px }
 .dash-sec { margin-top: 0 }
 
 /* Блок дашборда стоит НА фото: приветствие, счёт, вердикт и две карточки.

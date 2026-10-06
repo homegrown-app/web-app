@@ -717,8 +717,20 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 /* Шапка: настройки справа. Кнопка таб-бара Scan — главное действие. */
 .hd-gear{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink)}
 .hd-gear:active{background:#E6EBE4}
-.ni-scan{width:52px;height:52px;margin-top:-24px;border-radius:50%;background:var(--lime);color:var(--deepest);
-  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--surface),0 8px 18px rgba(120,190,40,.4)}
+.ni-scan{width:64px;height:64px;margin-top:-26px;border-radius:50%;background:var(--lime);color:var(--deepest);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--ground),0 8px 18px rgba(120,190,40,.4)}
 .ni.on .ni-scan{background:var(--deepest);color:var(--lime)}
 .scan-x{position:absolute;left:12px;top:12px;width:40px;height:40px;border-radius:50%;background:rgba(11,31,20,.55);
   display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+
+/* Таб-бар над контентом: кнопка Scan выступает вверх, и лист с z-index её
+   перекрывал — кружок обрезался. */
+.nav{position:relative;z-index:6}
+/* Низ прокрутки на экранах с таб-баром: выступ Scan 24 + воздух 24; с баннером
+   Pro ещё 52 + 12. Прежний отступ считал высоту таб-бара, хотя .bd кончается
+   над ним, — под контентом висело полторы сотни пустых пикселей. */
+.screen:has(.ni-scan) .bd{padding-bottom:40px}
+.screen:has(.ni-scan):has(.ofr) .bd{padding-bottom:116px}
+.screen.has-hero:has(.ni-scan) .bd{padding-bottom:0}
+/* Таб-бар без белой подложки: тот же фон, что экран, без линии сверху. */
+.nav{background:var(--ground);border-top:0}

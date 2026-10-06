@@ -68,7 +68,8 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
       {NAVI.map(([name, icon, target]) => {
         const on = name === active
         return (
-          <div key={name} className={'ni' + (on ? ' on' : '')} role="link" tabIndex={0}
+          <div key={name} className={'ni' + (on ? ' on' : '') + (name === 'Scan' ? ' ni-s' : '')} role="link" tabIndex={0}
+               aria-label={name}
                aria-current={on ? 'page' : undefined}
                onClick={() => go(target)}
                onKeyDown={e => {
@@ -76,9 +77,8 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
                }}>
             {badge && name === 'Week' && <div className="bdg" aria-hidden="true" />}
             {name === 'Scan'
-              ? <div className="ni-scan" aria-hidden="true"><Icon name={icon} color="currentColor" size={24} /></div>
-              : <Icon name={icon} color="currentColor" size={23} />}
-            <span>{name}</span>
+              ? <div className="ni-scan" aria-hidden="true"><Icon name={icon} color="currentColor" size={28} /></div>
+              : <><Icon name={icon} color="currentColor" size={23} /><span>{name}</span></>}
           </div>
         )
       })}
@@ -159,8 +159,9 @@ export function Screen({ id, title, children, back, nav, offer, foot, scrollKey,
     const nh = navEl ? navEl.offsetHeight : 0
     if (footEl) footEl.style.bottom = nh + 'px'
     const fh = footEl ? footEl.offsetHeight : 0
-    // Кнопка Scan выступает над таб-баром на 24px — баннер встаёт выше неё.
-    const lift = navEl ? 24 : 0
+    // Кнопка Scan выступает над таб-баром на 16px; баннер встаёт выше неё с
+    // зазором 24.
+    const lift = navEl ? 28 : 0
     el.style.setProperty('--ofr-bottom', fh + nh + lift + 12 + 'px')
     el.style.setProperty('--foot-h', fh + nh + 16 + 'px')
   })
