@@ -122,8 +122,8 @@ const plusDays = (n: number) =>
 /** Через минуту без касаний экран секции возвращается к началу: следующий
     посетитель не должен видеть чужой снимок и чужой ответ. */
 const IDLE_MS = 60_000
-/** Сколько держится снимок посетителя, прежде чем его сменит подсказка. */
-const SHOT_HOLD_MS = 1200
+/** Сколько длится «осмотр» после снимка, прежде чем появится отчёт. */
+const SHOT_HOLD_MS = 1600
 
 /** Фото-подсказка к шагу: что делать руками прямо сейчас (img/booth-*.jpg). */
 function actionImg(id: BoothId, step: string, st: Stand): string {
@@ -177,6 +177,79 @@ function useLiveCamera(active: boolean) {
   return { ref, on, grab }
 }
 
+// ── самочувствие растения (демо) ────────────────────────────────────
+// Значения случайные при каждом снимке, но в пределах, которые не спорят со
+// следующим шагом: салат всегда дорос до сбора, томат всегда в пути, а у
+// базилика влагу всё равно уточняет палец посетителя.
+type Tone = 'ok' | 'warn'
+interface Metric { k: string; v: string; tone: Tone }
+interface Report { score: number; status: string; line: string; metrics: Metric[] }
+const pickOne = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)]
+const between = (a: number, z: number) => a + Math.floor(Math.random() * (z - a + 1))
+
+function makeReport(id: BoothId, watered: boolean): Report {
+  const leaf = pickOne<Metric>([
+    { k: 'Leaf colour', v: 'Deep green', tone: 'ok' },
+    { k: 'Leaf colour', v: 'Even green', tone: 'ok' },
+    { k: 'Leaf colour', v: 'Slightly pale', tone: 'warn' },
+  ])
+  const pests = pickOne<Metric>([
+    { k: 'Pests', v: 'None spotted', tone: 'ok' },
+    { k: 'Pests', v: 'None spotted', tone: 'ok' },
+    { k: 'Pests', v: 'Check under leaves', tone: 'warn' },
+  ])
+  const water: Metric = watered ? { k: 'Moisture', v: 'Watered today', tone: 'ok' }
+    : id === 'basil'
+    ? pickOne<Metric>([{ k: 'Moisture', v: 'Leaves a little soft', tone: 'warn' }, { k: 'Moisture', v: 'Looks fine', tone: 'ok' }])
+    : pickOne<Metric>([{ k: 'Moisture', v: 'Looks fine', tone: 'ok' }, { k: 'Moisture', v: 'Good', tone: 'ok' }])
+  const growth: Metric = id === 'lettuce'
+    ? { k: 'Growth', v: 'Ready to pick', tone: 'ok' }
+    : id === 'tomato'
+      ? pickOne<Metric>([{ k: 'Growth', v: 'On track', tone: 'ok' }, { k: 'Growth', v: 'Slightly ahead', tone: 'ok' }])
+      : pickOne<Metric>([{ k: 'Growth', v: 'Bushy and strong', tone: 'ok' }, { k: 'Growth', v: 'On track', tone: 'ok' }])
+  const metrics = [leaf, water, pests, growth]
+  const warns = metrics.filter(m => m.tone === 'warn').length
+  const score = warns === 0 ? between(88, 97) : warns === 1 ? between(76, 87) : between(68, 77)
+  const status = warns === 0 ? pickOne(['Thriving', 'Happy and healthy', 'Doing great'])
+               : warns === 1 ? pickOne(['Doing well', 'Mostly happy']) : 'Needs a little care'
+  const flagged = metrics.filter(m => m.tone === 'warn').map(m => m.v.toLowerCase())
+  const line = warns === 0 ? 'Strong colour, firm leaves, nothing to worry about.'
+             : `Worth a closer look: ${flagged.join(', ')}.`
+  return { score, status, line, metrics }
+}
+
+function Health({ p, report, checking, onNext }:
+    { p: Plant; report: Report | null; checking: boolean; onNext: () => void }) {
+  if (checking || !report) {
+    return (
+      <>
+        <div className="scan-dots"><i /><i /><i /></div>
+        <b>Checking your {p.s.name.toLowerCase()}…</b>
+        <s>Leaves, colour, moisture, growth.</s>
+      </>
+    )
+  }
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Arc pct={report.score} sz={52} />
+        <div>
+          <div className="booth-score">{report.score}<span>/100</span></div>
+          <span className="pill booth-ok">{report.status}</span>
+        </div>
+      </div>
+      <b style={{ marginTop: 12 }}>How the {p.s.name.toLowerCase()} feels</b>
+      <s>{report.line}</s>
+      <div className="booth-health">
+        {report.metrics.map(m => (
+          <div key={m.k} className={'bh bh-' + m.tone}><span>{m.k}</span><b>{m.v}</b></div>
+        ))}
+      </div>
+      <div className="btn b-lime" role="button" tabIndex={0} onClick={onNext}>What to do</div>
+    </>
+  )
+}
+
 // ── экран секции ────────────────────────────────────────────────────
 export function BoothScreen({ id }: { id: BoothId }) {
   const p = PLANTS[id]
@@ -187,7 +260,10 @@ export function BoothScreen({ id }: { id: BoothId }) {
   // Снимок посетителя держится на экране миг, потом его сменяет фото-подсказка
   // к действию этого шага: как проверить почву, как полить, как срезать.
   const [held, setHeld] = useState(false)
-  const onShot = (url: string) => { setShot(url); setStep('result'); setHeld(true) }
+  // После снимка — «осмотр»: случайный, но правдоподобный отчёт о самочувствии
+  // растения (демо-данные, решение владельца продукта). Потом — что делать.
+  const [report, setReport] = useState<Report | null>(null)
+  const onShot = (url: string) => { setShot(url); setReport(makeReport(id, id === 'basil' && wateredToday(stand.st))); setStep('health'); setHeld(true) }
   const cam = useCamera(onShot)
   const live = useLiveCamera(step === 'start')
   // Снимок берём кадром из живого видоискателя; камеры нет — системная камера.
@@ -198,7 +274,7 @@ export function BoothScreen({ id }: { id: BoothId }) {
     return () => window.clearTimeout(t)
   }, [held, shot])
 
-  const reset = () => { setShot(null); setHeld(false); setStep('start'); stand.refresh() }
+  const reset = () => { setShot(null); setHeld(false); setReport(null); setStep('start'); stand.refresh() }
   useEffect(() => {
     if (step === 'start') return
     const t = window.setTimeout(reset, IDLE_MS)
@@ -218,16 +294,17 @@ export function BoothScreen({ id }: { id: BoothId }) {
         <video ref={live.ref} className={'scan-shot booth-live' + (live.on && step === 'start' ? ' on' : '')}
                autoPlay playsInline muted />
         {step !== 'start' && (
-          <div className={'scan-shot booth-act' + (held ? '' : ' on')}
+          <div className={'scan-shot booth-act' + (step !== 'health' ? ' on' : '')}
                style={{ backgroundImage: `url(${img(actionImg(id, step, st))})` }} />
         )}
         <div className="scan-ov">
-          <div className={'scan-frame' + (shot && held ? ' ok' : '') + (step !== 'start' && !held ? ' booth-quiet' : '')}>
-            {held && <span className="pill b-lime booth-saved">Photo saved</span>}
+          <div className={'scan-frame' + (step === 'health' ? ' ok' : '') + (step !== 'start' && step !== 'health' ? ' booth-quiet' : '')}>
+            {step === 'health' && <span className="pill b-lime booth-saved">{held ? 'Checking…' : 'Checked'}</span>}
           </div>
           <div className="scan-foot booth-foot">
             {step === 'start'
               ? <Start p={p} id={id} st={st} onShot={takePhoto} />
+              : step === 'health' ? <Health p={p} report={report} checking={held} onNext={() => setStep('result')} />
               : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} act={stand.water} />
               : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} act={stand.pick} />
               : <Grow p={p} />}
