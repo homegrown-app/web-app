@@ -9,6 +9,7 @@ import { Toast } from './components/parts'
 import { Welcome } from './components/Welcome'
 import { Review } from './review/Review'
 import { ROUTE, ROUTES } from './routes'
+import { NO_AUTH } from './lib/demo'
 import { useStore, type Pulled } from './state/store'
 import type { Species } from './data/species'
 
@@ -173,7 +174,7 @@ export function App() {
   const onboarding = ROUTE(id)?.group === 'Онбординг'
     || (s.onbMode !== null && (id === 'add-plant' || id === 'scan'))
   const booth = ROUTE(id)?.group === 'Стенд'
-  const walled = known && !access && !onboarding && !booth && hash !== 'review'
+  const walled = !NO_AUTH && known && !access && !onboarding && !booth && hash !== 'review'
   // Цель одна — экран входа, и это не упрощение. Ветка «посреди онбординга →
   // Save» проигрывала гонку: эффект «home завершает онбординг» гасит onbMode
   // раньше, чем стена успевает его прочитать, и ветка всё равно уводила на
@@ -233,6 +234,8 @@ export function App() {
   const goTracked = useCallback((next: string) => {
     // save ведёт в пейволл, но возвращаться из него надо на home, а не на save
     if (next === 'paywall') d({ t: 'pwFrom', v: id === 'save' ? 'home' : id })
+    // Демо без регистрации: экран сохранения плана — это вход, его пропускаем.
+    if (NO_AUTH && (next === 'save' || next === 'signin')) { go('home'); return }
     go(next)
   }, [go, d, id])
 

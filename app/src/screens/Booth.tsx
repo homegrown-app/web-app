@@ -125,6 +125,13 @@ const IDLE_MS = 60_000
 /** Сколько длится «осмотр» после снимка, прежде чем появится отчёт. */
 const SHOT_HOLD_MS = 1600
 
+/** Действие сделано или не нужно — можно звать в приложение. */
+function isFinal(id: BoothId, step: string, st: Stand): boolean {
+  if (id === 'basil') return step === 'damp' || step === 'thanks' || (step === 'result' && wateredToday(st))
+  if (id === 'lettuce') return step === 'picked'
+  return step === 'result'
+}
+
 /** Фото-подсказка к шагу: что делать руками прямо сейчас (img/booth-*.jpg). */
 function actionImg(id: BoothId, step: string, st: Stand): string {
   if (id === 'basil') {
@@ -251,7 +258,7 @@ function Health({ p, report, checking, onNext }:
 }
 
 // ── экран секции ────────────────────────────────────────────────────
-export function BoothScreen({ id }: { id: BoothId }) {
+export function BoothScreen({ id, go }: { id: BoothId; go: Go }) {
   const p = PLANTS[id]
   const [shot, setShot] = useState<string | null>(null)
   const [step, setStep] = useState<string>('start')
@@ -286,20 +293,22 @@ export function BoothScreen({ id }: { id: BoothId }) {
     <div className="screen on" id={'s-booth-' + id}>
       <div className="dark" style={{ padding: 0 }}>
         {cam.input}
-        {/* До снимка в рамке фото культуры из библиотеки: посетитель сразу
-            видит, что снимать. Снимок посетителя его заменяет. */}
-        <div className="scan-shot" style={{ backgroundImage: `url(${shot || img(p.s.img || '')})` }} />
-        {/* Живой видоискатель поверх фото культуры: пока камера не ответила
-            или её не дали, под ним видно, что снимать. */}
-        <video ref={live.ref} className={'scan-shot booth-live' + (live.on && step === 'start' ? ' on' : '')}
-               autoPlay playsInline muted />
-        {step !== 'start' && (
-          <div className={'scan-shot booth-act' + (step !== 'health' ? ' on' : '')}
-               style={{ backgroundImage: `url(${img(actionImg(id, step, st))})` }} />
-        )}
         <div className="scan-ov">
-          <div className={'scan-frame' + (step === 'health' ? ' ok' : '') + (step !== 'start' && step !== 'health' ? ' booth-quiet' : '')}>
+          {/* Рамка — окно на это растение, и только на него: до снимка живая
+              камера (нет камеры — фото культуры), после — кадр посетителя на
+              всех шагах. Подсказка «как делать» не заменяет растение, а стоит
+              картинкой-в-картинке в углу. */}
+          <div className="booth-frame">
+            <div className="booth-media" style={{ backgroundImage: `url(${shot || img(p.s.img || '')})` }} />
+            <video ref={live.ref} className={'booth-media booth-live' + (live.on && step === 'start' ? ' on' : '')}
+                   autoPlay playsInline muted />
+            <div className={'scan-frame booth-border' + (step === 'health' && held ? ' ok' : '') + (step !== 'start' ? ' booth-quiet' : '')} />
             {step === 'health' && <span className="pill b-lime booth-saved">{held ? 'Checking…' : 'Checked'}</span>}
+            {step !== 'start' && step !== 'health' && (
+              <div className="booth-pip" style={{ backgroundImage: `url(${img(actionImg(id, step, st))})` }}>
+                <span>How to</span>
+              </div>
+            )}
           </div>
           <div className="scan-foot booth-foot">
             {step === 'start'
@@ -308,6 +317,13 @@ export function BoothScreen({ id }: { id: BoothId }) {
               : id === 'basil' ? <Care p={p} step={step} setStep={setStep} st={st} act={stand.water} />
               : id === 'lettuce' ? <Pick p={p} step={step} setStep={setStep} st={st} act={stand.pick} />
               : <Grow p={p} />}
+            {/* Сценарий закончен — вход в приложение: свой огород дома.
+                Онбординг открыт без аккаунта, регистрация в его конце. */}
+            {isFinal(id, step, st) && (
+              <div className="btn b-white" role="button" tabIndex={0} onClick={() => go('landing')}>
+                Grow your own with HOMEGROWN
+              </div>
+            )}
             {step !== 'start' && (
               <div className="btn booth-next" role="button" tabIndex={0} onClick={reset}>
                 Next visitor

@@ -177,15 +177,15 @@ export const ROUTES: Route[] = [
   { id: 'booth-basil', title: 'Стенд · уход', group: 'Стенд',
     note: 'Базилик. Сухость почвы по фото не узнать, поэтому спрашиваем: сухая — задача '
         + 'полить с объёмом; влажная — ничего не делать. Полив отмечается на весь день.',
-    render: () => <BoothScreen key="basil" id="basil" /> },
+    render: p => <BoothScreen key="basil" id="basil" go={p.go} /> },
   { id: 'booth-lettuce', title: 'Стенд · сбор', group: 'Стенд',
     note: 'Салат готов к срезке. Схема: внешние листья на 2–3 см над почвой, сердцевину '
         + 'оставить. Счётчик срезок за день — подсказка персоналу менять горшки.',
-    render: () => <BoothScreen key="lettuce" id="lettuce" /> },
+    render: p => <BoothScreen key="lettuce" id="lettuce" go={p.go} /> },
   { id: 'booth-tomato', title: 'Стенд · растёт', group: 'Стенд',
     note: 'Молодой черри. Прогресс до урожая и три задачи из того же движка weekTasks, '
         + 'что и неделя на Home.',
-    render: () => <BoothScreen key="tomato" id="tomato" /> },
+    render: p => <BoothScreen key="tomato" id="tomato" go={p.go} /> },
 
   // ── Система
   { id: 'settings', title: 'Settings', group: 'Система',
