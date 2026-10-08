@@ -147,7 +147,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── навигация */
 .nav{height:56px;background:var(--surface);display:flex;padding:6px 4px 0;flex:none;border-top:1px solid var(--hair)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;position:relative;color:#8E9A93;padding-top:2px}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;position:relative;color:var(--muted);padding-top:2px}
 .ni span{font-size:var(--t-11);font-weight:600;letter-spacing:.01em}
 .ni.on{color:var(--primary)}
 .ni.on span{font-weight:700}
@@ -272,7 +272,7 @@ body.is-pro .ofr{display:none}
 .sec-h span{font-size:var(--t-16);font-weight:600;letter-spacing:-.02em}
 .sec-h i{font-style:normal;font-size:var(--t-14);font-weight:600;color:var(--primary);
      cursor:pointer;padding:14px 10px;margin:-14px -10px;border-radius:var(--r-xs)}
-.st-ok{color:var(--primary)}.st-warn{color:#B8860B}.st-bad{color:#C2410C}
+.st-ok{color:var(--primary)}.st-warn{color:#8A6508}.st-bad{color:#C2410C}
 .jgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .jc{background:var(--surface);border-radius:var(--r-lg);padding:8px;margin:0}
 .jph{aspect-ratio:1;border-radius:var(--r-sm);background-size:cover;background-position:center;background-color:#DDE3DC}
@@ -734,7 +734,9 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
   box-shadow:0 -12px 32px rgba(11,31,20,.18);animation:cf-up .3s cubic-bezier(.16,1,.3,1);
   transition:transform .22s cubic-bezier(.32,.72,0,1)}
 .rsh.out .rsh-sc{opacity:0}
-.rsh-grab{flex:none;height:24px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.rsh-grab{flex:none;height:24px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;position:relative}
+/* Тап-зона 44: полоса 24 визуально, а ловит на 10 выше и ниже. */
+.rsh-grab::after{content:'';position:absolute;left:0;right:0;top:-10px;bottom:-10px}
 .rsh-grab i{width:40px;height:5px;border-radius:999px;background:#C9D1C6}
 .rsh-grab:focus-visible i{background:var(--primary)}
 .rsh-body{flex:1;position:relative;min-height:0}

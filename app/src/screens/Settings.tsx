@@ -14,6 +14,7 @@ import {
 } from '../data/onboarding'
 import { ZIPS } from '../data/zips'
 import { isEdible } from '../lib/plants'
+import { NO_AUTH } from '../lib/demo'
 import { cap } from '../lib/plan'
 import { MON, seasonDays, zipInfo } from '../lib/season'
 import { useStore, type Units } from '../state/store'
@@ -72,7 +73,7 @@ export function SettingsScreen({ go }: { go: Go }) {
               остался чип Pro в каталоге /review. */}
         </> : <>
           <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
-            1 space · 3 plants<br />this week only
+            {NO_AUTH ? '1 space' : '1 space · 3 plants'}<br />this week only
           </div>
           <div className="sub">
             Pro opens every week ahead, the whole library and unlimited photos.

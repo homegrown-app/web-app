@@ -8,7 +8,7 @@ import { DropLevel, MetricRow, RingBig, dropTone } from '../components/bits'
 import { Icon, IcCheck2, IcChevD, IcLeafLime } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import {
-  hEta, hPct, isEdible, lc, lightShort, tkey, verdict, wDue, weekTasks,
+  hEta, hPct, isEdible, lc, lightShort, pState, tkey, verdict, wDue, weekTasks,
   healthScore, type Task,
 } from '../lib/plants'
 import { useStore } from '../state/store'
@@ -71,7 +71,20 @@ function Dash({ go, onOpen }: { go: (id: string) => void; onOpen: (i: number) =>
           <Suspense fallback={<div className="g3d-canvas g3d-load" />}>
             <Garden3D plants={s.plants} onOpen={onOpen} onWater={i => d({ t: 'water', v: i })} />
           </Suspense>
-          <div className="g3d-tip">{thirsty ? 'Tap a drop to water · drag to turn' : 'Drag to turn · tap a pot to open it'}</div>
+          {/* Растения без пальца: canvas не видят ни скринридер, ни клавиатура.
+              Список спрятан, пока фокус не зайдёт внутрь, — тогда он
+              всплывает плашками поверх сцены. */}
+          <ul className="g3d-list" aria-label="My plants">
+            {s.plants.map((p, i) => (
+              <li key={p.id}>
+                <button type="button" onClick={() => onOpen(i)}>{p.s.name}, {lc(pState(p)[0])}</button>
+                {wDue(p) <= 0 && (
+                  <button type="button" onClick={() => d({ t: 'water', v: i })}>Water {lc(p.s.name)}</button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <div className="g3d-tip" aria-hidden="true">{thirsty ? 'Tap a drop to water · drag to turn' : 'Drag to turn · tap a pot to open it'}</div>
         </div>
       </div>
       <Week />

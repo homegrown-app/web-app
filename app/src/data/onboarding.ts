@@ -1,6 +1,8 @@
 // Константы онбординга и настроек. Перенесены из proto.py без изменений
 // значений: тексты опций, теги целей, ранги света, цены горшков.
 
+import { NO_AUTH } from '../lib/demo'
+
 export type Track = 'house' | 'edible' | 'both'
 
 /** Варианты места. Третий элемент — куда ведёт ответ: q2 наружу, q2i внутрь. */
@@ -98,7 +100,8 @@ export const QUOTE: Record<'house' | 'edible', [string, string, string]> = {
 
 export const FEATS = [
   'Every week planned, not just this one',
-  'Every plant in the library, no cap of three',
+  // В демо лимита нет — обещать «без потолка в три» как платное было бы неправдой.
+  NO_AUTH ? 'Every plant in the library' : 'Every plant in the library, no cap of three',
   'Printable shopping list as PDF',
   'Unlimited journal photos + yearly recap',
   'Export your whole care history',

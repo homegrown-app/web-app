@@ -413,5 +413,7 @@ export default function Garden3D({ plants, onOpen, onWater }:
   const sig = plants.map(p => `${p.id}:${p.since}:${p.day}`).join('|')
   useEffect(() => { api.current?.build(plants) }, [sig]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <div className="g3d-canvas" ref={host} />
+  // Сцена — картинка для глаза; для скринридера и клавиатуры тот же огород
+  // дублирует список кнопок в Home (.g3d-list).
+  return <div className="g3d-canvas" ref={host} aria-hidden="true" />
 }
