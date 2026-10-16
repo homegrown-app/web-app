@@ -6,9 +6,9 @@
 // плашка «Update» в установленном приложении или молча во вкладке (src/lib/pwa.ts).
 // Корневой ../sw.js прототипа сюда не ходит: он пропускает всё под /react/.
 
-const VERSION = '5120d66455'
+const VERSION = 'd4f11c8106'
 const CACHE = 'hg-react-' + VERSION
-const FILES = ["assets/Garden3D-DA44WwsA.js","assets/OrbitControls-B5AgU9ly.js","assets/basil-BnwpBZUj.js","assets/cherrytomato-BBRJQFyw.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-DOdD0ZvC.css","assets/index-DlnUuaYE.js","assets/index-DxUpAe6O.js","assets/index-K8ajHGwt.js","assets/lettuce-BCw0EQdf.js","assets/radish-BF2GOIY4.js","assets/shared-Gr6fiojY.js","fonts/Caprasimo-400-latin-ext.woff2","fonts/Caprasimo-400-latin.woff2","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
+const FILES = ["assets/Garden3D-eXB5730N.js","assets/OrbitControls-BC42PNVz.js","assets/basil-ZuXqXWkM.js","assets/cherrytomato-DHs_CTI9.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-DGMBv8Kj.js","assets/index-DOdD0ZvC.css","assets/index-DlnUuaYE.js","assets/index-K8ajHGwt.js","assets/lettuce-CCZ8GIEa.js","assets/radish-BSjBJDds.js","assets/shared-Gr6fiojY.js","fonts/Caprasimo-400-latin-ext.woff2","fonts/Caprasimo-400-latin.woff2","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
 const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 

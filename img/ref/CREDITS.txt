@@ -107,3 +107,5 @@ other/u-1647631703145-01e8bf.jpg  https://unsplash.com/photos/photo-164763170314
 other/u-1698659036248-eea265.jpg  https://unsplash.com/photos/photo-1698659036248-eea265b6ed57  — a person holding a plant in a white pot
 other/u-1528563351349-844bf0.jpg  https://unsplash.com/photos/photo-1528563351349-844bf0482bf0  — person holding plant vase with plant
 other/u-1597055181321-71de4e.jpg  https://unsplash.com/photos/photo-1597055181321-71de4e5ec627  — person holding green plant in white ceramic pot
+
+stand-* — нарезки со снимков стенда (img/stand/), владелец, 2026-10-16. other/stand-* — фон стенда: лейка, пол, листок.
