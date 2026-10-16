@@ -703,6 +703,15 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 #toast b{color:var(--lime);font-weight:700;cursor:pointer}
 #toast span b{color:#fff;cursor:auto}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+/* Плашка новой версии (UpdateBanner) — тот же тост, но не прячется сама. Под
+   тостом по z-index: короткое сообщение перекроет её и уйдёт. */
+.upd{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
+     border-radius:var(--r-lg);padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;
+     font-size:var(--t-14);opacity:0;transform:translateY(-12px);pointer-events:none;
+     transition:opacity .22s ease-out,transform .22s cubic-bezier(.32,.72,0,1);z-index:69}
+.upd.on{opacity:1;transform:none;pointer-events:auto}
+.upd b{color:var(--lime);font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center;margin:-12px 0}
+@media (prefers-reduced-motion:reduce){.upd{transition:none}}
 
 /* Шапка: настройки справа. Кнопка таб-бара Scan — главное действие. */
 .hd-gear{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink)}

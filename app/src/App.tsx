@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuthSession } from './screens/Auth'
 import { hasStoredSession, supa } from './lib/supabase'
 import { lastReport, runSync, type SyncReport } from './lib/sync'
-import { Toast } from './components/parts'
+import { Toast, UpdateBanner } from './components/parts'
 import { RouteSheet } from './components/RouteSheet'
 import { Welcome } from './components/Welcome'
 import { Review } from './review/Review'
@@ -287,6 +287,7 @@ export function App() {
         <Welcome onClose={() => setGreet(false)}
                  onAccount={() => { setGreet(false); goTracked('account') }} />
       )}
+      <UpdateBanner />
       <Toast />
     </main>
   )

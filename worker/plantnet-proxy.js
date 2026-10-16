@@ -9,7 +9,8 @@
  * ходит в PlantNet и возвращает урезанный ответ: только вид, имена и score.
  */
 const ALLOWED = [
-  'https://galacticstuff37-dev.github.io',
+  'https://homegrown-app.github.io',
+  'http://localhost:5179',
   'http://localhost:8000',
 ];
 

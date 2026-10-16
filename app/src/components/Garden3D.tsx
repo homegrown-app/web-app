@@ -32,6 +32,17 @@ const MODEL: Record<string, string> = {
   aloe: 'plant_flatShort', calathea: 'plant_bush',
 }
 const modelOf = (p: Plant) => MODEL[p.s.id] || 'plant_bush'
+/** Растения, построенные кодом по фото через img2threejs (пилот, src/plants3d)
+    и стилизованные под Kenney: плоский шейдинг, сплошной цвет, без текстур.
+    Грузятся лениво, как и сама сцена; остальные виды пока на Kenney. */
+const PROCEDURAL: Record<string, () => Promise<() => THREE.Group>> = {
+  basil: () => import('../plants3d/basil').then(m => () => m.createBasilPlantModel({ castShadow: true })),
+  radish: () => import('../plants3d/radish').then(m => () => m.createRadishPlantModel({ castShadow: true })),
+  lettuce: () => import('../plants3d/lettuce').then(m => () => m.createLettucePlantModel({ castShadow: true })),
+  cherrytomato: () => import('../plants3d/cherrytomato').then(m => () => m.createCherryTomatoPlantModel({ castShadow: true })),
+}
+const plantModel = (p: Plant): Promise<THREE.Group> =>
+  PROCEDURAL[p.s.id] ? PROCEDURAL[p.s.id]().then(make => make()) : model(modelOf(p))
 const bigPot = (p: Plant) => /gal/.test(p.s.pot) && !/^0\.5/.test(p.s.pot)
 const tallPlant = (p: Plant) => /bushLarge|flatTall|bushDetailed/.test(modelOf(p))
 /** Три горшка: высокий под высокие кусты (Furniture pottedPlant), широкий под
@@ -67,12 +78,36 @@ function model(name: string): Promise<THREE.Group> {
       // горшка включала снятое растение, и посадка уезжала вверх.
       if (strip.length) g.scene.traverse(o => {
         const m = o as THREE.Mesh
-        if (m.isMesh) m.geometry = m.geometry.toNonIndexed()
+        if (m.isMesh) m.geometry = dropTrunk(m.geometry.toNonIndexed())
       })
       return g.scene
     }))
   }
   return cache.get(name)!.then(s => s.clone(true))
+}
+
+/** Стволик встроенного деревца у малого горшка Furniture Kit сделан тем же
+    материалом wood, что и сам горшок, поэтому снятие листьев его не убирало:
+    он торчал из почвы светлым квадратом и завышал высоту горшка. Выкидываем
+    треугольники у оси выше дна — стенки горшка лежат дальше от оси. */
+function dropTrunk(geo: THREE.BufferGeometry): THREE.BufferGeometry {
+  const p = geo.attributes.position
+  let maxR = 0, maxY = 0
+  for (let i = 0; i < p.count; i++) { maxR = Math.max(maxR, Math.hypot(p.getX(i), p.getZ(i))); maxY = Math.max(maxY, p.getY(i)) }
+  const keep: number[] = []
+  for (let t = 0; t < p.count; t += 3) {
+    let cx = 0, cy = 0, cz = 0
+    for (let k = 0; k < 3; k++) { cx += p.getX(t + k); cy += p.getY(t + k); cz += p.getZ(t + k) }
+    if (!(Math.hypot(cx / 3, cz / 3) < 0.55 * maxR && cy / 3 > 0.05 * maxY)) keep.push(t)
+  }
+  if (keep.length * 3 === p.count) return geo
+  const out = new THREE.BufferGeometry()
+  for (const [name, attr] of Object.entries(geo.attributes)) {
+    const a = attr as THREE.BufferAttribute, n = a.itemSize, arr = new Float32Array(keep.length * 3 * n)
+    keep.forEach((t, j) => { for (let k = 0; k < 3; k++) for (let c = 0; c < n; c++) arr[(j * 3 + k) * n + c] = a.getComponent(t + k, c) })
+    out.setAttribute(name, new THREE.BufferAttribute(arr, n))
+  }
+  return out
 }
 
 /** Привести модель к нужной высоте/ширине и поставить низом на y=0. */
@@ -259,15 +294,39 @@ export default function Garden3D({ plants, onOpen, onWater }:
         const [potName, potW] = potOf(p)
         const slot: Slot = { i, root, plant: new THREE.Group(), h: 0, dropY: 0, bounce: 0 }
         slots.push(slot)
-        Promise.all([model(potName), model(modelOf(p))]).then(([pot, pl]) => {
+        Promise.all([model(potName), plantModel(p)]).then(([pot, pl]) => {
           const ph = fit(pot, potW, 'w')
           pot.traverse(o => { if ((o as THREE.Mesh).isMesh) { o.castShadow = true; o.userData.slot = i } })
           root.add(pot)
           // Рост: от 45% до полного размера к сроку урожая (комнатные — сразу полные).
           const grow = isEdible(p) ? 0.45 + 0.55 * Math.min(1, hPct(p) / 100) : 1
           const tall = tallPlant(p) ? 1.35 : 0.95
-          const h = fit(pl, tall * grow, 'h')
-          const wrap = new THREE.Group(); wrap.add(pl); wrap.position.y = ph * 0.86
+          // Модели из фото на треть крупнее: в low-poly стиле мелкий куст терялся в горшке.
+          const big = PROCEDURAL[p.s.id] ? 1.3 : 1
+          let h = fit(pl, tall * grow * big, 'h')
+          // Модели из фото бывают шире своей высоты (кочан салата вдвое): по одной
+          // высоте такой лез на соседние горшки. Ограничиваем ещё и ширину.
+          if (PROCEDURAL[p.s.id]) {
+            const wb = new THREE.Box3().setFromObject(pl).getSize(new THREE.Vector3())
+            const maxW = Math.min(potW * 1.9 * grow * big, gap * 0.9)
+            if (Math.max(wb.x, wb.z) > maxW) h = fit(pl, maxW, 'w')
+          }
+          // Диск почвы у модели из фото — по ширине горшка, а не по росту
+          // растения: иначе молодой куст сидел бы на блюдце, а взрослый свисал.
+          // Модели из фото садятся к кромке: у кочана салата внешние листья расходятся
+          // почти горизонтально и на 0.86 высоты проходили сквозь стенки горшка.
+          const seat = ph * (PROCEDURAL[p.s.id] ? 0.97 : 0.86)
+          const wrap = new THREE.Group(); wrap.add(pl); wrap.position.y = seat
+          // Диск почвы у модели из фото живёт в координатах горшка, а не растения:
+          // подгонка по росту/ширине двигала и раздувала его, он опускался ниже
+          // кромки и протыкал стенки сужающихся книзу горшков (тёмные чёрточки).
+          const soil = pl.getObjectByName('Soil disc')
+          if (soil) {
+            soil.removeFromParent()
+            const wd = potW * 0.7 / 0.92
+            soil.scale.set(wd, 0.02 / 0.06, wd); soil.position.set(0, seat - 0.012, 0)
+            soil.userData.slot = i; root.add(soil)
+          }
           // Листья в наборе односторонние: с обратной стороны лист пропадал.
           pl.traverse(o => {
             const m = o as THREE.Mesh
@@ -277,14 +336,17 @@ export default function Garden3D({ plants, onOpen, onWater }:
             mats.forEach(x => { x.side = THREE.DoubleSide })
           })
           root.add(wrap)
-          slot.plant = wrap; slot.h = ph * 0.86 + h
+          slot.plant = wrap; slot.h = seat + h
           // Фото над верхушкой, капля — бейджем на его правом верхнем углу:
           // столбиком над фото она уходила за край кадра под плашки.
           const at = slot.h + PHOTO / 2 + 0.02
-          if (p.s.img) root.add(photoStake(p.s.img, ph * 0.86, at, i))
+          // Колышек — у края горшка, не в центре: из центра он выходил сквозь
+          // корнеплод редиса и сердцевину салата светлым брусочком.
+          const off = potW * 0.22
+          if (p.s.img) { const stake = photoStake(p.s.img, seat, at, i); stake.position.x = off; root.add(stake) }
           slot.dropY = p.s.img ? at : slot.h + 0.32
           if (wDue(p) <= 0) {
-            const d = dropSprite(); d.position.y = slot.dropY; d.userData.drop = i
+            const d = dropSprite(); d.position.y = slot.dropY; if (p.s.img) d.position.x = off; d.userData.drop = i
             if (p.s.img) { d.scale.setScalar(0.3); d.center.set(0.5 - 0.2 / 0.3, 0.5 - 0.2 / 0.3) }
             root.add(d); slot.drop = d
           }

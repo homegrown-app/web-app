@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vite'
@@ -59,8 +60,37 @@ function serveRepoRoot() {
   }
 }
 
+// Сервис-воркер из sw.template.js: список файлов сборки и версия — хеш их
+// содержимого. Пересборка без изменений даёт тот же sw.js, значит браузер не
+// увидит «новой версии», которой нет. Зачем воркер — src/lib/pwa.ts.
+function pwaWorker() {
+  let out = ''
+  return {
+    name: 'pwa-worker',
+    apply: 'build' as const,
+    configResolved(c: import('vite').ResolvedConfig) { out = path.resolve(c.root, c.build.outDir) },
+    closeBundle() {
+      const files: string[] = []
+      const walk = (dir: string) => {
+        for (const n of fs.readdirSync(dir).sort()) {
+          const f = path.join(dir, n)
+          if (fs.statSync(f).isDirectory()) walk(f)
+          else if (n !== 'sw.js') files.push(path.relative(out, f).split(path.sep).join('/'))
+        }
+      }
+      walk(out)
+      const h = createHash('sha1')
+      for (const f of files) h.update(f).update(fs.readFileSync(path.join(out, f)))
+      const sw = fs.readFileSync(path.resolve(__dirname, 'sw.template.js'), 'utf8')
+        .replace('__VERSION__', h.digest('hex').slice(0, 10))
+        .replace('__FILES__', JSON.stringify(files))
+      fs.writeFileSync(path.join(out, 'sw.js'), sw)
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), serveRepoRoot()],
+  plugins: [react(), serveRepoRoot(), pwaWorker()],
   define: { __BUILD__: JSON.stringify(stamp()) },
   base: '/web-app/react/',
   build: {

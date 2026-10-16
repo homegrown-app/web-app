@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Icon, IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
 import { useStore } from '../state/store'
 import { STEPS } from '../data/onboarding'
+import { useUpdate } from '../lib/pwa'
 
 /** Опция онбординга. Ни одна не выбрана заранее — состояние появляется от тапа. */
 export function Opt({ label, sub, on, multi, dim, onPick }:
@@ -147,6 +148,21 @@ export function Toast() {
       {t?.undo && <b role="button" tabIndex={0} onClick={() => d({ t: 'undo' })}>Undo</b>}
       {t?.unpro && <b role="button" tabIndex={0}
                       onClick={() => { d({ t: 'pro', v: false }); d({ t: 'toast', v: null }) }}>Undo</b>}
+    </div>
+  )
+}
+
+/** Плашка «вышла новая версия» установленного приложения. Сама не прячется:
+    обновление перезагружает экран, и момент выбирает человек. См. lib/pwa.ts. */
+export function UpdateBanner() {
+  const apply = useUpdate()
+  return (
+    <div className={'upd' + (apply ? ' on' : '')} role="status" aria-live="polite">
+      {apply && <>
+        <span>A new version is ready</span>
+        <b role="button" tabIndex={0} onClick={apply}
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply() } }}>Update</b>
+      </>}
     </div>
   )
 }

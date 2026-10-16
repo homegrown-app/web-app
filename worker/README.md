@@ -20,8 +20,9 @@ npx wrangler deploy
 
 Команда напечатает адрес вида `https://homegrown-plantid.<subdomain>.workers.dev`.
 
-**3. Прописать адрес в приложении** — открыть `scan-config.js` в корне проекта
-и вставить его в `SCAN_ENDPOINT`. Пересобрать: `python3 proto.py`.
+**3. Прописать адрес в приложении** — React: `app/src/lib/scan.ts`, константа
+`SCAN_ENDPOINT`, затем `npm --prefix app run build`. Старый прототип: `scan-config.js`
+в корне и `python3 proto.py`.
 
 ## Пока адрес не задан
 
