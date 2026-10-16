@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { ASSET_ROOT, img } from '../lib/assets'
-import { hPct, isEdible, wDue, type Plant } from '../lib/plants'
+import { hPct, isEdible, phUrl, wDue, type Plant } from '../lib/plants'
 
 /** Модель по виду. Точных моделей на все 29 культур в наборе нет — берём
     ближайшую по форме роста. */
@@ -137,14 +137,15 @@ function dropSprite(): THREE.Sprite {
   return sp
 }
 
-/** Фото с карточки растения — круглое, в белой рамке: табличка на колышке. */
+/** Фото растения — круглое, в белой рамке: табличка на колышке. Ключ — адрес
+    картинки: свой снимок (data-URL) или фото вида из /img. */
 const photos = new Map<string, THREE.CanvasTexture>()
-function photoTex(name: string): THREE.CanvasTexture {
-  let t = photos.get(name)
+function photoTex(src: string): THREE.CanvasTexture {
+  let t = photos.get(src)
   if (t) return t
   const c = document.createElement('canvas'); c.width = c.height = 128
   t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace
-  photos.set(name, t)
+  photos.set(src, t)
   const im = new Image()
   im.onload = () => {
     const g = c.getContext('2d')!
@@ -154,21 +155,21 @@ function photoTex(name: string): THREE.CanvasTexture {
     g.drawImage(im, 64 - im.width * k / 2, 64 - im.height * k / 2, im.width * k, im.height * k)
     g.restore(); t!.needsUpdate = true
   }
-  im.src = img(name)
+  im.src = src
   return t
 }
 
 /** Табличка над растением: фото на колышке, воткнутом в центр горшка (ствол
     колышка прячется в листве). Фото — спрайт, всегда лицом к камере. */
 const PHOTO = 0.5
-function photoStake(name: string, soil: number, at: number, slot: number): THREE.Group {
+function photoStake(src: string, soil: number, at: number, slot: number): THREE.Group {
   const g = new THREE.Group()
   const len = at - soil
   const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, len, 6),
     new THREE.MeshStandardMaterial({ color: 0xC9A27A, roughness: 0.9 }))
   stick.position.y = soil + len / 2; stick.castShadow = true; stick.userData.slot = slot
   // alphaTest: прозрачные углы квадрата иначе писали глубину и срезали то, что за ними.
-  const ph = new THREE.Sprite(new THREE.SpriteMaterial({ map: photoTex(name), alphaTest: 0.5 }))
+  const ph = new THREE.Sprite(new THREE.SpriteMaterial({ map: photoTex(src), alphaTest: 0.5 }))
   ph.scale.setScalar(PHOTO); ph.position.y = at; ph.userData.slot = slot
   g.add(stick, ph)
   return g
@@ -343,11 +344,15 @@ export default function Garden3D({ plants, onOpen, onWater }:
           // Колышек — у края горшка, не в центре: из центра он выходил сквозь
           // корнеплод редиса и сердцевину салата светлым брусочком.
           const off = potW * 0.22
-          if (p.s.img) { const stake = photoStake(p.s.img, seat, at, i); stake.position.x = off; root.add(stake) }
-          slot.dropY = p.s.img ? at : slot.h + 0.32
+          // На табличке последний снимок из журнала — тот, что человек сделал сам;
+          // фото вида — только пока своих снимков нет. Раньше здесь всегда стояло
+          // фото вида, и снятое камерой до главного не доходило.
+          const pic = p.photos[0] ? phUrl(p.photos[0]) : (p.s.img ? img(p.s.img) : null)
+          if (pic) { const stake = photoStake(pic, seat, at, i); stake.position.x = off; root.add(stake) }
+          slot.dropY = pic ? at : slot.h + 0.32
           if (wDue(p) <= 0) {
-            const d = dropSprite(); d.position.y = slot.dropY; if (p.s.img) d.position.x = off; d.userData.drop = i
-            if (p.s.img) { d.scale.setScalar(0.3); d.center.set(0.5 - 0.2 / 0.3, 0.5 - 0.2 / 0.3) }
+            const d = dropSprite(); d.position.y = slot.dropY; if (pic) d.position.x = off; d.userData.drop = i
+            if (pic) { d.scale.setScalar(0.3); d.center.set(0.5 - 0.2 / 0.3, 0.5 - 0.2 / 0.3) }
             root.add(d); slot.drop = d
           }
           if (isEdible(p) && hPct(p) >= 100) {
@@ -472,7 +477,8 @@ export default function Garden3D({ plants, onOpen, onWater }:
   }, [])
 
   // Перестраиваем горшки, когда меняется состав или состояние растений.
-  const sig = plants.map(p => `${p.id}:${p.since}:${p.day}`).join('|')
+  // Новый снимок тоже меняет сцену: он встаёт на табличку.
+  const sig = plants.map(p => `${p.id}:${p.since}:${p.day}:${p.photos[0]?.id ?? ''}`).join('|')
   useEffect(() => { api.current?.build(plants) }, [sig]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Сцена — картинка для глаза; для скринридера и клавиатуры тот же огород

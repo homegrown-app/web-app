@@ -6,9 +6,9 @@
 // плашка «Update» в установленном приложении или молча во вкладке (src/lib/pwa.ts).
 // Корневой ../sw.js прототипа сюда не ходит: он пропускает всё под /react/.
 
-const VERSION = 'a26532f709'
+const VERSION = '5120d66455'
 const CACHE = 'hg-react-' + VERSION
-const FILES = ["assets/Garden3D-Bl3xkYrl.js","assets/OrbitControls-Ctpf3tc0.js","assets/basil-qdBJIiO8.js","assets/cherrytomato-DYt_Mohj.js","assets/index-Cif_pEdx.js","assets/index-DOdD0ZvC.css","assets/index-K8ajHGwt.js","assets/lettuce-BEp37a49.js","assets/radish-DXs-cKhC.js","fonts/Caprasimo-400-latin-ext.woff2","fonts/Caprasimo-400-latin.woff2","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
+const FILES = ["assets/Garden3D-DA44WwsA.js","assets/OrbitControls-B5AgU9ly.js","assets/basil-BnwpBZUj.js","assets/cherrytomato-BBRJQFyw.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-DOdD0ZvC.css","assets/index-DlnUuaYE.js","assets/index-DxUpAe6O.js","assets/index-K8ajHGwt.js","assets/lettuce-BCw0EQdf.js","assets/radish-BF2GOIY4.js","assets/shared-Gr6fiojY.js","fonts/Caprasimo-400-latin-ext.woff2","fonts/Caprasimo-400-latin.woff2","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
 const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 

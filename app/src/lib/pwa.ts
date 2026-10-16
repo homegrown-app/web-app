@@ -5,16 +5,12 @@
 // Установленное на рабочий стол приложение iOS не перезагружается при возврате
 // из фона, поэтому без плашки человек сидел бы на старой версии днями.
 //
-// В установленном приложении ожидающая версия показывается плашкой «New version
-// · Update» — включает её только человек. Во вкладке браузера плашки нет:
-// версия включается молча и придёт со следующей загрузкой страницы.
+// Ожидающая версия показывается плашкой «New version available · Reload», как в
+// Cramless (там vite-plugin-pwa в режиме prompt), — включает её только человек.
+// Плашка и в установленном приложении, и во вкладке: раньше во вкладке версия
+// включалась молча, и после деплоя было непонятно, что уже загружено.
 
 import { useEffect, useState } from 'react'
-
-export const installed = () =>
-  matchMedia('(display-mode: standalone)').matches
-  || matchMedia('(display-mode: fullscreen)').matches
-  || (navigator as unknown as { standalone?: boolean }).standalone === true
 
 /** Ожидающая версия: функция, которая её включает, или null. */
 export function useUpdate(): (() => void) | null {
@@ -26,11 +22,7 @@ export function useUpdate(): (() => void) | null {
     const base = import.meta.env.BASE_URL
     const sw = navigator.serviceWorker
     // Контроллера нет — это первая установка воркера, а не обновление.
-    const found = (w: ServiceWorker) => {
-      if (!sw.controller) return
-      if (installed()) setWaiting(w)
-      else w.postMessage('skip')
-    }
+    const found = (w: ServiceWorker) => { if (sw.controller) setWaiting(w) }
     let reg: ServiceWorkerRegistration | undefined
     const check = () => { if (document.visibilityState === 'visible') reg?.update().catch(() => {}) }
 

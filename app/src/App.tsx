@@ -14,9 +14,20 @@ import { NO_AUTH } from './lib/demo'
 import { useStore, type Pulled } from './state/store'
 import type { Species } from './data/species'
 
+// Листы поверх места — не место, куда приложение открывается. Иконка на
+// рабочем столе и перезапуск хранят последний адрес, и с #settings в нём
+// запуск начинался с настроек. На входе такой хеш сбрасываем на главный;
+// ?query не трогаем — там код возврата из OAuth. add-plant здесь нет: в
+// онбординге это шаг, и перезапуск посреди него не должен выкидывать на главный.
+const NOT_ON_LAUNCH = ['settings', 'pick', 'account']
+
 export function useHash(): [string, (id: string) => void] {
   const read = () => location.hash.slice(1) || 'home'
-  const [id, setId] = useState(read)
+  const [id, setId] = useState(() => {
+    if (NOT_ON_LAUNCH.indexOf(read()) < 0) return read()
+    history.replaceState(null, '', location.pathname + location.search)
+    return 'home'
+  })
   useEffect(() => {
     const on = () => setId(read())
     addEventListener('hashchange', on)

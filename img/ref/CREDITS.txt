@@ -1,0 +1,109 @@
+Эталоны распознавания. u-* — Unsplash (Unsplash License), id и подпись автора.
+Свои снимки со стенда класть в basil/ lettuce/ pepper/ без префикса u-.
+
+basil/u-1749655248287-d1e0ac.jpg  https://unsplash.com/photos/photo-1749655248287-d1e0acb5f8d1  — Fresh, vibrant basil leaves are shown in this image
+basil/u-1646983205802-0adf64.jpg  https://unsplash.com/photos/photo-1646983205802-0adf649e4a5a  — a potted plant sitting on a window sill
+basil/u-1757111084745-bd8b41.jpg  https://unsplash.com/photos/photo-1757111084745-bd8b41811d5f  — A close-up of a basil plant growing in a pot
+basil/u-1786073486821-3b8cf9.jpg  https://unsplash.com/photos/photo-1786073486821-3b8cf993cea7  — A fresh green basil plant growing in a white pot with wooden edges
+lettuce/u-1688176939869-27718e.jpg  https://unsplash.com/photos/photo-1688176939869-27718ebf6ad9  — lettuce plants growing in a wooden planter box
+lettuce/u-1762463432101-3be38d.jpg  https://unsplash.com/photos/photo-1762463432101-3be38daf946f  — A close-up of fresh, green lettuce leaves
+lettuce/u-1691906470255-640353.jpg  https://unsplash.com/photos/photo-1691906470255-640353380f3d  — a bunch of green lettuce growing in a garden
+lettuce/u-1533321942807-08e400.jpg  https://unsplash.com/photos/photo-1533321942807-08e4008b2025  — Rows of fresh green butter lettuce heads growing in a field
+lettuce/u-1692606280456-b138e1.jpg  https://unsplash.com/photos/photo-1692606280456-b138e165b11a  — a close up of a bunch of lettuce
+pepper/u-1663500867881-00b731.jpg  https://unsplash.com/photos/photo-1663500867881-00b7315470cd  — a group of green peppers on a plant
+pepper/u-1663500004095-a74822.jpg  https://unsplash.com/photos/photo-1663500004095-a7482241694c  — a group of green peppers on a plant
+pepper/u-1772358292459-f9b25c.jpg  https://unsplash.com/photos/photo-1772358292459-f9b25c0c98a7  — A single green chili pepper hangs from a plant
+pepper/u-1764953835308-310e67.jpg  https://unsplash.com/photos/photo-1764953835308-310e6730fdd2  — A single bright orange pepper on a plant
+pepper/u-1663500723223-406057.jpg  https://unsplash.com/photos/photo-1663500723223-406057b19d67  — a group of peppers growing on a plant
+pepper/u-1637795257839-896afe.jpg  https://unsplash.com/photos/photo-1637795257839-896afee861fd  — a potted plant filled with lots of green and red peppers
+pepper/u-1772543702625-f7bdc1.jpg  https://unsplash.com/photos/photo-1772543702625-f7bdc19748ed  — A pepper plant with small white flowers blooming
+pepper/u-1758974641657-784fba.jpg  https://unsplash.com/photos/photo-1758974641657-784fbafae419  — Red and green chili peppers on a plant
+pepper/u-1785964165621-d069e1.jpg  https://unsplash.com/photos/photo-1785964165621-d069e14518c8  — Dark purple chili peppers growing on a green plant with pointed leaves
+pepper/u-1790695589546-4d25ff.jpg  https://unsplash.com/photos/photo-1790695589546-4d25ff7ec6c7  — Red chili peppers hanging from a green plant with water droplets on leaves
+pepper/u-1770982698901-defbee.jpg  https://unsplash.com/photos/photo-1770982698901-defbee226738  — Green chili peppers growing on a plant
+pepper/u-1784828984695-1dcc35.jpg  https://unsplash.com/photos/photo-1784828984695-1dcc3500d170  — Yellow chili peppers ripening on a green plant
+pepper/u-1764197942948-7055cf.jpg  https://unsplash.com/photos/photo-1764197942948-7055cfb86085  — Chili peppers growing on a plant inside a greenhouse
+other/u-1614624532983-4ce033.jpg  https://unsplash.com/photos/photo-1614624532983-4ce03382d63d  — black flat screen computer monitor on brown wooden desk
+other/u-1762983870490-63e5ba.jpg  https://unsplash.com/photos/photo-1762983870490-63e5ba07105b  — Modern home office desk setup with computer and plants
+other/u-1629317422263-9317e9.jpg  https://unsplash.com/photos/photo-1629317422263-9317e911014a  — macbook pro on brown wooden table
+other/u-1616440347437-b1c734.jpg  https://unsplash.com/photos/photo-1616440347437-b1c73416efc2  — black flat screen computer monitor on white wooden desk
+other/u-1683322499436-f4383d.jpg  https://unsplash.com/photos/photo-1683322499436-f4383dd59f5a  — a bunch of blue wires connected to each other
+other/u-1761507320645-b11a00.jpg  https://unsplash.com/photos/photo-1761507320645-b11a00bfcc34  — A colorful bundle of electrical wires on a light background
+other/u-1717667745852-a5bd68.jpg  https://unsplash.com/photos/photo-1717667745852-a5bd6876c1de  — a pile of wires and wires in a pile
+other/u-1517373116369-9bdb8c.jpg  https://unsplash.com/photos/photo-1517373116369-9bdb8cdc9f62  — assorted electric cables
+other/u-1583847268964-b28dc8.jpg  https://unsplash.com/photos/photo-1583847268964-b28dc8f51f92  — a living room filled with furniture and a large window
+other/u-1618220179428-22790b.jpg  https://unsplash.com/photos/photo-1618220179428-22790b461013  — green plant on white ceramic pot
+other/u-1605774337664-7a846e.jpg  https://unsplash.com/photos/photo-1605774337664-7a846e9cdf17  — gray 2 seat sofa near brown wooden coffee table
+other/u-1784790601988-791539.jpg  https://unsplash.com/photos/photo-1784790601988-7915393bc5a1  — Modern living room with white furniture, large window, abstract painting
+other/u-1556911220-bff31c812.jpg  https://unsplash.com/photos/photo-1556911220-bff31c812dba  — modern white kitchen with marble island
+other/u-1786886351097-cf96d8.jpg  https://unsplash.com/photos/photo-1786886351097-cf96d8cbb4d4  — A bowl of green pears beside a kettle on a white kitchen counter
+other/u-1759239572496-4ec13e.jpg  https://unsplash.com/photos/photo-1759239572496-4ec13e7643d6  — A modern kitchen with light wood countertops and island
+other/u-1511189975737-b5939e.jpg  https://unsplash.com/photos/photo-1511189975737-b5939ef6a944  — ceramic dish on shelf
+other/u-1586726370832-3440a5.jpg  https://unsplash.com/photos/photo-1586726370832-3440a511e479  — two hands reaching toward each other
+other/u-1786014894707-6fe6ca.jpg  https://unsplash.com/photos/photo-1786014894707-6fe6cab16a09  — Two studies of arms and hands on a brown background
+other/u-1587365403481-1120a2.jpg  https://unsplash.com/photos/photo-1587365403481-1120a2e0287f  — grayscale photo of persons hand
+other/u-1559913929-08b6989ec.jpg  https://unsplash.com/photos/photo-1559913929-08b6989ec45e  — human hand reaching out
+other/u-1649972904349-6e44c4.jpg  https://unsplash.com/photos/photo-1649972904349-6e44c42644a7  — a woman sitting on a bed using a laptop
+other/u-1486312338219-ce68d2.jpg  https://unsplash.com/photos/photo-1486312338219-ce68d2c6f44d  — person using MacBook Pro
+other/u-1499914485622-a88fac.jpg  https://unsplash.com/photos/photo-1499914485622-a88fac536970  — person using MacBook
+other/u-1779896412071-bf3160.jpg  https://unsplash.com/photos/photo-1779896412071-bf3160aad19e  — A dog and laptop on a white studio floor
+other/u-1525498128493-380d19.jpg  https://unsplash.com/photos/photo-1525498128493-380d1990a112  — green monstera leaves on white
+other/u-1585598117002-9fb152.jpg  https://unsplash.com/photos/photo-1585598117002-9fb152e67dbf  — green leaves plant during daytime
+other/u-1759351483159-0cce01.jpg  https://unsplash.com/photos/photo-1759351483159-0cce0181da00  — Green monstera leaves with water droplets
+other/u-1493673272479-a20888.jpg  https://unsplash.com/photos/photo-1493673272479-a20888bcee10  — green leaf plants
+other/u-1520302630591-fd1c66.jpg  https://unsplash.com/photos/photo-1520302630591-fd1c66edc19d  — succulent plant lot
+other/u-1505333201693-150bb2.jpg  https://unsplash.com/photos/photo-1505333201693-150bb240ef16  — top-angle photography of succulent plants
+other/u-1446071103084-c257b5.jpg  https://unsplash.com/photos/photo-1446071103084-c257b5f70672  — top view of green succulent plants
+other/u-1551893665-f843f6007.jpg  https://unsplash.com/photos/photo-1551893665-f843f600794e  — assorted succulents and cacti
+other/u-1582794543139-8ac9cb.jpg  https://unsplash.com/photos/photo-1582794543139-8ac9cb0f7b11  — pink roses in close up photography
+other/u-1615280825886-fa817c.jpg  https://unsplash.com/photos/photo-1615280825886-fa817c0a06cc  — white cherry blossom in close up photography
+other/u-1468327768560-75b778.jpg  https://unsplash.com/photos/photo-1468327768560-75b778cbb551  — shallow focus photography of white-and-pink petaled flowers
+other/u-1600647993560-11a92e.jpg  https://unsplash.com/photos/photo-1600647993560-11a92e039466  — pink flowers in tilt shift lens
+other/u-1579487785973-74d2ca.jpg  https://unsplash.com/photos/photo-1579487785973-74d2ca7abdd5  — black and brown chairs and tables
+other/u-1571624436279-b272af.jpg  https://unsplash.com/photos/photo-1571624436279-b272aff752b5  — brown wooden 9-piece office table and chairs
+other/u-1612372606404-0ab33e.jpg  https://unsplash.com/photos/photo-1612372606404-0ab33e7187ee  — brown and black rolling chair beside green plant
+other/u-1688578735427-994ecd.jpg  https://unsplash.com/photos/photo-1688578735427-994ecdea3ea4  — an office chair sitting on top of a wooden desk
+other/u-1791395534168-af200f.jpg  https://unsplash.com/photos/photo-1791395534168-af200f472f93  — Two people sitting together on a porch
+other/u-1534528741775-53994a.jpg  https://unsplash.com/photos/photo-1534528741775-53994a69daeb  — woman wearing black crew-neck shirt
+other/u-1506794778202-cad84c.jpg  https://unsplash.com/photos/photo-1506794778202-cad84cf45f1d  — man's grey and black shirt
+other/u-1521119989659-a83eee.jpg  https://unsplash.com/photos/photo-1521119989659-a83eee488004  — man standing near balcony
+other/u-1457369804613-52c61a.jpg  https://unsplash.com/photos/photo-1457369804613-52c61a468e7d  — open book lot
+other/u-1543248939-4296e1fea.jpg  https://unsplash.com/photos/photo-1543248939-4296e1fea89b  — books on shelf
+other/u-1588580000645-4562a6.jpg  https://unsplash.com/photos/photo-1588580000645-4562a6d2c839  — brown wooden book shelf with books
+other/u-1780672823738-2a8d15.jpg  https://unsplash.com/photos/photo-1780672823738-2a8d15d79aaf  — White shelves with books and decorative items by a window
+other/u-1514888286974-6c03e2.jpg  https://unsplash.com/photos/photo-1514888286974-6c03e2ca1dba  — black and white cat lying on brown bamboo chair inside room
+other/u-1573865526739-10659f.jpg  https://unsplash.com/photos/photo-1573865526739-10659fec78a5  — selective focus photography of orange and white cat on brown table
+other/u-1592194996308-7b4387.jpg  https://unsplash.com/photos/photo-1592194996308-7b43878e84a6  — white and brown long fur cat
+other/u-1574144611937-0df059.jpg  https://unsplash.com/photos/photo-1574144611937-0df059b5ef3e  — silver tabby kitten on floor
+other/u-1506968430777-bf7784.jpg  https://unsplash.com/photos/photo-1506968430777-bf7784a87f23  — brown wooden surface
+other/u-1546484396-fb3fc6f95.jpg  https://unsplash.com/photos/photo-1546484396-fb3fc6f95f98  — brown wooden board
+other/u-1777513538143-8525eb.jpg  https://unsplash.com/photos/photo-1777513538143-8525eb3943f6  — A rustic wooden coffee table with books and vase
+other/u-1519219788971-8d9797.jpg  https://unsplash.com/photos/photo-1519219788971-8d9797e0928e  — gray balanced-arm lamp on brown wooden table
+other/u-1731616103600-3fe7cc.jpg  https://unsplash.com/photos/photo-1731616103600-3fe7ccdc5a59  — A couple of white wires sitting next to each other
+other/u-1557767382-97b28f548.jpg  https://unsplash.com/photos/photo-1557767382-97b28f5488e7  — black smartphone with charger cord connected
+other/u-1760708825913-65a50b.jpg  https://unsplash.com/photos/photo-1760708825913-65a50b3dc39b  — White power bank with three charging cables
+other/u-1583863788434-e58a36.jpg  https://unsplash.com/photos/photo-1583863788434-e58a36330cf0  — white apple charging adapter on white table
+other/u-1555488205-d5e67846c.jpg  https://unsplash.com/photos/photo-1555488205-d5e67846cf40  — lighted kerosene lantern -
+other/u-1565814329452-e1efa1.jpg  https://unsplash.com/photos/photo-1565814329452-e1efa11c5b89  — white pendant lamp
+other/u-1769255119650-f658d3.jpg  https://unsplash.com/photos/photo-1769255119650-f658d3dbc397  — A modern lamp with a wooden base glows softly
+other/u-1540932239986-301280.jpg  https://unsplash.com/photos/photo-1540932239986-30128078f3c5  — turned on pendant lamps
+basil/u-1748576724273-c1ed05.jpg  https://unsplash.com/photos/photo-1748576724273-c1ed05911708  — Young basil plants thriving in their pots
+basil/u-1629157247277-48f870.jpg  https://unsplash.com/photos/photo-1629157247277-48f870757026  — green leaves in macro lens (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1651773485326-41b9ae.jpg  https://unsplash.com/photos/photo-1651773485326-41b9ae7d3c05  — a plant with leaves (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1538596313828-41d729.jpg  https://unsplash.com/photos/photo-1538596313828-41d729090199  — green leaves (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1617970640806-4ff9fd.jpg  https://unsplash.com/photos/photo-1617970640806-4ff9fdce89ca  — green leaves in close up photography (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1683403504056-fd9551.jpg  https://unsplash.com/photos/photo-1683403504056-fd9551b9e666  — a close up of a bunch of green leaves (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1536777206078-5e694d.jpg  https://unsplash.com/photos/photo-1536777206078-5e694d16c678  — macro photography of green leafed plant (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1627738663093-d0779d.jpg  https://unsplash.com/photos/photo-1627738663093-d0779d56e3bc  — green plant in blue plastic bucket (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1527964105263-1ac626.jpg  https://unsplash.com/photos/photo-1527964105263-1ac6265a569f  — green leaf plants (вид по тегу basil: первые во всех трёх запросах про базилик)
+basil/u-1500420254515-0faefa.jpg  https://unsplash.com/photos/photo-1500420254515-0faefa2dac99  — green vegeatables (вид по тегу basil: первые во всех трёх запросах про базилик)
+other/u-1759320384907-21e63c.jpg  https://unsplash.com/photos/photo-1759320384907-21e63c6ea1c2  — Woman holding a potted pink flower among lush green plants
+other/u-1599499610229-4270eb.jpg  https://unsplash.com/photos/photo-1599499610229-4270ebf983c6  — person holding white flower with green leaves
+other/u-1746729367949-e5fcff.jpg  https://unsplash.com/photos/photo-1746729367949-e5fcff2b0043  — A hand gently holds a white flower
+other/u-1605816035661-888f14.jpg  https://unsplash.com/photos/photo-1605816035661-888f145eed39  — person holding red maple leaf
+other/u-1596364725424-7673f0.jpg  https://unsplash.com/photos/photo-1596364725424-7673f05f64b1  — boy in green shirt holding black round plastic container
+other/u-1611504261400-bca14f.jpg  https://unsplash.com/photos/photo-1611504261400-bca14f7e0b9c  — person in white blazer holding green heart ornament
+other/u-1647631703145-01e8bf.jpg  https://unsplash.com/photos/photo-1647631703145-01e8bf7cd149  — a hand holding a potted plant on a white wall
+other/u-1698659036248-eea265.jpg  https://unsplash.com/photos/photo-1698659036248-eea265b6ed57  — a person holding a plant in a white pot
+other/u-1528563351349-844bf0.jpg  https://unsplash.com/photos/photo-1528563351349-844bf0482bf0  — person holding plant vase with plant
+other/u-1597055181321-71de4e.jpg  https://unsplash.com/photos/photo-1597055181321-71de4e5ec627  — person holding green plant in white ceramic pot

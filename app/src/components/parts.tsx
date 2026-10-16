@@ -152,16 +152,16 @@ export function Toast() {
   )
 }
 
-/** Плашка «вышла новая версия» установленного приложения. Сама не прячется:
+/** Плашка «вышла новая версия», как в Cramless. Сама не прячется:
     обновление перезагружает экран, и момент выбирает человек. См. lib/pwa.ts. */
 export function UpdateBanner() {
   const apply = useUpdate()
   return (
     <div className={'upd' + (apply ? ' on' : '')} role="status" aria-live="polite">
       {apply && <>
-        <span>A new version is ready</span>
+        <span>New version available</span>
         <b role="button" tabIndex={0} onClick={apply}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply() } }}>Update</b>
+           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); apply() } }}>Reload</b>
       </>}
     </div>
   )

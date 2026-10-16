@@ -45,6 +45,17 @@ function serveRepoRoot() {
   return {
     name: 'serve-repo-root',
     configureServer(server: import('vite').ViteDevServer) {
+      // Генератор эталонов (build-refs.html) пишет результат сюда — только в dev.
+      server.middlewares.use('/__refs', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end(); return }
+        let body = ''
+        req.on('data', c => { body += c })
+        req.on('end', () => {
+          JSON.parse(body)   // битый JSON не должен затереть рабочий файл
+          fs.writeFileSync(path.resolve(__dirname, 'src/data/refs.json'), body)
+          res.end('ok')
+        })
+      })
       server.middlewares.use((req, res, next) => {
         const m = req.url?.match(/^\/web-app\/(?!react\/)(.+)$/)
         if (!m) return next()

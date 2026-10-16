@@ -17,24 +17,28 @@ import { LIBNOTE } from '../data/onboarding'
 import { SPECIES, ofKind, type Species } from '../data/species'
 import { fitsLight, spSub } from '../lib/plan'
 import { fmtPot, limit } from '../lib/plants'
-import { SCAN_ENDPOINT, identify, type ScanResult } from '../lib/scan'
+import { KNOWN, identify, loadModel, type ScanResult } from '../lib/recognize'
 import { useStore } from '../state/store'
 
 type Go = (id: string) => void
 
-function SpRow({ sp, have, pick, onAdd, note }:
-    { sp: Species; have: boolean; pick: boolean; onAdd: () => void; note: string }) {
-  const label = have ? `${sp.name} — already in your plants`
+// onPhoto — свой вид, пока ждёт снимок со сканера: строка не гаснет, а кладёт
+// снимок в журнал этого растения. Иначе снятое уже имеющееся растение было
+// некуда деть, и кадр пропадал.
+function SpRow({ sp, have, pick, onAdd, onPhoto, note }:
+    { sp: Species; have: boolean; pick: boolean; onAdd: () => void; onPhoto?: () => void; note: string }) {
+  const tap = have ? onPhoto : onAdd
+  const label = have ? (onPhoto ? `Add this photo to your ${sp.name}` : `${sp.name} — already in your plants`)
     : pick ? `Remove ${sp.name} from the selection` : `Add ${sp.name} to your plants`
   return (
-    <div className={'pl' + (pick ? ' added' : '') + (have ? ' have' : '')}
-         {...(have ? { 'aria-disabled': true } : { role: 'button', tabIndex: 0, onClick: onAdd })}
+    <div className={'pl' + (pick ? ' added' : '') + (have && !onPhoto ? ' have' : '')}
+         {...(tap ? { role: 'button', tabIndex: 0, onClick: tap } : { 'aria-disabled': true })}
          aria-label={label}
          onKeyDown={e => {
-           if (!have && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onAdd() }
+           if (tap && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap() }
          }}>
       <SpThumb s={sp} />
-      <div className="nm"><b>{sp.name}</b><s>{note}</s></div>
+      <div className="nm"><b>{sp.name}</b><s>{have && onPhoto ? 'In your plants · add the photo' : note}</s></div>
       {/* Обе иконки лежат в разметке, как в прототипе: какая видна — решает CSS
           по классу .added. С одной иконкой правило гасило её саму. */}
       <div className="addbtn" aria-hidden="true">
@@ -103,6 +107,17 @@ export function AddPlantScreen({ go }: { go: Go }) {
     // Онбординг «уже есть» продолжается: где растения живут и сколько там света.
     // Без этих двух шагов движок ухода считал по умолчанию «улица, 6–8 часов»
     // даже для монстеры в комнате, а точки прогресса обещали пять шагов из двух.
+    go(own ? 'q1' : onb ? 'save' : 'home')
+  }
+
+  // Снимок со сканера к растению, которое уже есть: в его журнал, первым кадром.
+  const photoTo = (sp: Species) => {
+    const i = s.plants.findIndex(p => p.s.id === sp.id)
+    if (i < 0 || !s.scanKeep) return
+    d({ t: 'addPhoto', v: { i, url: s.scanKeep } })
+    d({ t: 'scanKeep', v: null })
+    d({ t: 'select', v: i })
+    d({ t: 'toast', v: { html: `<span>Photo added to <b>${sp.name}</b></span>`, ms: 3500, at: Date.now() } })
     go(own ? 'q1' : onb ? 'save' : 'home')
   }
 
@@ -183,7 +198,8 @@ export function AddPlantScreen({ go }: { go: Go }) {
                                   ? '' : ' · needs more light')}
                          have={s.plants.some(p => p.s.id === sp.id)}
                          pick={s.pending.indexOf(sp.id) > -1}
-                         onAdd={() => tapRow(sp.id)} />
+                         onAdd={() => tapRow(sp.id)}
+                         onPhoto={s.scanKeep ? () => photoTo(sp) : undefined} />
                 ))}
               </div>
             </div>
@@ -217,26 +233,36 @@ export function ScanScreen({ go }: { go: Go }) {
     if (url) d({ t: 'scanUrl', v: url })
     else cam.open()
   }
-  // Распознавание подключается адресом воркера (lib/scan.ts). Ответ привязан к
+  // Распознавание идёт на телефоне (lib/recognize.ts). Модель начинаем грузить,
+  // пока человек целится, — к снимку она обычно уже готова. Ответ привязан к
   // снимку: новый кадр сбрасывает прошлый результат.
-  const endpoint = SCAN_ENDPOINT
+  useEffect(() => { loadModel().catch(() => {}) }, [])
   const [res, setRes] = useState<{ url: string; r: ScanResult } | null>(null)
   useEffect(() => {
     const url = s.scanUrl
-    if (!endpoint || !url) return
+    if (!url) return
     let live = true
     identify(url).then(r => { if (live) setRes({ url, r }) })
     return () => { live = false }
-  }, [s.scanUrl, endpoint])
+  }, [s.scanUrl])
   const r = res && res.url === s.scanUrl ? res.r : null
-  const busy = !!endpoint && !!s.scanUrl && !r
+  const busy = !!s.scanUrl && !r
+  const known = KNOWN.map(x => x.name.toLowerCase())
+  const knownList = known.length > 1 ? `${known.slice(0, -1).join(', ')} or ${known[known.length - 1]}` : known[0]
 
   // Распознанный вид добавляется сразу, с этим снимком первым кадром журнала, —
-  // тем же путём, что и кнопка библиотеки. Дубль вида не заводим: открываем свой.
+  // тем же путём, что и кнопка библиотеки. Дубль вида не заводим: снимок уходит в свой.
   const onb = s.onbMode !== null
   const addFound = (sp: Species) => {
     const have = s.plants.findIndex(p => p.s.id === sp.id)
-    if (have > -1) { d({ t: 'scanUrl', v: null }); d({ t: 'select', v: have }); go('plant'); return }
+    if (have > -1) {
+      d({ t: 'addPhoto', v: { i: have, url: s.scanUrl! } })
+      d({ t: 'select', v: have })
+      d({ t: 'toast', v: { html: `<span>Photo added to <b>${sp.name}</b></span>`, ms: 3500, at: Date.now() } })
+      d({ t: 'scanUrl', v: null })
+      go(s.onbMode === 'own' ? 'q1' : onb ? 'save' : 'home')
+      return
+    }
     if (!s.isPro && s.plants.length >= limit(s.isPro)) { go('paywall'); return }
     d({ t: 'pending', v: [sp.id] })
     d({ t: 'scanKeep', v: s.scanUrl })
@@ -244,8 +270,11 @@ export function ScanScreen({ go }: { go: Go }) {
     d({ t: 'scanUrl', v: null })
     go(s.onbMode === 'own' ? 'q1' : onb ? 'save' : 'home')
   }
-  const toLibrary = (label: string) => (
-    <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+  // primary — единственный выход вперёд (распознавание выключено): лаймовая,
+  // как было до переноса распознавания. В остальных ветках — запасной путь.
+  const toLibrary = (label: string, primary = false) => (
+    <div className={'btn' + (primary ? ' b-lime' : '')}
+         style={primary ? undefined : { background: '#1B3527', color: '#fff' }}
          role="button" tabIndex={0}
          onClick={() => {
            d({ t: 'scanKeep', v: s.scanUrl })
@@ -279,9 +308,8 @@ export function ScanScreen({ go }: { go: Go }) {
             {!s.scanUrl ? (
               <>
                 <b>Point the camera at the plant</b>
-                <s>{endpoint
-                  ? 'One clear leaf fills the frame. We send the photo to PlantNet and match the answer against our 29 species.'
-                  : 'One clear leaf fills the frame. Then pick the plant from the library — this photo becomes its first journal shot.'}</s>
+                <s>One plant fills the frame. We recognise {knownList} right on your phone —
+                  the photo becomes its first journal shot.</s>
                 <div className="btn b-lime" role="button" tabIndex={0} onClick={takePhoto}>
                   Take a photo
                 </div>
@@ -294,62 +322,38 @@ export function ScanScreen({ go }: { go: Go }) {
               <>
                 <div className="scan-dots"><i /><i /><i /></div>
                 <b>Looking at your plant…</b>
-                <s>Sending the photo to PlantNet</s>
+                <s>Recognition runs on your phone — the photo goes nowhere.</s>
               </>
             ) : r?.t === 'match' ? (
               <>
                 <span className="pill b-lime" style={{ alignSelf: 'flex-start' }}>{r.pct}% match</span>
                 <b style={{ marginTop: 12 }}>{r.sp.name}</b>
                 <s>
-                  <em>{r.latin}</em>{r.common ? ` · ${r.common}` : ''}<br />
+                  <em>{r.sp.latin}</em><br />
                   {spSub(r.sp, s.units, fmtPot)}
                   {fitsLight(r.sp, s.choices.sunRank) ? '' : ' · needs more light than you have'}
                 </s>
                 <div className="btn b-lime" role="button" tabIndex={0} onClick={() => addFound(r.sp)}>
                   {s.plants.some(p => p.s.id === r.sp.id)
-                    ? `Open my ${r.sp.name.toLowerCase()}` : `Add ${r.sp.name.toLowerCase()} to my plants`}
+                    ? `Add this photo to my ${r.sp.name.toLowerCase()}` : `Add ${r.sp.name.toLowerCase()} to my plants`}
                 </div>
                 {toLibrary('Not it — choose manually')}
               </>
-            ) : r?.t === 'foreign' ? (
-              <>
-                <span className="pill" style={{ background: '#3A3020', color: '#F0C674', alignSelf: 'flex-start' }}>
-                  {r.pct}% {r.common || 'identified'}
-                </span>
-                <b style={{ marginTop: 12 }}>Not in our library</b>
-                <s><em>{r.latin}</em> isn’t one of the {SPECIES.length} plants HOMEGROWN knows how
-                  to care for. You can still add one yourself.</s>
-                {retry}
-                {toLibrary('Choose manually')}
-              </>
             ) : r?.t === 'none' ? (
               <>
-                <b>No match</b>
-                <s>PlantNet didn’t recognise this one. Try a closer shot of a single leaf, or pick
-                  it yourself — the photo stays.</s>
-                {retry}
-                {toLibrary('Choose manually')}
-              </>
-            ) : r?.t === 'offline' ? (
-              <>
-                <b>Couldn’t reach the service</b>
-                <s>Check the connection and try again — the photo is still here.</s>
+                <b>Not one we know</b>
+                <s>This doesn’t look like {knownList}. Try a closer shot with the plant filling
+                  the frame, or pick it yourself — the photo stays.</s>
                 {retry}
                 {toLibrary('Choose manually')}
               </>
             ) : (
               <>
-                <span className="pill b-lime" style={{ alignSelf: 'flex-start' }}>Photo saved</span>
-                <b style={{ marginTop: 12 }}>Which one is it?</b>
-                <s>
-                  Automatic recognition is not switched on, so we won’t guess at your plant. Pick
-                  it from the library and this photo becomes its first journal shot.
-                </s>
-                {/* data-scanpick в прототипе: снимок надо донести до библиотеки,
-                    чтобы он стал первой фотографией растения */}
-                {toLibrary('Choose from the library')}
-                <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
-                     role="button" tabIndex={0} onClick={cam.open}>Try another photo</div>
+                <b>Couldn’t start recognition</b>
+                <s>The first scan needs a connection to download it. Try again — the photo is
+                  still here.</s>
+                {retry}
+                {toLibrary('Choose manually')}
               </>
             )}
           </div>
