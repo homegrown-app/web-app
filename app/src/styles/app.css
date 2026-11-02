@@ -355,12 +355,6 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
    компактная пилюля тарифа: во всю ширину, половины равные. */
 .seg.wide{width:auto;margin-left:0;margin-right:0}
 .seg.wide div{flex:1;min-width:0;height:48px;justify-content:center;padding:0}
-.pcard{border-radius:var(--r-xl);padding:20px;margin-top:16px;background:#1C1548;border:1.5px solid var(--lime);position:relative}
-.pcard .pr{font-size:var(--t-24);font-weight:500;letter-spacing:-.02em}
-.pcard .pn{font-size:var(--t-13);color:rgba(255,255,255,.8);line-height:1.45;margin-top:8px}
-.feat{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12)}
-.feat div{display:flex;align-items:flex-start;gap:8px;font-size:var(--t-14);margin-bottom:12px;color:rgba(255,255,255,.9)}
-.feat i{width:8px;height:8px;border-radius:50%;background:var(--lime);flex:none;margin-top:8px}
 .stat{background:rgba(255,255,255,.08);border-radius:var(--r-lg);padding:16px}
 .stat b{font-size:var(--n-md);font-weight:600;display:block;line-height:1}
 .stat s{font-size:var(--t-12);color:rgba(255,255,255,.8);text-decoration:none;display:block;margin-top:8px;line-height:1.35}
@@ -762,3 +756,41 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .rsh-body .hd{padding-top:0;background:var(--ground)}
 .rsh-body .hd .wm,.rsh-body .hd .wm-swap{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.rsh-sc,.rsh-box{animation:none;transition:none}}
+
+/* ───── пейволл. Обязательный шаг входа, поэтому он светлый и спокойный:
+   тёмный полноэкранный блок в канвасе остался только за моментами. */
+.pw{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;
+     background:var(--screen);color:var(--ink)}
+.pw-hd{flex:none;height:56px;display:flex;align-items:center;justify-content:space-between;
+     padding:0 16px;margin-top:env(safe-area-inset-top)}
+.pw-hd .wm{display:flex;align-items:center;gap:8px}
+.pw .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px var(--foot-h,140px);
+     scrollbar-width:none;min-height:0}
+.pw .bd::-webkit-scrollbar{display:none}
+.pw-top{padding:24px 8px 0;text-align:center}
+.pw-h{font-size:32px;line-height:36px;font-weight:500;letter-spacing:-.02em}
+.pw-lead{font-size:var(--t-16);line-height:22px;font-weight:500;color:var(--muted);margin-top:12px}
+.pw-feats{padding:24px 8px 0}
+.pw-f{display:flex;align-items:center;gap:14px;padding:12px 0}
+.pw-fi{width:44px;height:44px;border-radius:var(--r-md);background:var(--lilac);flex:none;
+     display:flex;align-items:center;justify-content:center}
+.pw-f b{display:block;font-size:var(--t-16);line-height:22px;font-weight:600}
+.pw-f s{display:block;text-decoration:none;font-size:var(--t-14);line-height:20px;
+     font-weight:500;color:var(--muted);margin-top:2px}
+.pw-plans{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.pw-p{position:relative;min-height:84px;border-radius:var(--r-2xl);background:var(--surface);
+     box-shadow:var(--sh-card);padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.pw-p.on{background:#F7F4FF;box-shadow:0 0 0 2px var(--primary) inset}
+.pw-pt{flex:1;min-width:0}
+.pw-pt b{display:block;font-size:var(--t-20);line-height:24px;font-weight:600}
+.pw-pt s{display:block;text-decoration:none;font-size:var(--t-14);line-height:20px;
+     font-weight:500;color:var(--muted);margin-top:2px}
+.pw-pp{flex:none;text-align:right}
+.pw-pp b{display:block;font-size:var(--t-24);line-height:28px;font-weight:500;letter-spacing:-.02em;
+     font-variant-numeric:tabular-nums}
+.pw-pp s{display:block;text-decoration:none;font-size:var(--t-13);line-height:16px;
+     font-weight:600;color:var(--muted)}
+/* Плашка выгоды сидит на верхней грани карточки: внутри она отнимала бы
+   строку у цены, а снаружи — ломала бы ритм между карточками. */
+.pw-best{position:absolute;top:-14px;left:16px}
+.pw-note{font-size:var(--t-12);line-height:1.45;color:var(--muted);text-align:center;margin-top:8px}

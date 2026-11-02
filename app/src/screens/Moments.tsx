@@ -227,6 +227,9 @@ export function ShoppingScreen({ go }: { go: Go }) {
 }
 
 // ─────────────────────────────────────────── Paywall
+const YEAR = 29
+const MONTH = 4
+
 export function PaywallScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const yearly = s.pickKey !== 'pw-monthly'   // сегмент живёт локально в pickKey
@@ -254,68 +257,56 @@ export function PaywallScreen({ go }: { go: Go }) {
 
   return (
     <div className="screen on" id="s-paywall">
-      <div className="dark">
-        <div className="glow" /><div className="glow b" />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="sprout" color="var(--lime)" size={24} sw={2} />
-            <span style={{ fontSize: 'var(--t-14)', fontWeight: 700, letterSpacing: '.1em' }}>
-              HOMEGROWN
-            </span>
-          </div>
+      <div className="pw">
+        <div className="pw-hd">
+          <div className="wm"><Icon name="sprout" color="var(--ink)" size={22} sw={2} />Homegrown</div>
           {/* Крестика нет: вход в приложение идёт через этот экран.
               Вернувшемуся человеку нужен не выход, а восстановление покупки. */}
-          <div className="tlink" style={{ margin: 0, padding: '12px 8px' }}
+          <div className="tlink2" style={{ margin: 0, padding: '12px 8px' }}
                role="button" tabIndex={0} onClick={() => go('signin')}>Restore</div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 24, position: 'relative' }}>
-          <div style={{ fontSize: 'var(--t-31)', fontWeight: 600, lineHeight: 1.14,
-                        letterSpacing: '-.02em' }}>
-            Every plant,<br /><span style={{ color: 'var(--lime)' }}>planned all year.</span>
+        <div className="bd">
+          <div className="pw-top">
+            <h1 className="pw-h">Every plant,<br />planned all year</h1>
+            <p className="pw-lead">Built for your ZIP. Cancel anytime.</p>
           </div>
-          <div style={{ fontSize: 'var(--t-14)', color: 'rgba(255,255,255,.8)', marginTop: 8 }}>
-            7 days free. Cancel anytime.
+
+          <div className="pw-feats">
+            {FEATS.map(([t, sub]) => (
+              <div key={t} className="pw-f">
+                <span className="pw-fi"><Icon name="check" color="var(--primary)" size={20} sw={2.4} /></span>
+                <span><b>{t}</b><s>{sub}</s></span>
+              </div>
+            ))}
           </div>
-        </div>
 
-        <div className="seg" role="radiogroup" aria-label="Billing period">
-          <div className={yearly ? 'on' : undefined} role="radio" tabIndex={0} aria-checked={yearly}
-               onClick={() => d({ t: 'pickKey', v: 'pw-yearly' })}>Year pass</div>
-          <div className={yearly ? undefined : 'on'} role="radio" tabIndex={0} aria-checked={!yearly}
-               onClick={() => d({ t: 'pickKey', v: 'pw-monthly' })}>Monthly</div>
-        </div>
-
-        {/* Карточка цены — .pcard. Раньше стояла классом карточки растения
-            (.plcard) и рисовалась белой полосой 132px. */}
-        <div className="pcard">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div className="pr">
-                {yearly ? '$29' : '$4'}
-                <span style={{ fontSize: 'var(--t-15)', fontWeight: 500, color: 'rgba(255,255,255,.8)' }}>
-                  {yearly ? ' / year' : ' / month'}
-                </span>
-              </div>
-              <div className="pn">
-                Cheaper than one dead fiddle leaf fig. Covers every plant, all year.
-              </div>
+          {/* Два тарифа карточками, а не переключателем: экономия видна цифрой,
+              а не выводится в уме из двух цен на разных вкладках. */}
+          <div className="pw-plans" role="radiogroup" aria-label="Billing period">
+            <div className={'pw-p' + (yearly ? ' on' : '')} role="radio" tabIndex={0}
+                 aria-checked={yearly} onClick={() => d({ t: 'pickKey', v: 'pw-yearly' })}
+                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
+                   e.preventDefault(); d({ t: 'pickKey', v: 'pw-yearly' }) } }}>
+              <span className="pw-pt"><b>Year pass</b><s>${YEAR} billed once a year</s></span>
+              <span className="pw-pp"><b>${(YEAR / 12).toFixed(2)}</b><s>per month</s></span>
+              <span className="pill b-lime pw-best">Save ${MONTH * 12 - YEAR} a year</span>
             </div>
-            {yearly && <span className="pill b-lime">Best</span>}
-          </div>
-          <div className="feat">
-            {FEATS.map(f => <div key={f}><i /><span>{f}</span></div>)}
+            <div className={'pw-p' + (yearly ? '' : ' on')} role="radio" tabIndex={0}
+                 aria-checked={!yearly} onClick={() => d({ t: 'pickKey', v: 'pw-monthly' })}
+                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') {
+                   e.preventDefault(); d({ t: 'pickKey', v: 'pw-monthly' }) } }}>
+              <span className="pw-pt"><b>Monthly</b><s>Billed every month</s></span>
+              <span className="pw-pp"><b>${MONTH}</b><s>per month</s></span>
+            </div>
           </div>
         </div>
 
-        <div style={{ flex: 1, minHeight: 16 }} />
-        <div className="btn b-lime" role="button" tabIndex={0} onClick={buy}>
-          {yearly ? 'Continue — $29 / year' : 'Continue — $4 / month'}
-        </div>
-        <div style={{ fontSize: 'var(--t-12)', color: 'rgba(255,255,255,.6)', textAlign: 'center',
-                      marginTop: 8, lineHeight: 1.45 }}>
-          Your plants and photos stay yours.
+        <div className="foot">
+          <div className="btn b-pri" role="button" tabIndex={0} onClick={buy}>
+            {yearly ? `Continue — $${YEAR} / year` : `Continue — $${MONTH} / month`}
+          </div>
+          <div className="pw-note">Your plants and photos stay yours.</div>
         </div>
       </div>
     </div>

@@ -1,7 +1,12 @@
 // Константы онбординга и настроек. Перенесены из proto.py без изменений
 // значений: тексты опций, теги целей, ранги света, цены горшков.
 
-import { NO_AUTH } from '../lib/demo'
+import { SPECIES } from './species'
+
+// Счёт видов считается из справочника, а не вписан числом: добавят вид —
+// обещание на пейволле поедет следом само.
+const HOUSE_N = SPECIES.filter(x => x.kind === 'house').length
+const EDIBLE_N = SPECIES.filter(x => x.kind === 'edible').length
 
 export type Track = 'house' | 'edible' | 'both'
 
@@ -98,13 +103,11 @@ export const QUOTE: Record<'house' | 'edible', [string, string, string]> = {
           'Placeholder name', 'Extension master gardener · sample quote'],
 }
 
-export const FEATS = [
-  'Every week planned, not just this one',
-  // В демо лимита нет — обещать «без потолка в три» как платное было бы неправдой.
-  NO_AUTH ? 'Every plant in the library' : 'Every plant in the library, no cap of three',
-  'Printable shopping list as PDF',
-  'Unlimited journal photos + yearly recap',
-  'Export your whole care history',
+export const FEATS: Array<[string, string]> = [
+  ['Every week planned', 'What to do, for which plant, how long'],
+  ['Planting windows from your ZIP', 'Spring and fall waves from your frost dates'],
+  ['The whole library', `${HOUSE_N} houseplants and ${EDIBLE_N} edibles`],
+  ['Shopping list, photos, export', 'Printable list, unlimited photos, yearly recap'],
 ]
 
 /** Экраны онбординга и путь точек прогресса для каждой ветки. */
