@@ -18,8 +18,24 @@ export function StatusBar() {
   )
 }
 
-export function Header({ back, onBack, title, gear }:
-    { back?: boolean; onBack?: () => void; title?: string; gear?: () => void }) {
+export function Header({ back, onBack, title, gear, steps }:
+    { back?: boolean; onBack?: () => void; title?: string; gear?: () => void
+      steps?: ReactNode }) {
+  // В онбординге шапка держит прогресс: полоса шагов и счётчик занимают
+  // место вордмарка, и сетка 44/1fr/44 уступает ряду с зазором 16.
+  if (steps) {
+    return (
+      <div className="hd hd-steps">
+        <div className="back" role="button" tabIndex={0} aria-label="Back"
+             onClick={onBack} onKeyDown={e => {
+               if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBack?.() }
+             }}>
+          <Icon name="caret-right" color="var(--ink)" size={20} />
+        </div>
+        {steps}
+      </div>
+    )
+  }
   return (
     <div className="hd">
       <div className="hd-l">
@@ -88,6 +104,8 @@ interface ScreenProps {
   id: string
   /** Название раздела в шапке вместо логотипа, когда .h1 страницы ушёл под шапку. */
   title?: string
+  /** Полоса шагов онбординга: занимает в шапке место вордмарка. */
+  steps?: ReactNode
   children: ReactNode
   back?: () => void
   nav?: { active: string; badge?: boolean; go: (id: string) => void }
@@ -113,7 +131,7 @@ interface ScreenProps {
   hero?: ReactNode
 }
 
-export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, overlay }: ScreenProps) {
+export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, overlay, steps }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -223,7 +241,7 @@ export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, 
     <div className={'screen on' + (hero ? ' has-hero' : '')} id={'s-' + id} ref={root}>
       {hero && <div className="hero">{hero}</div>}
       <StatusBar />
-      <Header back={!!back} onBack={back} title={title}
+      <Header back={!!back} onBack={back} title={title} steps={steps}
               gear={nav && nav.active !== 'Settings' ? () => nav.go('settings') : undefined} />
       {/* Распорка под фото, а НЕ padding-top у .bd: sticky внутри скролл-
           контейнера отсчитывает top:0 ниже его padding, и липкий заголовок

@@ -3,22 +3,22 @@
 // на те же имена классов и ту же вложенность.
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Icon, IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
+import { IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
 import { useStore } from '../state/store'
 import { STEPS } from '../data/onboarding'
 import { useUpdate } from '../lib/pwa'
 
 /** Опция онбординга. Ни одна не выбрана заранее — состояние появляется от тапа. */
-export function Opt({ label, sub, on, multi, dim, onPick }:
-    { label: string; sub?: string | null; on?: boolean; multi?: boolean
-      dim?: boolean; onPick: () => void }) {
+export function Opt({ label, sub, meta, wide, on, multi, dim, onPick }:
+    { label: string; sub?: string | null; meta?: string; wide?: boolean
+      on?: boolean; multi?: boolean; dim?: boolean; onPick: () => void }) {
   return (
-    <div className={'opt' + (on ? ' sel' : '') + (dim ? ' dim' : '')}
+    <div className={'opt' + (on ? ' sel' : '') + (dim ? ' dim' : '') + (wide ? ' wide' : '')}
          role={multi ? 'checkbox' : 'radio'} tabIndex={0} aria-checked={!!on}
          onClick={onPick}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick() } }}>
       <div>{label}{sub && <s>{sub}</s>}</div>
-      <div className="opt-tick"><Icon name="check" color="#fff" size={14} sw={3} /></div>
+      {meta && <i className="opt-m">{meta}</i>}
     </div>
   )
 }
@@ -33,11 +33,13 @@ export function Pg({ id }: { id: string }) {
   const path = STEPS[key]
   const k = path.indexOf(id)
   if (k < 0) return <div className="pg" />
-  return (
-    <div className="pg">
+  // Счётчик рядом с полосой: сколько шагов всего, видно сразу, а не на ощупь.
+  return <>
+    <div className="pg" role="img" aria-label={`Step ${k + 1} of ${path.length}`}>
       {path.map((_, i) => <i key={i} className={i <= k ? 'on' : undefined} />)}
     </div>
-  )
+    <span className="pg-n">{k + 1}/{path.length}</span>
+  </>
 }
 
 /** Тёмный полноэкранный блок: paywall, milestone, recap, week complete, scan. */

@@ -78,13 +78,12 @@ export function Q0Screen({ go }: { go: Go }) {
     go(own ? 'add-plant' : 'qwhat')
   }
   return (
-    <Screen id="q0" back={() => go('landing')} scrollKey="q0"
+    <Screen id="q0" steps={<Pg id="q0" />} back={() => go('landing')} scrollKey="q0"
             foot={<StepBtn on={own !== null} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>Where are you<br />starting from?</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet" style={{ marginTop: 8 }}>
         Two very different jobs, so we ask different things.
       </div>
-      <Pg id="q0" />
       <div style={{ marginTop: 16 }}>
         <Opt label="I already have plants" sub="Get them on a care schedule"
              on={own === true} onPick={() => setOwn(true)} />
@@ -105,13 +104,12 @@ export function QWhatScreen({ go }: { go: Go }) {
     go('q1')
   }
   return (
-    <Screen id="qwhat" back={() => go('q0')} scrollKey="qwhat"
+    <Screen id="qwhat" steps={<Pg id="qwhat" />} back={() => go('q0')} scrollKey="qwhat"
             foot={<StepBtn on={!!pick} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>What are you growing?</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         This decides the rest of the questions.
       </div>
-      <Pg id="qwhat" />
       <div style={{ marginTop: 16 }}>
         <Opt label="Something to eat" sub="Radishes, greens, tomatoes in pots"
              on={pick === 'Something to eat'} onPick={() => setPick('Something to eat')} />
@@ -129,6 +127,10 @@ export function Q1Screen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const opts = SPACES[s.choices.track] || SPACES.both
   const [sel, setSel] = useState<[string, string] | null>(null)
+  // «Outside» на каждой из шести плиток — шум: подпись нужна там, где вариант
+  // выбивается. Помечаем меньшую сторону, и только если стороны вообще две.
+  const out = opts.filter(([l]) => isOutdoorSpace(l)).length
+  const odd = out === opts.length || out === 0 ? null : out * 2 > opts.length
   const next = () => {
     if (!sel) return
     const [label, to] = sel
@@ -140,15 +142,18 @@ export function Q1Screen({ go }: { go: Go }) {
   }
   return (
     // Назад на ветке «уже есть» — в библиотеку, откуда сюда и пришли.
-    <Screen id="q1" back={() => go(s.onbMode === 'own' ? 'add-plant' : 'q0')} scrollKey="q1"
+    <Screen id="q1" steps={<Pg id="q1" />} back={() => go(s.onbMode === 'own' ? 'add-plant' : 'q0')} scrollKey="q1"
             foot={<StepBtn on={!!sel} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>
         {s.choices.track === 'edible' ? 'Where will you grow?' : 'Where will it live?'}
       </div>
-      <Pg id="q1" />
-      <div style={{ marginTop: 16 }}>
+      {/* Две колонки: названия мест короткие. Вариант с пояснением шире —
+          ему нужна строка целиком, и он единственный «внутри» среди уличных. */}
+      <div className="optgrid">
         {opts.map(([label, sub, to]) => (
-          <Opt key={label} label={label} sub={sub} on={sel?.[0] === label}
+          <Opt key={label} label={label} sub={sub} wide={!!sub} on={sel?.[0] === label}
+               meta={odd !== null && isOutdoorSpace(label) !== odd
+                     ? (isOutdoorSpace(label) ? 'Outside' : 'Inside') : undefined}
                onPick={() => setSel([label, to])} />
         ))}
       </div>
@@ -174,13 +179,12 @@ export function Q2Screen({ go }: { go: Go }) {
   const pick = (zip: string) => { setVal(zip); d({ t: 'choices', v: { zip } }) }
 
   return (
-    <Screen id="q2" back={() => go('q1')} scrollKey="q2"
+    <Screen id="q2" steps={<Pg id="q2" />} back={() => go('q1')} scrollKey="q2"
             foot={<StepBtn on={!!known} onNext={() => go('q3')} />}>
       <div className="h1" style={{ marginTop: 16 }}>What’s your ZIP?</div>
       <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
         Frost dates decide what can go outside, and when.
       </div>
-      <Pg id="q2" />
 
       <label className={'fld' + (full && !known ? ' bad' : '')} style={{ marginTop: 16 }}>
         <span className="fld-l">ZIP code</span>
@@ -265,10 +269,9 @@ export function Q3Screen({ go }: { go: Go }) {
   const sun = useSunNext(go)
   const [sel, setSel] = useState<string | null>(null)
   return (
-    <Screen id="q3" back={() => go('q2')} scrollKey="q3"
+    <Screen id="q3" steps={<Pg id="q3" />} back={() => go('q2')} scrollKey="q3"
             foot={<StepBtn on={!!sel} onNext={() => sel && sun(sel, false)} />}>
       <div className="h1" style={{ marginTop: 16 }}>How much direct sun<br />does that spot get?</div>
-      <Pg id="q3" />
       <div style={{ marginTop: 16 }}>
         {SUN_OUT.map(([l, sub]) => (
           <Opt key={l} label={l} sub={sub} on={sel === l} onPick={() => setSel(l)} />
@@ -282,10 +285,9 @@ export function Q2iScreen({ go }: { go: Go }) {
   const sun = useSunNext(go)
   const [sel, setSel] = useState<string | null>(null)
   return (
-    <Screen id="q2i" back={() => go('q1')} scrollKey="q2i"
+    <Screen id="q2i" steps={<Pg id="q2i" />} back={() => go('q1')} scrollKey="q2i"
             foot={<StepBtn on={!!sel} onNext={() => sel && sun(sel, true)} />}>
       <div className="h1" style={{ marginTop: 16 }}>How bright is<br />that spot?</div>
-      <Pg id="q2i" />
       <div style={{ marginTop: 16 }}>
         {SUN_IN.map(([l, sub]) => (
           <Opt key={l} label={l} sub={sub} on={sel === l} onPick={() => setSel(l)} />
@@ -316,7 +318,7 @@ export function Q4Screen({ go }: { go: Go }) {
   }
   const full = picked.length >= MAXG
   return (
-    <Screen id="q4" back={() => go(s.choices.outdoor ? 'q3' : 'q2i')} scrollKey="q4"
+    <Screen id="q4" steps={<Pg id="q4" />} back={() => go(s.choices.outdoor ? 'q3' : 'q2i')} scrollKey="q4"
             foot={<>
               <div style={{ fontSize: 'var(--t-13)', color: 'var(--muted)', marginBottom: 8,
                             textAlign: 'center' }}>
@@ -325,11 +327,10 @@ export function Q4Screen({ go }: { go: Go }) {
               <StepBtn on={!!picked.length} onNext={() => go('q5')} />
             </>}>
       <div className="h1" style={{ marginTop: 16 }}>{Q4TITLE[s.choices.track] || Q4TITLE.both}</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet" style={{ marginTop: 8 }}>
         Up to 3 · {picked.length ? `${picked.length} selected` : 'nothing selected yet'}
       </div>
-      <Pg id="q4" />
-      <div style={{ marginTop: 16 }}>
+      <div className="optgrid">
         {opts.map(([label, tag]) => {
           const on = picked.indexOf(tag) > -1
           // лишние гаснут, а не исчезают
@@ -352,10 +353,9 @@ export function Q5Screen({ go }: { go: Go }) {
     go('preview')
   }
   return (
-    <Screen id="q5" back={() => go('q4')} scrollKey="q5"
+    <Screen id="q5" steps={<Pg id="q5" />} back={() => go('q4')} scrollKey="q5"
             foot={<StepBtn on={sel !== null} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>How much time can<br />you give it?</div>
-      <Pg id="q5" />
       <div style={{ marginTop: 16 }}>
         <Opt label="About 10 minutes" sub="Keep it very simple · 3 plants"
              on={sel === 3} onPick={() => setSel(3)} />

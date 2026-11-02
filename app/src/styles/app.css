@@ -46,6 +46,16 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .hd{padding:4px 12px 8px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
     flex:none;min-height:52px;position:relative;z-index:5;
     background:linear-gradient(180deg,#EFEBFF 0%,#F4F1FB 58%,var(--ground) 100%)}
+.hd-steps{display:flex;align-items:center;gap:16px;padding:0 16px;grid-template-columns:none}
+.hd-steps .back{margin-left:-8px}
+.pg-n{flex:none;font-size:var(--t-13);line-height:16px;font-weight:600;color:var(--muted);
+      font-variant-numeric:tabular-nums}
+/* Внутри онбординга текст идёт по 24, карточки — по 16: карточка шире
+   колонки текста, как в канвасе. Лист даёт 16, заголовки добирают 8. */
+.screen:has(.hd-steps) .bd{padding:8px 16px}
+.screen:has(.hd-steps) .h1,
+.screen:has(.hd-steps) .greet,
+.screen:has(.hd-steps) .sl{margin-left:8px;margin-right:8px}
 .hd-l,.hd-r{display:flex;align-items:center;height:44px}
 .hd-l{justify-content:flex-start}
 .hd-r{justify-content:flex-end}
@@ -56,12 +66,12 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .wm{font-weight:600;font-size:var(--t-20);letter-spacing:0;color:var(--ink);line-height:24px}
 .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 8px;scrollbar-width:none;min-height:0}
 .screen:has(.foot) .bd{padding-bottom:var(--foot-h, 100px)}
-.foot{position:absolute;left:0;right:0;bottom:0;padding:8px 20px 24px;background:transparent;
-     z-index:22;pointer-events:none}
+.foot{position:absolute;left:0;right:0;bottom:0;padding:24px 16px 32px;z-index:22;pointer-events:none;
+     background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#FFFFFF 30%)}
 .foot>*{pointer-events:auto}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
-.greet{font-size:var(--t-14);color:var(--muted);margin-top:16px}
+.greet{font-size:var(--t-16);line-height:24px;font-weight:500;color:var(--muted);margin-top:16px}
 .h1{font-weight:500;font-size:var(--t-31);line-height:36px;letter-spacing:-.02em;margin-top:8px}
 .h1 .m{color:#5C5670}
 .sl{font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;color:var(--muted);margin:20px 0 8px}
@@ -159,7 +169,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
      background:var(--flame);box-shadow:0 0 0 2px var(--surface)}
 
 /* ───── онбординг */
-.pg{display:flex;gap:4px;margin-top:16px}
+.pg{display:flex;gap:4px;flex:1;min-width:0}
 .pg i{height:6px;flex:1;border-radius:3px;background:var(--hair-2)}
 .pg i.on{background:var(--primary)}
 .opt{background:var(--surface);border-radius:var(--r-2xl);padding:16px;margin-bottom:12px;font-size:var(--t-20);min-height:84px;
@@ -168,11 +178,18 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .opt s{display:block;font-size:var(--t-14);line-height:20px;color:var(--muted);font-weight:500;text-decoration:none;margin-top:4px}
 .opt.sel{background:#F7F4FF;box-shadow:0 0 0 2px var(--primary) inset}
 .opt.sel s{color:var(--ink-2)}
-.opt.dim{color:#5C5670;pointer-events:none}.opt.dim s{color:#8E88A8}
-.opt-tick{width:24px;height:24px;border-radius:50%;background:var(--primary);display:flex;
-          align-items:center;justify-content:center;flex:none;margin-left:12px;
-          opacity:0;transform:scale(.65);transition:opacity .14s,transform .14s}
-.opt.sel .opt-tick{opacity:1;transform:scale(1)}
+/* Выбор из многих коротких вариантов — сетка в две колонки: восемь карточек
+   во всю ширину уезжали на два экрана, и последние не видел никто. */
+.optgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+.optgrid .opt{min-height:72px;border-radius:22px;padding:12px;margin-bottom:0;
+     font-size:var(--t-15);line-height:20px;align-items:flex-start;flex-direction:column;
+     justify-content:space-between;gap:8px}
+.optgrid .opt.wide{grid-column:span 2;flex-direction:row;align-items:center;
+     min-height:72px;font-size:var(--t-20);line-height:24px}
+.opt-m{font-style:normal;font-size:var(--t-12);line-height:16px;font-weight:600;color:var(--muted)}
+.optgrid .opt.wide .opt-m{margin-left:auto;flex:none}
+.opt.dim{background:#EEEBF5;box-shadow:none;color:#5C5670;pointer-events:none}
+.opt.dim s,.opt.dim .opt-m{color:#8E88A8}
 .btn.off{background:#E9E5F5;color:#5C5670;pointer-events:none;box-shadow:none}
 .zip.ph{color:#8E88A8;letter-spacing:.22em}
 .tglrow{cursor:pointer}
