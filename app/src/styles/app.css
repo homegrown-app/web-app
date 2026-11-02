@@ -63,7 +63,8 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .back{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#EFEBFF}
-.wm{font-weight:600;font-size:var(--t-20);letter-spacing:0;color:var(--ink);line-height:24px}
+.wm{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;
+     font-size:var(--t-20);letter-spacing:0;color:var(--ink);line-height:24px}
 .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 8px;scrollbar-width:none;min-height:0}
 .screen:has(.foot) .bd{padding-bottom:var(--foot-h, 100px)}
 .foot{position:absolute;left:0;right:0;bottom:0;padding:24px 16px 32px;z-index:22;pointer-events:none;
@@ -134,7 +135,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .wk.open .pb-chev{transform:rotate(90deg)}
 .wk-list{padding:4px 16px 12px}
 .br-row{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer}
-.br-dot{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 2px #8E88A8;
+.br-dot{width:24px;height:24px;border-radius:var(--r-xs);flex:none;box-shadow:inset 0 0 0 2px #8E88A8;
      display:flex;align-items:center;justify-content:center;background:var(--surface)}
 .br-dot.on{background:var(--primary);box-shadow:none}
 .br-t{flex:1;font-size:var(--t-15);font-weight:600;letter-spacing:-.02em;line-height:1.25;min-width:0}

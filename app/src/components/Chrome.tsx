@@ -5,7 +5,7 @@
 // подвал на навигацию.
 
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { Icon } from '../icons/Icon'
+import { Icon, Seed } from '../icons/Icon'
 
 export function StatusBar() {
   return (
@@ -51,8 +51,9 @@ export function Header({ back, onBack, title, gear, steps }:
       {/* С title логотип уступает место названию раздела, когда крупный
           заголовок страницы уезжает под шапку (класс is-titled на .screen). */}
       {title
-        ? <div className="wm-swap"><div className="wm">HOMEGROWN</div><div className="hd-t">{title}</div></div>
-        : <div className="wm">HOMEGROWN</div>}
+        ? <div className="wm-swap"><div className="wm"><Seed size={24} />Homegrown</div>
+                                   <div className="hd-t">{title}</div></div>
+        : <div className="wm"><Seed size={24} />Homegrown</div>}
       <div className="hd-r">
         {/* Настройки живут в шапке: середина таб-бара отдана сканеру. */}
         {gear && (
