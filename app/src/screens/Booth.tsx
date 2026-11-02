@@ -445,15 +445,15 @@ function CutDiagram() {
   return (
     <svg className="booth-cut" viewBox="0 0 320 196" role="img"
          aria-label="Side view of a lettuce: cut the outer leaves 2 to 3 centimetres above the soil, leave the inner leaves">
-      <path d="M96 160 H224 L212 196 H108Z" fill="#1B3527" />
+      <path d="M96 160 H224 L212 196 H108Z" fill="rgba(255,255,255,.14)" />
       <rect x="96" y="150" width="128" height="12" rx="3" fill="#3A2E22" />
-      {outer.map(d => <path key={d} d={d} fill="#22A559" />)}
-      {heart.map(d => <path key={d} d={d} fill="#B4F461" />)}
-      <line x1="40" y1="138" x2="280" y2="138" stroke="#FF7043" strokeWidth="2.5" strokeDasharray="7 6" />
-      <line x1="86" y1="138" x2="86" y2="150" stroke="#A9BCB0" strokeWidth="1.5" />
-      <text x="40" y="160" fill="#A9BCB0" fontSize="11" fontFamily="Inter Tight, sans-serif">2–3 cm</text>
-      <text x="40" y="130" fill="#FF7043" fontSize="12" fontWeight="600" fontFamily="Inter Tight, sans-serif">cut here</text>
-      <text x="163" y="40" textAnchor="middle" fill="#B4F461" fontSize="12" fontWeight="600" fontFamily="Inter Tight, sans-serif">leave the heart</text>
+      {outer.map(d => <path key={d} d={d} fill="#6A4CFF" />)}
+      {heart.map(d => <path key={d} d={d} fill="#B6F34A" />)}
+      <line x1="40" y1="138" x2="280" y2="138" stroke="#FF8A7A" strokeWidth="2.5" strokeDasharray="7 6" />
+      <line x1="86" y1="138" x2="86" y2="150" stroke="rgba(255,255,255,.8)" strokeWidth="1.5" />
+      <text x="40" y="160" fill="rgba(255,255,255,.8)" fontSize="11" fontFamily="Inter Tight, sans-serif">2–3 cm</text>
+      <text x="40" y="130" fill="#FF8A7A" fontSize="12" fontWeight="600" fontFamily="Inter Tight, sans-serif">cut here</text>
+      <text x="163" y="40" textAnchor="middle" fill="#B6F34A" fontSize="12" fontWeight="600" fontFamily="Inter Tight, sans-serif">leave the heart</text>
     </svg>
   )
 }
@@ -494,7 +494,7 @@ export function BoothHubScreen({ go }: { go: Go }) {
                  {x.id === 'lettuce' && st.picks ? ` · picked ${st.picks}× today` : ''}</s>
               <code>{base}#{x.route}</code>
             </div>
-            <Icon name="chevron-right" color="#A9BCB0" size={20} sw={2.2} />
+            <Icon name="chevron-right" color="rgba(255,255,255,.8)" size={20} sw={2.2} />
           </div>
         ))}
         {shared && (

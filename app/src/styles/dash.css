@@ -90,14 +90,13 @@
    но закрашен фоном, и просветиться уже нечему.
 
    Специфичность здесь не украшение: в app.css отступ задан как
-   `.screen:has(.ofr) .bd`, это (0,3,0), и правило `.has-hero .bd` с (0,2,0)
-   проигрывало молча. Поэтому селектор повторяет ту же форму плюс класс героя. */
-.screen.has-hero:has(.ofr) .bd,
+   `.screen:has(.ni-scan) .bd`, это (0,2,0) вместе с .screen, и правило
+   `.has-hero .bd` проигрывало молча. Поэтому селектор повторяет ту же форму
+   плюс класс героя. */
+.screen.has-hero:has(.ni-scan) .bd,
 .screen.has-hero:has(.foot) .bd { padding-bottom: 0 }
-/* Низ листа: выступ кнопки Scan (16) + воздух 24. Баннер Pro добавляет свои
-   52 + 24 — только пока он есть: закрыли баннер, и пустоты под лентой нет. */
-.has-hero .dash { padding-bottom: 40px }
-.has-hero:has(.ofr) .dash { padding-bottom: 116px }
+/* Низ листа под плавающим таб-баром: 68 + 24 зазора + 24 воздуха. */
+.has-hero .dash { padding-bottom: 116px }
 .dash-sec { margin-top: 0 }
 
 /* Блок дашборда стоит НА фото: приветствие, счёт, вердикт и две карточки.
@@ -121,7 +120,7 @@
 
 /* Ритм блока. Логика читается по значениям: приветствие и заголовок — пара
    (s1), между смысловыми группами — s3, внутри группы — s2. */
-.hero-k { font-size: var(--t-14); line-height: 16px; color: #D2DFD6 }
+.hero-k { font-size: var(--t-14); line-height: 16px; color: rgba(255,255,255,.8) }
 .hero-in .eh-h { margin-top: var(--s1); line-height: 32px }
 .hero-in .score-row { margin-top: var(--s2) }   /* gap теперь общий */
 .hero-in .score-v { margin-top: 0; line-height: 24px }      /* колонка счёта = 40 + 24 */
@@ -182,9 +181,9 @@
 .g3d-load { background: none }
 .g3d-hud { position: absolute; left: 12px; top: 12px; z-index: 2; display: flex; gap: 8px; pointer-events: none }
 .g3d-chip { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 12px; border-radius: 999px;
-  background: rgba(11,31,20,.6); color: #fff; font: 600 var(--t-12) 'Inter Tight', sans-serif }
-.g3d-chip.warn { color: #F2C46B }
-.g3d-chip.lime { background: var(--lime); color: var(--deepest) }
+  background: rgba(18,53,31,.6); color: #fff; font: 600 var(--t-12) 'Inter Tight', sans-serif }
+.g3d-chip.warn { color: #FF8A7A }
+.g3d-chip.lime { background: var(--lime); color: var(--ink) }
 .g3d-list { position: absolute; left: var(--s1); right: var(--s1); bottom: var(--s1); z-index: 3; margin: 0; padding: 0;
   list-style: none; display: flex; flex-wrap: wrap; gap: var(--s1) }
 .g3d-list:not(:focus-within) { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; white-space: nowrap }
@@ -194,4 +193,4 @@
   color: var(--ink); font: 600 var(--t-14) 'Inter Tight', sans-serif; cursor: pointer }
 .g3d-list button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px }
 .g3d-tip { position: absolute; left: 0; right: 0; bottom: 12px; z-index: 2; text-align: center; pointer-events: none;
-  font: 600 var(--t-12) 'Inter Tight', sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(11,31,20,.55) }
+  font: 600 var(--t-12) 'Inter Tight', sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(18,24,32,.55) }

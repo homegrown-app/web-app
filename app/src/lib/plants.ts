@@ -8,7 +8,6 @@
 import type { Track } from '../data/onboarding'
 import { SP, SPECIES, type Species } from '../data/species'
 import { img } from './assets'
-import { NO_AUTH } from './demo'
 
 /**
  * Идентификатор строки. Нужен синхронизации: у растений и снимков не было
@@ -40,10 +39,6 @@ export type PhotoIn = Omit<Photo, 'id'> & { id?: string }
     его зовут и для Photo, и для JournalShot. */
 export const phUrl = (x: { f?: string; u?: string }) => x.u || img(x.f || '')
 export interface Plant { id: string; s: Species; since: number; day: number; photos: Photo[] }
-
-export const FREE_LIMIT = 3
-// В демо лимита нет: огород там уже на 4 растения, и Add стоял выключенным.
-export const limit = (isPro: boolean) => (isPro || NO_AUTH ? 99 : FREE_LIMIT)
 
 // rid последним и с значением по умолчанию: первый аргумент — вид, как было во
 // всех вызовах, и ни один из них переписывать не пришлось.

@@ -11,12 +11,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Screen } from '../components/Chrome'
 import { useCamera, useLiveCamera } from '../components/parts'
-import { Note, SpThumb } from '../components/bits'
+import { SpThumb } from '../components/bits'
 import { Icon, IcCheck, IcCheckG, IcPlus } from '../icons/Icon'
 import { LIBNOTE } from '../data/onboarding'
 import { SPECIES, ofKind, type Species } from '../data/species'
 import { fitsLight, spSub } from '../lib/plan'
-import { fmtPot, limit } from '../lib/plants'
+import { fmtPot } from '../lib/plants'
 import { KNOWN, identify, loadModel, type ScanResult } from '../lib/recognize'
 import { useStore } from '../state/store'
 
@@ -60,7 +60,6 @@ export function AddPlantScreen({ go }: { go: Go }) {
   // настройках висело «Sign in». Ровно эта жалоба и пришла.
   // applyPlan гасит onbMode сам, поэтому у прошедшего план флаг уже пуст.
   const onb = s.onbMode !== null
-  const lim = limit(s.isPro)
 
   const groups = useMemo(() => {
     const match = (x: Species) => !q || x.name.toLowerCase().indexOf(q) > -1
@@ -95,7 +94,6 @@ export function AddPlantScreen({ go }: { go: Go }) {
     return { out: out.filter(g => g[1].length), empty: !hit.length }
   }, [pool, q, own, s.choices.track, s.choices.outdoor, s.choices.sunRank])
 
-  const atLimit = !s.isPro && s.plants.length + s.pending.length >= lim
   const cta = own
     // в онбординге пустой выбор не тупик: можно пройти дальше и добавить позже
     ? (s.pending.length ? `Add ${s.pending.length} and continue` : 'Skip for now')
@@ -121,16 +119,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
     go(own ? 'q1' : onb ? 'save' : 'home')
   }
 
-  // На лимите строка не выбирается, а объяснение лежит в самом низу списка —
-  // на экран оно не попадает. Тап должен отвечать сразу.
-  const tapRow = (id: string) => {
-    if (atLimit && s.pending.indexOf(id) < 0) {
-      d({ t: 'toast', v: { html: '<span>Free plans keep 3 plants</span>', ms: 3500,
-                           at: Date.now() } })
-      return
-    }
-    d({ t: 'pendingToggle', v: id, limit: lim })
-  }
+  const tapRow = (id: string) => d({ t: 'pendingToggle', v: id })
 
   return (
     // Пока онбординг не пройден, таб-бара нет: из него можно было уйти на Home
@@ -152,7 +141,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
       <div className="searchrow">
         <div className={'search' + (s.query ? ' has' : '')}>
           <span className="si" aria-hidden="true">
-            <Icon name="search" color="#8E9A93" size={19} sw={2} />
+            <Icon name="search" color="#8E88A8" size={19} sw={2} />
           </span>
           <input type="search" inputMode="search" autoComplete="off" spellCheck={false}
                  aria-label="Search the plant library"
@@ -160,7 +149,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
                  value={s.query} onChange={e => d({ t: 'query', v: e.target.value })} />
           <span className="sx" role="button" tabIndex={0} aria-label="Clear search"
                 onClick={() => d({ t: 'query', v: '' })}>
-            <Icon name="x" color="#8E9A93" size={17} sw={2.4} />
+            <Icon name="x" color="#8E88A8" size={17} sw={2.4} />
           </span>
         </div>
         <div className="scanbtn" role="button" tabIndex={0}
@@ -205,14 +194,6 @@ export function AddPlantScreen({ go }: { go: Go }) {
             </div>
           ))}
 
-      {atLimit && (
-        <Note title="That’s the free limit"
-              cta={<div className="btn b-pri" role="button" tabIndex={0}
-                        onClick={() => go('paywall')}>Unlock — $29/yr</div>}>
-          Free plans keep 3 plants. Pro keeps everything your light and space allow —
-          and the whole care calendar for all of them.
-        </Note>
-      )}
 
     </Screen>
   )
@@ -263,7 +244,6 @@ export function ScanScreen({ go }: { go: Go }) {
       go(s.onbMode === 'own' ? 'q1' : onb ? 'save' : 'home')
       return
     }
-    if (!s.isPro && s.plants.length >= limit(s.isPro)) { go('paywall'); return }
     d({ t: 'pending', v: [sp.id] })
     d({ t: 'scanKeep', v: s.scanUrl })
     d({ t: 'addPending' })
@@ -274,7 +254,7 @@ export function ScanScreen({ go }: { go: Go }) {
   // как было до переноса распознавания. В остальных ветках — запасной путь.
   const toLibrary = (label: string, primary = false) => (
     <div className={'btn' + (primary ? ' b-lime' : '')}
-         style={primary ? undefined : { background: '#1B3527', color: '#fff' }}
+         style={primary ? undefined : { background: 'rgba(255,255,255,.14)', color: '#fff' }}
          role="button" tabIndex={0}
          onClick={() => {
            d({ t: 'scanKeep', v: s.scanUrl })
@@ -313,7 +293,7 @@ export function ScanScreen({ go }: { go: Go }) {
                 <div className="btn b-lime" role="button" tabIndex={0} onClick={takePhoto}>
                   Take a photo
                 </div>
-                <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+                <div className="btn" style={{ background: 'rgba(255,255,255,.14)', color: '#fff' }}
                      role="button" tabIndex={0} onClick={() => go('add-plant')}>
                   Choose manually
                 </div>

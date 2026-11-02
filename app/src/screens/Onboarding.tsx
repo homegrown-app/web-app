@@ -48,13 +48,13 @@ export function LandingScreen({ go }: { go: Go }) {
         <div className="cap-f" style={{ fontSize: 'var(--t-40)', lineHeight: 1.02 }}>
           Green thumb<br /><span style={{ color: 'var(--lime)' }}>not required.</span>
         </div>
-        <div style={{ fontSize: 'var(--t-16)', lineHeight: 1.5, marginTop: 16, color: '#DCE7DE' }}>
+        <div style={{ fontSize: 'var(--t-16)', lineHeight: 1.5, marginTop: 16, color: 'rgba(255,255,255,.9)' }}>
           Tell us what you have and how much light it gets. We’ll tell you what it needs
           this week.
         </div>
         <div className="btn b-lime" style={{ marginTop: 24 }} role="button" tabIndex={0}
              onClick={() => go('q0')}>Get started free</div>
-        <div style={{ fontSize: 'var(--t-13)', color: '#C3D2C7', textAlign: 'center', marginTop: 12 }}>
+        <div style={{ fontSize: 'var(--t-13)', color: 'rgba(255,255,255,.8)', textAlign: 'center', marginTop: 12 }}>
           No card. Takes 90 seconds.
         </div>
         {/* Возврат: без этой ссылки вошедшему некуда деться с лендинга.

@@ -23,7 +23,6 @@ const ROWS: Array<[string, string, string, string, number]> = [
 export function IndoorScreen({ go }: { go: Go }) {
   return (
     <Screen id="indoor" nav={{ active: 'Week', badge: true, go }}
-            offer={{ txt: 'Add a second windowsill', sub: 'Pro', onClick: () => go('paywall') }}
             scrollKey="indoor">
       <div className="greet">Good morning · week 12</div>
       <div className="h1">Basil is ready<br /><span className="m">to cut again.</span></div>

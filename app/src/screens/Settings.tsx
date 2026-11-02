@@ -14,7 +14,6 @@ import {
 } from '../data/onboarding'
 import { ZIPS } from '../data/zips'
 import { isEdible } from '../lib/plants'
-import { NO_AUTH } from '../lib/demo'
 import { cap } from '../lib/plan'
 import { MON, seasonDays, zipInfo } from '../lib/season'
 import { useStore, type Units } from '../state/store'
@@ -50,38 +49,21 @@ export function SettingsScreen({ go }: { go: Go }) {
       <div className="acc" style={{ marginTop: 16 }}>
         <div className="acc-photo" style={{ backgroundImage: bg(pic) }} />
         <div className="row1">
-          <span className="tag">
-            {!s.isPro ? 'Free plan' : planWord ? `Pro · ${planWord.toLowerCase()}` : 'Pro · full plan'}
-          </span>
+          <span className="tag">{planWord || 'Full plan'}</span>
         </div>
-        {s.isPro ? <>
-          <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
-            Everything is open
-          </div>
-          {/* Срок настоящий: записан в момент покупки на пейволле из системной
-              даты (Moments.tsx). Если его нет — строки про дату тоже нет.
-              «Renews» здесь не пишем: продлевать некому, биллинга не существует;
-              честное слово — до какого числа доступ открыт. */}
-          <div className="sub">
-            Every week planned, unlimited plants and photos.
-            {termDate && (ended
-              ? ` The ${planWord ? planWord.toLowerCase() : 'plan'} ran to ${termDate}.`
-              : ` Open until ${termDate}.`)}
-          </div>
-          {/* Кнопка «Back to Free (demo)» убрана: у человека с активным Pro ей
-              нечего делать среди фактов о подписке. Для проверки Pro-ветки
-              остался чип Pro в каталоге /review. */}
-        </> : <>
-          <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
-            {NO_AUTH ? '1 space' : '1 space · 3 plants'}<br />this week only
-          </div>
-          <div className="sub">
-            Pro opens every week ahead, the whole library and unlimited photos.
-          </div>
-          <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('paywall')}>
-            Compare with Pro
-          </div>
-        </>}
+        <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
+          Everything is open
+        </div>
+        {/* Срок настоящий: записан в момент покупки на пейволле из системной
+            даты (Moments.tsx). Если его нет — строки про дату тоже нет.
+            «Renews» здесь не пишем: продлевать некому, биллинга не существует;
+            честное слово — до какого числа доступ открыт. */}
+        <div className="sub">
+          Every week planned, unlimited plants and photos.
+          {termDate && (ended
+            ? ` The ${planWord ? planWord.toLowerCase() : 'plan'} ran to ${termDate}.`
+            : ` Open until ${termDate}.`)}
+        </div>
       </div>
 
       {/* Growing здесь нет: чем ты занимаешься, выбирается один раз в онбординге. */}

@@ -23,7 +23,7 @@ type Go = (id: string) => void
 const Close = ({ onClick }: { onClick: () => void }) => (
   <div className="xbtn" role="button" tabIndex={0} aria-label="Close"
        style={{ alignSelf: 'flex-end' }} onClick={onClick}>
-    <Icon name="x" color="#CFE0D4" size={20} sw={2} />
+    <Icon name="x" color="rgba(255,255,255,.8)" size={20} sw={2} />
   </div>
 )
 
@@ -77,7 +77,7 @@ export function HarvestScreen({ go }: { go: Go }) {
                 + 'That is the whole trick: showing up.'}
           </div>
           <div className="btn b-lime" role="button" tabIndex={0} onClick={cam.open}>Add a photo</div>
-          <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
+          <div className="btn" style={{ background: 'rgba(255,255,255,.14)', color: '#fff' }}
                role="button" tabIndex={0} onClick={() => go('home')}>Back to my plants</div>
         </div>
       </div>
@@ -123,11 +123,10 @@ export function SeasonEndScreen({ go }: { go: Go }) {
                 + 'how they changed.'}
           </div>
         </div>
-        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('paywall')}>
+        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('season')}>
           {outdoor ? 'Plan next season now' : 'Keep the whole calendar'}
         </div>
-        <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
-             role="button" tabIndex={0} onClick={() => go('home')}>Download recap</div>
+        <div className="tlink" role="button" tabIndex={0} onClick={() => go('home')}>Download recap</div>
       </div>
     </div>
   )
@@ -157,7 +156,7 @@ export function WeekDoneScreen({ go }: { go: Go }) {
           </span>
           <div className="done-h">Everything<br /><span style={{ color: 'var(--lime)' }}>on time.</span></div>
           <div className="recap-s">
-            {line} Pro maps every week ahead so you never wonder what’s next.
+            {line} The calendar maps every week ahead so you never wonder what’s next.
           </div>
           <div className="sg2">
             <div className="stat"><b style={{ color: 'var(--lime)' }}>{st.waterings}</b>
@@ -165,11 +164,10 @@ export function WeekDoneScreen({ go }: { go: Go }) {
             <div className="stat"><b>{tasks}/{tasks}</b><s>tasks this week</s></div>
           </div>
         </div>
-        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('paywall')}>
+        <div className="btn b-lime" role="button" tabIndex={0} onClick={() => go('calendar')}>
           See the whole calendar
         </div>
-        <div className="btn" style={{ background: '#1B3527', color: '#fff' }}
-             role="button" tabIndex={0} onClick={() => go('home')}>Not now</div>
+        <div className="tlink" role="button" tabIndex={0} onClick={() => go('home')}>Not now</div>
       </div>
     </div>
   )
@@ -219,8 +217,10 @@ export function ShoppingScreen({ go }: { go: Go }) {
         <div className="sl">Seed</div>
         <Task t={[items[items.length - 1][0], `~$${items[items.length - 1][1]}`, '']} />
       </>}
-      <div className="btn b-ghost" role="button" tabIndex={0} onClick={() => go('paywall')}>
-        Printable PDF — Pro
+      {/* Печать средствами браузера: @media print в app.css прячет хром
+          и печатает один список. Отдельного экспортёра в приложении нет. */}
+      <div className="btn b-white" role="button" tabIndex={0} onClick={() => window.print()}>
+        <Icon name="file-pdf" color="currentColor" size={20} sw={2} /> Printable PDF
       </div>
     </Screen>
   )
@@ -230,7 +230,6 @@ export function ShoppingScreen({ go }: { go: Go }) {
 export function PaywallScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const yearly = s.pickKey !== 'pw-monthly'   // сегмент живёт локально в pickKey
-  const back = () => go(s.pwFrom === 'paywall' ? 'home' : s.pwFrom)
 
   const buy = () => {
     // Срок считаем от НАСТОЯЩЕЙ даты, а не от условного «сегодня» прототипа
@@ -265,9 +264,10 @@ export function PaywallScreen({ go }: { go: Go }) {
               HOMEGROWN
             </span>
           </div>
-          <div className="xbtn" role="button" tabIndex={0} aria-label="Close" onClick={back}>
-            <Icon name="x" color="#CFE0D4" size={17} sw={2} />
-          </div>
+          {/* Крестика нет: вход в приложение идёт через этот экран.
+              Вернувшемуся человеку нужен не выход, а восстановление покупки. */}
+          <div className="tlink" style={{ margin: 0, padding: '12px 8px' }}
+               role="button" tabIndex={0} onClick={() => go('signin')}>Restore</div>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 24, position: 'relative' }}>
@@ -275,7 +275,7 @@ export function PaywallScreen({ go }: { go: Go }) {
                         letterSpacing: '-.02em' }}>
             Every plant,<br /><span style={{ color: 'var(--lime)' }}>planned all year.</span>
           </div>
-          <div style={{ fontSize: 'var(--t-14)', color: '#A9BCB0', marginTop: 8 }}>
+          <div style={{ fontSize: 'var(--t-14)', color: 'rgba(255,255,255,.8)', marginTop: 8 }}>
             7 days free. Cancel anytime.
           </div>
         </div>
@@ -294,7 +294,7 @@ export function PaywallScreen({ go }: { go: Go }) {
             <div>
               <div className="pr">
                 {yearly ? '$29' : '$4'}
-                <span style={{ fontSize: 'var(--t-15)', fontWeight: 500, color: '#A9BCB0' }}>
+                <span style={{ fontSize: 'var(--t-15)', fontWeight: 500, color: 'rgba(255,255,255,.8)' }}>
                   {yearly ? ' / year' : ' / month'}
                 </span>
               </div>
@@ -310,15 +310,12 @@ export function PaywallScreen({ go }: { go: Go }) {
         </div>
 
         <div style={{ flex: 1, minHeight: 16 }} />
-        <div className="btn b-white" role="button" tabIndex={0} onClick={buy}>
-          Start 7-day free trial
+        <div className="btn b-lime" role="button" tabIndex={0} onClick={buy}>
+          {yearly ? 'Continue — $29 / year' : 'Continue — $4 / month'}
         </div>
-        <div className="tlink" role="button" tabIndex={0} onClick={back}>
-          Continue with the free plan
-        </div>
-        <div style={{ fontSize: 'var(--t-12)', color: '#6E8175', textAlign: 'center',
+        <div style={{ fontSize: 'var(--t-12)', color: 'rgba(255,255,255,.6)', textAlign: 'center',
                       marginTop: 8, lineHeight: 1.45 }}>
-          No card for the trial. Your plants and photos stay yours either way.
+          Your plants and photos stay yours.
         </div>
       </div>
     </div>

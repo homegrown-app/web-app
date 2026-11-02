@@ -20,9 +20,9 @@ body[data-mode="app"]{display:block;padding:0;background:var(--ground);overflow:
 .nav{padding-bottom:env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom))}
 #toast{top:calc(8px + env(safe-area-inset-top));bottom:auto}
 @media (min-width:768px){
-  body[data-mode="app"]{background:#DDE2DA;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+  body[data-mode="app"]{background:#E4E0F0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
   body[data-mode="app"] .mob{position:relative;inset:auto;width:375px;height:812px;flex:none;border-radius:40px;overflow:hidden;
-       box-shadow:0 24px 64px rgba(11,31,20,.28)}
+       box-shadow:0 24px 64px rgba(18,24,32,.28)}
   .hd{padding-top:16px}
   .overlay,.dark{padding-top:24px}
 }

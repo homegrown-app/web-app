@@ -3,18 +3,18 @@
    .dark у виджета и у полноэкранного блока) в этом проекте уже обжигались.
    Токены берутся из tokens.css, новых цветов здесь не вводится. */
 
-.rv { display: flex; min-height: 100vh; background: #DDE2DA; }
+.rv { display: flex; min-height: 100vh; background: #E4E0F0; }
 
 .rv-side {
   width: 340px; flex: none; padding: 24px 20px 40px;
   background: var(--surface); overflow-y: auto; max-height: 100vh;
 }
 .rv-wm {
-  font-family: Caprasimo, Georgia, serif; font-size: var(--t-12);
+  font-weight: 600; font-size: var(--t-12);
   letter-spacing: .06em; color: var(--primary);
 }
 .rv-h {
-  font-family: Caprasimo, Georgia, serif; font-weight: 400;
+  font-weight: 500;
   font-size: var(--t-24); line-height: 1.1; margin: 8px 0 0;
 }
 .rv-p, .rv-note {
@@ -22,7 +22,7 @@
   text-wrap: pretty;
 }
 .rv-lb {
-  font-size: var(--t-11); font-weight: 700; letter-spacing: .04em;
+  font-size: var(--t-11); font-weight: 600; letter-spacing: .04em;
   color: var(--muted); margin: 20px 0 8px; text-transform: uppercase;
 }
 .rv-chips { display: flex; flex-wrap: wrap; gap: 6px; }

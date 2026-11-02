@@ -220,7 +220,7 @@ export type Action =
   | { t: 'onb'; v: OnbMode }
   | { t: 'onbReset'; v: OnbMode }
   | { t: 'wipe' }
-  | { t: 'pendingToggle'; v: string; limit: number }
+  | { t: 'pendingToggle'; v: string }
   | { t: 'pending'; v: string[] }
   | { t: 'addPending' }
   | { t: 'applyPlan'; v: Species[]; room: number }
@@ -294,7 +294,6 @@ function reducer(s: State, a: Action): State {
     case 'pendingToggle': {
       const k = s.pending.indexOf(a.v)
       if (k > -1) return { ...s, pending: s.pending.filter(x => x !== a.v) }
-      if (s.plants.length + s.pending.length >= a.limit) return s
       return { ...s, pending: [...s.pending, a.v] }
     }
     case 'pending': return { ...s, pending: a.v }

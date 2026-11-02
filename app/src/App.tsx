@@ -145,12 +145,6 @@ export function App() {
     document.body.dataset.mode = hash === 'review' ? 'review' : 'app'
   }, [hash])
 
-  // Полоса «Unlock the full care plan» скрыта у Pro правилом body.is-pro .ofr —
-  // правило перенесли, а класс ставить забыли, и апсейл висел уже после покупки.
-  useEffect(() => {
-    document.body.classList.toggle('is-pro', s.isPro)
-  }, [s.isPro])
-
   // Пейволл закрывается туда, откуда пришли. Запоминаем предыдущий экран.
   useEffect(() => {
     if (id !== 'paywall') return

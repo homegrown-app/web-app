@@ -68,14 +68,14 @@
 /* ───────────── Вход: способы, поле почты, клетки кода
    Новых цветов нет — только токены. Исключение: чёрный у кнопки Apple и белый
    у кнопки Google заданы брендбуками провайдеров, палитра приложения тут не
-   решает. Плейсхолдер и текст ошибки взяты не из поиска (#9EA8A2 даёт 2.6:1),
-   а из токенов: --muted 6.0:1 и #C2410C как у .st-bad. */
+   решает. Плейсхолдер и текст ошибки взяты не из поиска (#5C5670 даёт 2.6:1),
+   а из токенов: --muted 6.0:1 и #B42318 как у .st-bad. */
 
 .prov { gap: var(--s1) }
 .prov-ic { flex: none; display: flex; align-items: center; justify-content: center; width: 18px }
 .b-dark { background: #000; color: #fff }
 
-.signin-l { text-align: center; font-size: var(--t-14); color: #C3D2C7;
+.signin-l { text-align: center; font-size: var(--t-14); color: rgba(255,255,255,.8);
             padding: var(--sp-12) 0; margin-top: var(--s1); cursor: pointer }
 .signin-l b { color: #fff; font-weight: 600 }
 
@@ -90,8 +90,8 @@
              caret-color: var(--primary); letter-spacing: -.01em }
 .fld input::placeholder { color: var(--muted); font-weight: 400 }
 .fld:focus-within { border-color: var(--primary) }
-.fld.bad { border-color: #C2410C }
-.fld-err { font-size: var(--t-13); font-weight: 600; color: #C2410C; margin-top: var(--s1) }
+.fld.bad { border-color: #B42318 }
+.fld-err { font-size: var(--t-13); font-weight: 600; color: #B42318; margin-top: var(--s1) }
 
 /* Поле кода одно, клетки — рисунок под ним: шесть input-ов ломают вставку из
    письма и автозаполнение one-time-code. */
@@ -107,7 +107,7 @@
 .otp-cells i.on { border-color: var(--primary) }
 .otp input:focus + .otp-cells i.on::after { content: ''; width: 2px; height: 24px;
                background: var(--primary); animation: otpcaret 1.1s steps(1, end) infinite }
-.otp.bad .otp-cells i { border-color: #C2410C }
+.otp.bad .otp-cells i { border-color: #B42318 }
 @keyframes otpcaret { 0%, 45% { opacity: 1 } 50%, 100% { opacity: 0 } }
 @media (prefers-reduced-motion: reduce) {
   .otp input:focus + .otp-cells i.on::after { animation: none }
@@ -133,7 +133,7 @@
 .acct .acc-tx b { display: block; font-size: var(--t-15); font-weight: 600;
                   letter-spacing: -.02em; white-space: nowrap; overflow: hidden;
                   text-overflow: ellipsis }
-.acct .acc-tx s { display: block; font-size: var(--t-12); color: #A9BCB0;
+.acct .acc-tx s { display: block; font-size: var(--t-12); color: rgba(255,255,255,.8);
                   text-decoration: none; margin-top: var(--sp-4) }
 .acct .acc-go { flex: none; width: 32px; height: 32px; border-radius: 50%;
                 background: rgba(255, 255, 255, .14); display: flex; align-items: center;
@@ -169,7 +169,7 @@
    рамку с самого листа снимаем — она не элемент управления. На кнопках внутри
    :focus-visible остаётся. */
 .cf-box:focus, .cf-box:focus-visible { outline: none }
-.cf-t { font-family: Caprasimo, Georgia, serif; font-size: var(--t-24); line-height: 1.15;
+.cf-t { font-weight: 500; font-size: var(--t-24); line-height: 28px; letter-spacing: -.01em;
         letter-spacing: -.02em; color: var(--ink) }
 /* Ритм листа: 16 от заголовка до его строки, 8 между строками, 24 до действия,
    24 сверху и снизу самого листа. Шли к этому в три захода: сначала 4 (пара
@@ -186,7 +186,7 @@
    специфичности рабочие 12px у .btn и подставляло невалидное значение, то есть
    margin-top: 0 — кнопка вставала вплотную к тексту. */
 .cf-b + .btn, .cf-who + .btn { margin-top: var(--sp-24) }
-.b-bad { background: #C2410C; color: #fff }
+.b-bad { background: #B42318; color: #fff }
 
 /* ───────────── Высокий лист: экран аккаунта
    Приветствие — четыре короткие строки, а здесь список фактов, пояснение и два
@@ -266,7 +266,7 @@
 .acct + .note { margin-top: var(--s2) }
 /* Номер сборки: последняя строка настроек, тише всего на экране. Не украшение —
    единственный способ увидеть с телефона, свежая ли это страница. */
-.build { text-align: center; font-size: var(--t-12); color: #9AA49E;
+.build { text-align: center; font-size: var(--t-12); color: var(--muted);
          letter-spacing: -.01em; margin-top: var(--sp-24); font-variant-numeric: tabular-nums }
 
 /* ───────────── Остатки вне шкалы
@@ -419,7 +419,7 @@
    четырёхсотка держала вес всей карточки. Гротеску, чтобы остаться главным
    элементом, нужен настоящий bold. Веса проверены живыми: 400/500/600/700
    дают разную ширину строки, ось wght переменного файла работает. */
-.wg .num { font-family: 'Inter Tight', sans-serif; font-weight: 700; line-height: 40px }
+.wg .num { font-weight: 500; line-height: 40px }
 /* Суффикс внутри числа (0d, 97%) — часть одного слова, отступ ему не нужен. */
 .wg .num span { margin-left: 0 }
 .wg .lbl { margin-top: var(--sp-12); line-height: 16px }

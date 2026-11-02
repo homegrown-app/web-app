@@ -203,8 +203,7 @@ export function HomeScreen({ go }: { go: (id: string) => void }) {
   const has = s.plants.length > 0
   const open = (i: number) => { d({ t: 'select', v: i }); go('plant') }
   return (
-    <Screen id="home" nav={{ active: 'Week', badge: true, go }}
-            offer={{ onClick: () => go('paywall') }} scrollKey="home"
+    <Screen id="home" nav={{ active: 'Week', badge: true, go }} scrollKey="home"
             hero={has ? <Hero /> : undefined}>
       {has ? <Dash go={go} onOpen={open} /> : (
         <>

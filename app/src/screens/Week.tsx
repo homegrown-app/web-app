@@ -28,8 +28,7 @@ export function WeekEmptyScreen({ go }: { go: Go }) {
   const open = (i: number) => { d({ t: 'select', v: i }); go('plant') }
 
   return (
-    <Screen id="week-empty" nav={{ active: 'Week', go }}
-            offer={{ onClick: () => go('paywall') }} scrollKey="week-empty">
+    <Screen id="week-empty" nav={{ active: 'Week', go }} scrollKey="week-empty">
       <div className="greet">Good morning · nothing due</div>
       <div className="h1">Nothing needed<br /><span className="m">this week.</span></div>
       {!s.plants.length
@@ -70,8 +69,7 @@ export function WeekBackScreen({ go }: { go: Go }) {
   const { s } = useStore()
   const t = weekTasks(s.plants, s.care).slice(0, 2)
   return (
-    <Screen id="week-back" nav={{ active: 'Week', badge: true, go }}
-            offer={{ onClick: () => go('paywall') }} scrollKey="week-back">
+    <Screen id="week-back" nav={{ active: 'Week', badge: true, go }} scrollKey="week-back">
       <div className="greet">You were away 2 weeks</div>
       <div className="h1">Welcome back.<br /><span className="m">Here’s what matters now.</span></div>
       <Note title="Most of it doesn’t matter now">
@@ -94,8 +92,7 @@ export function WeekLongScreen({ go }: { go: Go }) {
   // Нижняя строка называет растения, которые реально пересохли, а не выдуманный редис.
   const dry = s.plants.filter(p => wDue(p) <= 0).map(p => lc(p.s.name))
   return (
-    <Screen id="week-long" nav={{ active: 'Week', go }}
-            offer={{ onClick: () => go('paywall') }} scrollKey="week-long">
+    <Screen id="week-long" nav={{ active: 'Week', go }} scrollKey="week-long">
       <div className="greet">Last visit: 6 weeks ago</div>
       <div className="h1">It’s been a while.<br /><span className="m">Let’s restart from today.</span></div>
       <Note title="Your plan is out of date"
@@ -137,53 +134,3 @@ export function WeekLongScreen({ go }: { go: Go }) {
 // 3. Pro-ветка печатала эти же задачи текущей недели под ярлыком «What they
 //    are» — то есть дублировала Home и выдавала это за план на будущее.
 //
-// Куда попадает человек после покупки, решено в Moments.tsx: в календарь, как и
-// обещают кнопки пейволла. Сюда Pro-ветка остаётся достижимой прямой ссылкой и
-// из каталога /review, поэтому она есть — но говорит только то, что знает.
-export function WeekLockScreen({ go }: { go: Go }) {
-  const { s } = useStore()
-
-  return (
-    <Screen id="week-lock" back={() => go('home')} nav={{ active: 'Week', go }}
-            scrollKey="week-lock">
-      <div className="greet">{s.isPro ? 'Pro is on' : 'Beyond this week'}</div>
-      <div className="h1">
-        {s.isPro
-          ? <>The whole calendar<br /><span className="m">is open.</span></>
-          : <>More is planned<br /><span className="m">than you can see.</span></>}
-      </div>
-      {!s.plants.length
-        ? <Note title="Nothing is scheduled yet"
-                cta={<div className="btn b-pri" role="button" tabIndex={0}
-                          onClick={() => go('add-plant')}>Add a plant</div>}>
-            Add a plant and the weeks ahead fill themselves in — that is what Pro keeps open.
-          </Note>
-        : s.isPro
-        ? <Note title="Nothing is hidden any more"
-                cta={<div className="btn b-pri" role="button" tabIndex={0}
-                          onClick={() => go('calendar')}>Open the calendar</div>}>
-            Every week ahead is planned, and the calendar shows all of it — this screen
-            is only the preview a free plan gets.
-          </Note>
-        : <>
-            <div className="sl">What is waiting</div>
-            {/* Объём виден, скрыты формулировки. Это не стена.
-                Про «даты» здесь больше не говорим: их не показывают. */}
-            <Task t={['', '4 min']} locked bars={[76, 52]} />
-            <Task t={['', '3 min']} locked bars={[60]} />
-            <Task t={['', '10 min']} locked bars={[68]} />
-            <div className="acc" style={{ marginTop: 16 }}>
-              <div className="row1"><span className="tag">Locked</span></div>
-              <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 16 }}>
-                Pro unlocks<br />the whole calendar
-              </div>
-              <div className="sub">
-                The workload is real — only the wording is hidden.
-              </div>
-              <div className="btn b-lime" role="button" tabIndex={0}
-                   onClick={() => go('paywall')}>Unlock the full plan</div>
-            </div>
-          </>}
-    </Screen>
-  )
-}

@@ -8,11 +8,10 @@ import { SpThumb } from '../components/bits'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
 import { QUOTE } from '../data/onboarding'
-import { fmtPot, limit } from '../lib/plants'
+import { fmtPot } from '../lib/plants'
 import {
-  anA, buildPlan, dateAfter, listNames, planWhy, seasonWeeks, spSub, type PlanCtx,
+  anA, buildPlan, dateAfter, planWhy, seasonWeeks, spSub, type PlanCtx,
 } from '../lib/plan'
-import { lc } from '../lib/plants'
 import { zipInfo } from '../lib/season'
 import { useStore } from '../state/store'
 
@@ -35,28 +34,24 @@ export function PreviewScreen({ go }: { go: Go }) {
     : 'Care starts today.'
   const mins = c.effort === 3 ? 10 : c.effort === 4 ? 20 : 30
   const q = QUOTE[c.track === 'edible' ? 'edible' : 'house']
-  const room = Math.min(plan.length, limit(s.isPro))
 
   const add = () => {
-    const held = plan.slice(room)
-    d({ t: 'applyPlan', v: plan, room })
-    const names = held.map(x => lc(x.name))
+    d({ t: 'applyPlan', v: plan, room: plan.length })
     d({ t: 'toast', v: {
-      html: held.length
-        ? `<span>Added ${room}. Pro also keeps ${listNames(names)}</span>`
-        : `<span>Added ${room} ${room === 1 ? 'plant' : 'plants'}</span>`,
+      html: `<span>Added ${plan.length} ${plan.length === 1 ? 'plant' : 'plants'}</span>`,
       ms: 4500, at: Date.now() } })
     go('save')
   }
 
   return (
     <Screen id="preview" back={() => go('q5')}
-            offer={{ txt: 'See the whole calendar', onClick: () => go('paywall') }}
             scrollKey="preview"
             foot={<>
               <div className="btn b-pri" role="button" tabIndex={0} onClick={add}>
-                Add {room === plan.length ? `these ${room}` : `the first ${room}`}
-                {room === 1 ? ' plant' : ' plants'}
+                Add {plan.length === 1 ? 'this plant' : `these ${plan.length} plants`}
+              </div>
+              <div className="tlink" role="button" tabIndex={0} onClick={() => go('calendar')}>
+                See the whole calendar
               </div>
               <div className="tlink2" role="button" tabIndex={0} onClick={() => go('add-plant')}>
                 I’ll pick my own
@@ -131,7 +126,7 @@ export function SaveScreen({ go }: { go: Go }) {
           {own ? <>Save your plants<br /></> : <>Save your plan<br /></>}
           <span style={{ color: 'var(--lime)' }}>so we can remind you.</span>
         </div>
-        <div style={{ fontSize: 'var(--t-16)', color: '#DCE7DE', lineHeight: 1.5, marginTop: 12 }}>
+        <div style={{ fontSize: 'var(--t-16)', color: 'rgba(255,255,255,.9)', lineHeight: 1.5, marginTop: 12 }}>
           {own
             ? 'Without an account they live in this browser only — and no reminder '
               + 'can reach you.'

@@ -18,7 +18,7 @@ export function Ring({ pct, dark = false, sz = 38, sw = 3.2 }:
   return (
     <svg aria-hidden="true" width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
-              stroke={dark ? 'rgba(255,255,255,.20)' : '#DDE3DC'} strokeWidth={sw} />
+              stroke={dark ? 'rgba(255,255,255,.20)' : '#ECE8F6'} strokeWidth={sw} />
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
               stroke={dark ? 'var(--lime)' : 'var(--bright)'} strokeWidth={sw}
               strokeLinecap="round" strokeDasharray={circ.toFixed(1)}
@@ -54,7 +54,7 @@ export function Ring({ pct, dark = false, sz = 38, sw = 3.2 }:
  */
 export type DropTone = 'ok' | 'warn' | 'bad'
 const DROP_COLOR: Record<DropTone, string> = {
-  ok: 'var(--bright)', warn: '#B8860B', bad: '#C2410C',
+  ok: 'var(--bright)', warn: '#5236E0', bad: '#B42318',
 }
 const DROP_FILL: Record<DropTone, number> = { ok: 100, warn: 50, bad: 0 }
 
@@ -105,9 +105,9 @@ export function Arc({ pct, sz }: { pct: number; sz: number }) {
   return (
     <svg aria-hidden="true" width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
-              stroke="#E4E8E2" strokeWidth={sw} />
+              stroke="#ECE8F6" strokeWidth={sw} />
       <circle cx={sz / 2} cy={sz / 2} r={r} fill="none"
-              stroke="#22A559" strokeWidth={sw} strokeLinecap="round"
+              stroke="#6A4CFF" strokeWidth={sw} strokeLinecap="round"
               strokeDasharray={c.toFixed(1)} strokeDashoffset={off.toFixed(1)}
               transform={`rotate(-90 ${sz / 2} ${sz / 2})`} />
     </svg>
@@ -160,7 +160,7 @@ export function MetricRow({ items }: { items: Array<[string, ReactNode]> }) {
 export const photoStyle = (s: Species): React.CSSProperties =>
   s.img
     ? { backgroundImage: bg(s.img) }
-    : { background: 'linear-gradient(150deg,#17683C 0%,#0F3A24 60%,#0B1F14 100%)' }
+    : { background: 'linear-gradient(160deg,#4C7A3E 0%,#2E5C2C 60%,#12351F 100%)' }
 
 /**
  * Плитка вида. Если у вида нет настоящей фотографии — рисуем плитку с иконкой,

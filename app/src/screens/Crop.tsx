@@ -182,7 +182,7 @@ export function CropScreen({ go }: { go: (id: string) => void }) {
           <b style={{ display: 'block', fontSize: 'var(--t-24)', lineHeight: '32px',
                       fontWeight: 600, letterSpacing: '-.02em', color: '#fff' }}>{sp.name}</b>
           {sp.latin && <s style={{ display: 'block', fontSize: 'var(--t-13)', lineHeight: '20px',
-                                   color: '#B7C7BD', fontStyle: 'italic',
+                                   color: 'rgba(255,255,255,.8)', fontStyle: 'italic',
                                    textDecoration: 'none' }}>{sp.latin}</s>}
         </div>
       </div>

@@ -21,7 +21,7 @@ import { CodeScreen, EmailScreen, SignInScreen } from './screens/Auth'
 import { PreviewScreen, SaveScreen } from './screens/Preview'
 import { PickScreen, SettingsScreen } from './screens/Settings'
 import {
-  WeekBackScreen, WeekEmptyScreen, WeekLockScreen, WeekLongScreen,
+  WeekBackScreen, WeekEmptyScreen, WeekLongScreen,
 } from './screens/Week'
 import type { Species } from './data/species'
 
@@ -106,9 +106,6 @@ export const ROUTES: Route[] = [
     note: 'Один справочник на 29 видов: 8 комнатных и 21 съедобная культура. Показывается '
         + 'подмножество под трек и место; чему не хватает света — погашено, а не спрятано.',
     render: p => <AddPlantScreen go={p.go} /> },
-  { id: 'week-lock', title: 'Soft-lock', group: 'Home',
-    note: 'Даты и объём видны, скрыты только формулировки. Это не стена.',
-    render: p => <WeekLockScreen go={p.go} /> },
   { id: 'week-empty', title: 'Week · пусто', group: 'Home',
     note: '«Nothing needed this week» — подтверждение, что всё идёт по плану. Список '
         + 'растений и срок следующей задачи считаются из данных.',

@@ -1,13 +1,11 @@
-// Шасси экрана. Структура DOM повторяет прототип буквально
-// (.screen.on > .sb + .hd + .bd + .ofr + .nav), потому что CSS перенесён
-// дословно и рассчитывает именно на неё. Отступ под плавающими баннером и
-// подвалом считается от РЕАЛЬНЫХ высот через --ofr-bottom и --foot-h:
-// три правила под конкретные высоты один раз уже положили баннер на кнопку.
+// Шасси экрана: .screen.on > .sb + .hd + .bd + .foot + .nav.
+// Таб-бар — плавающая пилюля: лежит НАД .bd и отнимает снизу свою высоту
+// плюс зазор NAV_GAP. Отступ под подвалом считается от РЕАЛЬНЫХ высот
+// через --foot-h: правила под конкретные высоты один раз уже положили
+// подвал на навигацию.
 
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { Icon } from '../icons/Icon'
-import { dismissOffer, useOfferOff } from '../lib/offer'
-import { useStore } from '../state/store'
 
 export function StatusBar() {
   return (
@@ -86,35 +84,6 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
   )
 }
 
-export function Offer({ txt = 'Unlock the full care plan', sub = '$29/yr', onClick }:
-                      { txt?: string; sub?: string; onClick?: () => void }) {
-  const off = useOfferOff()
-  const { d } = useStore()
-  if (off) return null
-  const close = (e: { stopPropagation: () => void }) => {
-    e.stopPropagation()
-    dismissOffer()
-    d({ t: 'toast', v: { html: '<span>Pro is always in <b>Settings</b></span><a href="#settings">Open Settings</a>',
-                         ms: 6000, at: Date.now() } })
-  }
-  return (
-    <div className="ofr" role="button" tabIndex={0} onClick={onClick} aria-label={`${txt}, ${sub}`}
-         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}>
-      <div className="ofr-in">
-        <div className="ofr-ic"><Icon name="sprout" color="var(--lime)" size={19} sw={2} /></div>
-        <div className="ofr-tx"><b>{txt}</b><s>{sub}</s></div>
-        <div className="ofr-go"><Icon name="chevron-right" color="var(--lime)" size={18} sw={2.4} /></div>
-      </div>
-      {/* Крестик снаружи .ofr-in: у той overflow:hidden, кружок в углу обрезался. */}
-      <div className="ofr-x" role="button" tabIndex={0} aria-label="Close"
-           onClick={close}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); close(e) } }}>
-        <Icon name="x" color="var(--deepest)" size={12} sw={3} />
-      </div>
-    </div>
-  )
-}
-
 interface ScreenProps {
   id: string
   /** Название раздела в шапке вместо логотипа, когда .h1 страницы ушёл под шапку. */
@@ -122,7 +91,6 @@ interface ScreenProps {
   children: ReactNode
   back?: () => void
   nav?: { active: string; badge?: boolean; go: (id: string) => void }
-  offer?: { txt?: string; sub?: string; onClick?: () => void }
   /**
    * Подвал: прибит к низу и НЕ скроллится с контентом. Обязан быть соседом
    * .bd, а не его потомком: .bd — скролл-контейнер, и absolute внутри него
@@ -145,7 +113,7 @@ interface ScreenProps {
   hero?: ReactNode
 }
 
-export function Screen({ id, title, children, back, nav, offer, foot, scrollKey, hero, overlay }: ScreenProps) {
+export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, overlay }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -156,13 +124,12 @@ export function Screen({ id, title, children, back, nav, offer, foot, scrollKey,
     if (!el) return
     const navEl = el.querySelector<HTMLElement>('.nav')
     const footEl = el.querySelector<HTMLElement>('.foot')
-    const nh = navEl ? navEl.offsetHeight : 0
+    // Таб-бар висит в NAV_GAP от низа экрана, поэтому снизу он занимает
+    // свою высоту плюс этот зазор — подвал садится ровно над ним.
+    const NAV_GAP = 24
+    const nh = navEl ? navEl.offsetHeight + NAV_GAP : 0
     if (footEl) footEl.style.bottom = nh + 'px'
     const fh = footEl ? footEl.offsetHeight : 0
-    // Кнопка Scan выступает над таб-баром на 16px; баннер встаёт выше неё с
-    // зазором 24.
-    const lift = navEl ? 28 : 0
-    el.style.setProperty('--ofr-bottom', fh + nh + lift + 12 + 'px')
     el.style.setProperty('--foot-h', fh + nh + 16 + 'px')
   })
 
@@ -266,7 +233,6 @@ export function Screen({ id, title, children, back, nav, offer, foot, scrollKey,
         {children}
       </div>
       {foot && <div className="foot">{foot}</div>}
-      {offer && <Offer {...offer} />}
       {nav && <Nav {...nav} />}
       {overlay}
     </div>
