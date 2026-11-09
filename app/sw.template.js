@@ -1,9 +1,17 @@
 // Сервис-воркер React-версии. Шаблон: сборка (pwaWorker в vite.config.ts)
 // подставляет версию и список файлов и кладёт результат в react/sw.js.
 //
-// Схема обычная для PWA: приложение открывается из кэша, новая сборка
-// скачивается в фоне и ЖДЁТ. Включает её сообщение 'skip' со страницы —
-// плашка «Update» в установленном приложении или молча во вкладке (src/lib/pwa.ts).
+// Приложение открывается из кэша, новая сборка скачивается в фоне.
+//
+// Скачав, воркер включается СРАЗУ (skipWaiting), а не ждёт нажатия. Ждал он
+// того, что обязано приехать внутри новой сборки: пока человек не нажмёт
+// «Reload», страница крутит старый код, и починка механизма обновления,
+// выложенная на прод, до него не доезжает никогда. Выложили редизайн — все,
+// кто уже открывал приложение, продолжали видеть старое.
+//
+// Плашка «New version available» остаётся и остаётся решением человека:
+// claim() отдаёт открытой вкладке новые файлы, плашка говорит, что версия
+// сменилась, перезагрузку он выбирает сам (src/lib/pwa.ts).
 // Корневой ../sw.js прототипа сюда не ходит: он пропускает всё под /react/.
 
 const VERSION = '__VERSION__'
@@ -13,10 +21,9 @@ const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(at))))
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(at)))
+    .then(() => self.skipWaiting()))
 })
-
-self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting() })
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()

@@ -1,22 +1,29 @@
 // Сервис-воркер React-версии. Шаблон: сборка (pwaWorker в vite.config.ts)
 // подставляет версию и список файлов и кладёт результат в react/sw.js.
 //
-// Схема обычная для PWA: приложение открывается из кэша, новая сборка
-// скачивается в фоне и ЖДЁТ. Включает её сообщение 'skip' со страницы —
-// плашка «Update» в установленном приложении или молча во вкладке (src/lib/pwa.ts).
+// Приложение открывается из кэша, новая сборка скачивается в фоне.
+//
+// Скачав, воркер включается СРАЗУ (skipWaiting), а не ждёт нажатия. Ждал он
+// того, что обязано приехать внутри новой сборки: пока человек не нажмёт
+// «Reload», страница крутит старый код, и починка механизма обновления,
+// выложенная на прод, до него не доезжает никогда. Выложили редизайн — все,
+// кто уже открывал приложение, продолжали видеть старое.
+//
+// Плашка «New version available» остаётся и остаётся решением человека:
+// claim() отдаёт открытой вкладке новые файлы, плашка говорит, что версия
+// сменилась, перезагрузку он выбирает сам (src/lib/pwa.ts).
 // Корневой ../sw.js прототипа сюда не ходит: он пропускает всё под /react/.
 
-const VERSION = '3dcc9fa439'
+const VERSION = 'f25f201af5'
 const CACHE = 'hg-react-' + VERSION
-const FILES = ["assets/Garden3D-BCAPgI_N.js","assets/OrbitControls-8_hKZST4.js","assets/basil-Dw8FQcTD.js","assets/cherrytomato-DTlgSCE6.js","assets/index-9sHyNVHx.css","assets/index-BGDLio7V.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-DlnUuaYE.js","assets/index-K8ajHGwt.js","assets/lettuce-WHBHvkbu.js","assets/radish-C7vJ_jl9.js","assets/shared-Gr6fiojY.js","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
+const FILES = ["assets/Garden3D-DH5avgiZ.js","assets/OrbitControls-CVftaAR6.js","assets/basil-DI212x_m.js","assets/cherrytomato-BhJ_2zpK.js","assets/index-9sHyNVHx.css","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-CVgdR1BU.js","assets/index-DlnUuaYE.js","assets/index-K8ajHGwt.js","assets/lettuce-Rwuhv9Tu.js","assets/radish-BTbqELpb.js","assets/shared-Gr6fiojY.js","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
 const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(at))))
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(at)))
+    .then(() => self.skipWaiting()))
 })
-
-self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting() })
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()

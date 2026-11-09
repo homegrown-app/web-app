@@ -5,63 +5,47 @@
 // Установленное на рабочий стол приложение iOS не перезагружается при возврате
 // из фона, поэтому без плашки человек сидел бы на старой версии днями.
 //
-// Ожидающая версия показывается плашкой «New version available · Reload», как в
-// Cramless (там vite-plugin-pwa в режиме prompt), — включает её только человек.
-// Плашка и в установленном приложении, и во вкладке: раньше во вкладке версия
-// включалась молча, и после деплоя было непонятно, что уже загружено.
+// Новая версия показывается плашкой «New version available · Reload» —
+// перезагружает только человек. Плашка и в установленном приложении, и во
+// вкладке: раньше во вкладке версия включалась молча, и после деплоя было
+// непонятно, что уже загружено.
+//
+// Ловим смену контроллера, а не ожидающего воркера: воркер больше не ждёт
+// (sw.template.js), иначе исправления механизма обновления не доезжали бы.
 
 import { useEffect, useState } from 'react'
 
-/** Ожидающая версия: функция, которая её включает, или null. */
+/** Пришла новая версия: функция перезагрузки, или null. */
 export function useUpdate(): (() => void) | null {
-  const [waiting, setWaiting] = useState<ServiceWorker | null>(null)
+  const [fresh, setFresh] = useState(false)
 
   useEffect(() => {
     // В dev воркера нет: он кэшировал бы модули Vite и ломал горячую замену.
     if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return
     const base = import.meta.env.BASE_URL
     const sw = navigator.serviceWorker
-    // Контроллера нет — это первая установка воркера, а не обновление.
-    //
-    // Во вкладке новая сборка включается сама. Плашка тут не нужна и вредна:
-    // человек её не ждёт, не понимает, что она предлагает, и закрывает — а
-    // приложение так и остаётся на старой сборке до следующего раза. В
-    // установленном приложении наоборот: там перезагрузка выглядит как
-    // падение, поэтому спрашиваем. Состояние лежит в localStorage, так что
-    // перезагрузка ничего не теряет.
-    const installed = matchMedia('(display-mode: standalone)').matches
-                   || matchMedia('(display-mode: minimal-ui)').matches
-    const found = (w: ServiceWorker) => {
-      if (!sw.controller) return
-      if (installed) { setWaiting(w); return }
-      sw.addEventListener('controllerchange', () => location.reload(), { once: true })
-      w.postMessage('skip')
-    }
+    // Контроллера не было — это первая установка воркера, а не обновление,
+    // и плашке тут сказать нечего.
+    const had = !!sw.controller
+    const onChange = () => { if (had) setFresh(true) }
+    sw.addEventListener('controllerchange', onChange)
+
     let reg: ServiceWorkerRegistration | undefined
     const check = () => { if (document.visibilityState === 'visible') reg?.update().catch(() => {}) }
-
-    sw.register(`${base}sw.js`, { scope: base }).then(r => {
-      reg = r
-      if (r.waiting) found(r.waiting)
-      r.addEventListener('updatefound', () => {
-        const w = r.installing
-        w?.addEventListener('statechange', () => { if (w.state === 'installed') found(w) })
-      })
-    }).catch(() => {})
+    sw.register(`${base}sw.js`, { scope: base }).then(r => { reg = r }).catch(() => {})
 
     // Возврат из фона — главный момент проверки: установленное приложение
     // живёт неделями без перезагрузки. Таймер — для открытого подолгу экрана.
     document.addEventListener('visibilitychange', check)
     const timer = window.setInterval(check, 30 * 60 * 1000)
     return () => {
+      sw.removeEventListener('controllerchange', onChange)
       document.removeEventListener('visibilitychange', check)
       clearInterval(timer)
     }
   }, [])
 
-  if (!waiting) return null
-  return () => {
-    navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true })
-    waiting.postMessage('skip')
-  }
+  // Воркер уже активен и уже отдаёт новые файлы — перезагрузить достаточно.
+  if (!fresh) return null
+  return () => location.reload()
 }
