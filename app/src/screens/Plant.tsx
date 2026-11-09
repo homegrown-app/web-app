@@ -141,32 +141,32 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
       )}
 
       {edible ? (
-        <div className="grow">
-          {pic && <div className="grow-bg" style={{ backgroundImage: `url(${pic})` }} />}
-          <div className="grow-sc" />
-          <div className="grow-in">
-          <div className="grow-h">
-            <span>
-              <b>Growth</b>
-              <s>Pick window {p.s.days}–{p.s.daysMax} days</s>
-            </span>
-            {ready && (
-              <span className="pill b-lime">
-                <Icon name="check-circle" color="var(--ink)" size={14} />Ready
+        <div className="ph-card">
+          {pic && <div className="ph-bg" style={{ backgroundImage: `url(${pic})` }} />}
+          <div className="ph-sc" />
+          <div className="ph-in">
+            <div className="ph-h">
+              <span>
+                <b>Growth</b>
+                <s>Pick window {p.s.days}–{p.s.daysMax} days</s>
               </span>
-            )}
-          </div>
-          <div className="grow-r">
-            <span>
-              <RingBig pct={hPct(p)} sz={180} />
-              <span><b>{p.day}</b><u>days</u></span>
-            </span>
-          </div>
-          <div className="grow-chips">
-            <span><b>{hPct(p)}%</b><u>{ready ? 'ready to pick' : 'to first pick'}</u></span>
-            <span><b>{fmtPot(p.s.pot, s.units)}</b><u>pot</u></span>
-            <span><b>{p.s.days}–{p.s.daysMax}d</b><u>typical</u></span>
-          </div>
+              {ready && (
+                <span className="pill b-lime">
+                  <Icon name="check-circle" color="var(--ink)" size={14} />Ready
+                </span>
+              )}
+            </div>
+            <div className="ph-r">
+              <span style={{ width: 180, height: 180 }}>
+                <RingBig pct={hPct(p)} sz={180} />
+                <span><b>{p.day}</b><u>days</u></span>
+              </span>
+            </div>
+            <div className="ph-chips">
+              <span><b>{hPct(p)}%</b><u>{ready ? 'ready to pick' : 'to first pick'}</u></span>
+              <span><b>{fmtPot(p.s.pot, s.units)}</b><u>pot</u></span>
+              <span><b>{p.s.days}–{p.s.daysMax}d</b><u>typical</u></span>
+            </div>
           </div>
         </div>
       ) : (light || hum) && (

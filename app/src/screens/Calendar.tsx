@@ -44,7 +44,7 @@ function Context({ ctx, openCount }: { ctx: Ctx; openCount: number }) {
   return (
     <div className="acc">
       <div className="row1">
-        <span className="tag">{z.city.toUpperCase()}</span>
+        <span className="tag">{z.city}</span>
         <span style={{ fontSize: 'var(--t-13)', fontWeight: 600, color: 'var(--muted)' }}>
           zone {z.zone} · {seasonDays(ctx.zip)}-day season
         </span>

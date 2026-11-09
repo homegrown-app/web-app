@@ -146,6 +146,62 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .bed-row .nm b{font-size:var(--t-16);line-height:22px}
 .bed-row .nm s{font-size:var(--t-14);line-height:20px;margin-top:0}
 
+/* ───── Home.
+   Ближайший сбор: срок слева за волосяной линией, кадры стопкой, имена. */
+.nxt{display:flex;align-items:center;padding:12px 16px 12px 0;margin-top:8px;cursor:pointer}
+.nxt-d{width:84px;flex:none;text-align:center;border-right:1px solid var(--hair)}
+.nxt-d s{display:block;text-decoration:none;font-size:var(--t-13);line-height:16px;
+     font-weight:600;color:var(--muted)}
+.nxt-d b{display:block;font-size:28px;line-height:32px;font-weight:500;
+     font-variant-numeric:tabular-nums}
+.nxt-ph{display:flex;margin-left:16px;flex:none}
+.nxt-ph i{width:44px;height:44px;border-radius:22px;flex:none;
+     background:var(--meta) center/cover no-repeat;box-shadow:0 0 0 3px var(--surface)}
+.nxt-ph i+i{margin-left:-12px}
+.nxt-t{flex:1;min-width:0;margin-left:12px}
+.nxt-t b{display:block;font-size:var(--t-14);line-height:18px;font-weight:600}
+.nxt-t s{display:block;text-decoration:none;font-size:var(--t-13);line-height:18px;
+     font-weight:500;color:var(--muted)}
+
+/* Время недели: сумма слева, справа — из чего она складывается. */
+.tw{display:flex;align-items:flex-end;gap:16px;padding:16px;margin-top:8px}
+.tw-n{flex:none}
+.tw-n b{display:block;margin-top:2px;font-size:32px;line-height:36px;font-weight:500;
+     letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tw-bar{flex:1;min-width:0;display:flex;gap:4px;padding-bottom:6px}
+.tw-bar>span{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tw-bar u{text-decoration:none;font-size:var(--t-11);line-height:14px;font-weight:600;
+     color:var(--muted);border-left:1px dashed rgba(18,53,31,.25);padding-left:4px;height:14px}
+/* Полосы одной краской разной густоты: это доли одного и того же времени, а
+   не разные сущности. Густота идёт по величине доли, а не по виду работы:
+   так самая крупная всегда самая заметная, чем бы неделя ни оказалась занята.
+   Что есть что, говорит подпись под полосой, а не цвет. */
+.tw-bar i{display:block;height:10px;border-radius:5px;background:var(--primary)}
+.tw-bar i.r1{background:#7E68FF}
+.tw-bar i.r2{background:#9583FF}
+.tw-bar i.r3{background:#AC9CFF}
+/* Подпись в две строки, а не многоточием: «Soil chec…» не читается. */
+.tw-bar em{font-style:normal;font-size:var(--t-11);line-height:14px;font-weight:600;
+     color:var(--muted);overflow-wrap:anywhere}
+
+/* Срочное: карточка с плашкой, сроком и своим действием. */
+.urg{margin-top:8px;padding:16px;display:flex;flex-direction:column}
+.urg-h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.urg-h i{font-style:normal;font-size:var(--t-13);line-height:16px;font-weight:600;
+     color:var(--muted)}
+.urg>b{display:block;margin-top:12px;font-size:var(--t-20);line-height:24px;font-weight:600}
+.urg>s{display:block;margin-top:2px;text-decoration:none;font-size:var(--t-14);
+     line-height:20px;font-weight:500;color:var(--muted)}
+.urg .btn{margin-top:12px}
+
+/* Список растений карточкой — та же форма, что на подоконнике. */
+.plist-c{background:var(--surface);border-radius:var(--r-2xl);box-shadow:var(--sh-card);
+     padding:4px 16px;margin-top:0}
+.sec-h span u{text-decoration:none;color:var(--muted);font-weight:600;margin-left:4px}
+/* Правый край ярлыка бывает действием («Add») и бывает справкой. Справку
+   красим как справку: лиловая она обещала бы нажатие, которого нет. */
+.sec-h i.hint{color:var(--muted);cursor:default;font-weight:500}
+
 /* Пара чисел: две карточки рядом, а не одна разрезанная пополам. */
 .duo2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .duo2>div{background:var(--surface);border-radius:var(--r-2xl);box-shadow:var(--sh-card);
@@ -635,41 +691,49 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .wring-r u{text-decoration:none;font-size:var(--t-11);line-height:14px;
      font-weight:600;color:var(--muted)}
 
-/* Рост съедобного: фото того же растения в расфокусе под тёмной заливкой.
-   Кадр даёт карточке цвет самого растения, заливка — читаемость белого. */
-.grow{position:relative;margin-top:8px;border-radius:28px;overflow:hidden;color:#fff;
+/* ───── Тёмная карточка на расфокусированном фото. Общий приём канваса: им
+   сделаны и здоровье огорода на Home, и рост растения на его карточке. Кадр
+   даёт карточке цвет самого растения, заливка — читаемость белого.
+
+   Фото притушено. В канвасе заливка рассчитана на один конкретный тёмный
+   снимок, а в приложении под неё попадёт любой кадр из справочника, включая
+   микрозелень и салат. Считано на белом кадре — худшем из возможных: без
+   притушения белый текст даёт 2.7:1 на зелёной заливке и 3.3:1 на нейтральной,
+   то есть AA не проходит; при brightness .62 выходит 5.1:1 и 6.2:1. */
+.ph-card{position:relative;margin-top:8px;border-radius:28px;overflow:hidden;color:#fff;
      padding:18px 16px 16px}
-.grow-bg{position:absolute;inset:-24px;background-size:cover;background-position:center;
-     filter:blur(18px) saturate(1.1)}
-/* Заливка плотнее, чем в канвасе (.45 сверху): там карточка нарисована
-   только на тёмном редисе. В приложении под ней окажется любое фото из
-   справочника, включая микрозелень и салат. Считано на белом кадре —
-   худшем из возможных: при .62 белый текст даёт 4.95:1, при .45 — 3.3:1,
-   то есть AA не проходит. */
-.grow-sc{position:absolute;inset:0;background:linear-gradient(160deg,
-     rgba(18,24,32,.62) 0%,rgba(18,24,32,.74) 60%,rgba(18,24,32,.88) 100%)}
+.ph-bg{position:absolute;inset:-24px;background-size:cover;background-position:center;
+     filter:blur(18px) saturate(1.1) brightness(.62)}
+.ph-sc{position:absolute;inset:0;background:linear-gradient(160deg,
+     rgba(18,24,32,.52) 0%,rgba(18,24,32,.70) 60%,rgba(18,24,32,.86) 100%)}
+/* Зелёный вариант — здоровье огорода: это весь сад, а не одно растение. */
+.ph-sc.green{background:linear-gradient(160deg,
+     rgba(46,92,44,.62) 0%,rgba(26,66,34,.78) 60%,rgba(18,53,31,.90) 100%)}
 /* Содержимое отдельным слоем, а не правилом на всех детей: такое правило
    перебивало absolute у самих фона и заливки, и они вставали в поток. */
-.grow-in{position:relative}
-.grow-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.grow-h b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
-.grow-h s{display:block;text-decoration:none;margin-top:2px;font-size:var(--t-13);
+.ph-in{position:relative}
+.ph-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ph-h b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
+.ph-h s{display:block;text-decoration:none;margin-top:2px;font-size:var(--t-13);
      line-height:18px;font-weight:500;color:rgba(255,255,255,.8)}
-.grow-r{display:flex;justify-content:center;margin-top:4px}
-.grow-r>span{position:relative;width:180px;height:180px;display:flex;
+.ph-r{display:flex;justify-content:center;margin-top:4px}
+.ph-r>span{position:relative;display:flex;align-items:center;justify-content:center}
+.ph-r>span>span{position:absolute;inset:0;display:flex;flex-direction:column;
      align-items:center;justify-content:center}
-.grow-r>span>span{position:absolute;inset:0;display:flex;flex-direction:column;
-     align-items:center;justify-content:center}
-.grow-r b{font-size:var(--t-40);line-height:42px;font-weight:500;letter-spacing:-.02em;
+.ph-r b{font-size:var(--t-40);line-height:42px;font-weight:500;letter-spacing:-.02em;
      font-variant-numeric:tabular-nums}
-.grow-r u{text-decoration:none;font-size:var(--t-12);line-height:16px;font-weight:600;
+.ph-r u{text-decoration:none;font-size:var(--t-12);line-height:16px;font-weight:600;
      color:rgba(255,255,255,.8)}
-.grow-chips{display:flex;gap:8px;margin-top:12px}
-.grow-chips>span{flex:1;min-width:0;padding:10px 12px;border-radius:16px;
+.ph-chips{display:flex;gap:8px;margin-top:12px}
+.ph-chips>span{flex:1;min-width:0;padding:10px 12px;border-radius:16px;
      background:rgba(255,255,255,.14);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset}
-.grow-chips b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
-.grow-chips u{display:block;text-decoration:none;font-size:var(--t-12);line-height:16px;
+.ph-chips b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600;
+     font-variant-numeric:tabular-nums}
+.ph-chips u{display:block;text-decoration:none;font-size:var(--t-12);line-height:16px;
      font-weight:600;color:rgba(255,255,255,.8)}
+/* Цвет числа говорит, чего оно требует: коралл — сегодня, лайм — готово. */
+.ph-chips b.warm{color:#FFD3CC}
+.ph-chips b.lime{color:var(--lime)}
 
 /* Шкала условий: ступень вида подсвечена, всё ниже — «тоже годится». */
 .scale-h{display:flex;align-items:center;gap:8px}
@@ -974,7 +1038,6 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
    position:absolute редизайна — пилюля не плавала, а занимала место,
    которое .bd отбивал второй раз. */
 .screen:has(.ni-scan) .bd{padding-bottom:calc(116px + var(--sab,0px))}
-.screen.has-hero:has(.ni-scan) .bd{padding-bottom:0}
 
 /* ───── Маршрут-лист (RouteSheet): добавление растения, настройки.
    Лист 92% высоты: полоса скрима сверху остаётся видимой — это вторая дверь. */

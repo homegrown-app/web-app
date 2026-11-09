@@ -1,4 +1,9 @@
 // Шасси экрана: .screen.on > .sb + .hd + .bd + .foot + .nav.
+//
+// Слой героя (фото во всю ширину с параллаксом под шапкой) снят вместе с
+// переносом Home на канвас: там Home начинается с текста, и других экранов
+// с героем не было. Код лежит в истории — вернуть его дешевле, чем держать
+// мёртвым в шасси, которое читают при каждой правке экрана.
 // Таб-бар — плавающая пилюля: лежит НАД .bd и отнимает снизу свою высоту
 // плюс зазор NAV_GAP. Отступ под подвалом считается от РЕАЛЬНЫХ высот
 // через --foot-h: правила под конкретные высоты один раз уже положили
@@ -124,15 +129,9 @@ interface ScreenProps {
    * с содержимым и обрезается.
    */
   overlay?: ReactNode
-  /**
-   * Слой под шапкой: фото во всю ширину до самого верха экрана. Лежит вне
-   * потока, поэтому контент .bd проезжает поверх него. Высота — в --hero-h,
-   * прогресс прокрутки — в --p (0…1), из них CSS считает параллакс и блюр.
-   */
-  hero?: ReactNode
 }
 
-export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, overlay, steps }: ScreenProps) {
+export function Screen({ id, title, children, back, nav, foot, scrollKey, overlay, steps }: ScreenProps) {
   const root = useRef<HTMLDivElement>(null)
   const bd = useRef<HTMLDivElement>(null)
 
@@ -170,87 +169,12 @@ export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, 
     return () => box.removeEventListener('scroll', on)
   }, [title])
 
-  // Высота героя и прогресс прокрутки идут в CSS-переменные, а не в state:
-  // перерисовывать React на каждый кадр скролла незачем.
-  useLayoutEffect(() => {
-    const el = root.current, box = bd.current
-    if (!hero || !el || !box) return
-    let h = 0, pad = 0, raf = 0
-    const measure = () => {
-      // 0.68 — фото должно вместить и шапку, и весь блок дашборда на себе, и
-      // при этом остаться фотографией: сверху видна чистая полоса кадра. Но на
-      // низких экранах (iPhone SE, 320x568) 68% МЕНЬШЕ блока, и его верх уезжал
-      // под шапку. Поэтому высота считается от блока, а зона растушёвки ужимается.
-      const r8 = (v: number) => Math.round(v / 8) * 8
-      const FADE = 96
-      const inn = el.querySelector<HTMLElement>('.hero-in')
-      if (inn) {
-        el.style.setProperty('--fade', '0px')
-        const need = box.offsetTop + inn.offsetHeight   // шапка + блок без растушёвки
-        const base = r8(el.clientHeight * 0.68)
-        const cap = r8(el.clientHeight * 0.88)
-        h = Math.max(need, Math.min(cap, Math.max(base, r8(need + FADE))))
-        el.style.setProperty('--fade', Math.max(0, Math.min(FADE, h - need)) + 'px')
-      } else {
-        h = r8(el.clientHeight * 0.68)
-      }
-      el.style.setProperty('--hero-h', h + 'px')
-      // .bd начинается ниже статус-бара и шапки, а фото — от нуля экрана.
-      // Отступ считаем от РЕАЛЬНОГО верха .bd: в приложении статус-бара нет,
-      // в ревью он есть, и захардкоженное число сдвинуло бы лист.
-      pad = Math.max(0, h - 16 - box.offsetTop)
-      el.style.setProperty('--hero-pad', pad + 'px')
-    }
-    const onScroll = () => {
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        raf = 0
-        const p = h ? Math.min(1, Math.max(0, box.scrollTop / h)) : 0
-        el.style.setProperty('--p', p.toFixed(3))
-        // q — насколько лист подошёл к шапке. .bd обрезает содержимое по своей
-        // границе, поэтому в полосе шапки всегда видно фото: без непрозрачного
-        // фона там остаётся размытое пятно. Фон и цвет вордмарка ведём по q.
-        const q = Math.min(1, Math.max(0, 1 - (pad - box.scrollTop) / 64))
-        el.style.setProperty('--q', q.toFixed(3))
-      })
-    }
-    measure(); onScroll()
-    box.addEventListener('scroll', onScroll, { passive: true })
-    // ResizeObserver, а не window.resize: событие окна не приходит при смене
-    // метрик вьюпорта (эмуляция устройства), и высота героя оставалась от
-    // прежнего размера — блок и скрим считались по чужой геометрии.
-    const ro = new ResizeObserver(() => { measure(); onScroll() })
-    ro.observe(el)
-    // И сам блок: его высота меняется не только от размера экрана. На холодной
-    // загрузке первый кадр рисуется системным шрифтом, Inter Tight подменяется
-    // позже — блок вырастает, а отступ листа остаётся от прежней высоты, и на
-    // невысоком экране (Safari отдаёт 714, а не 844) лист наезжал на виджеты.
-    const inn0 = el.querySelector<HTMLElement>('.hero-in')
-    if (inn0) ro.observe(inn0)
-    // И скролл-контейнер: его высота меняется от любого позднего сдвига шапки
-    // (режим экрана, подмена шрифта, схлопывание адресной строки), а размеры
-    // .screen и .hero-in при этом остаются прежними.
-    ro.observe(box)
-    return () => {
-      if (raf) cancelAnimationFrame(raf)
-      box.removeEventListener('scroll', onScroll)
-      ro.disconnect()
-    }
-  }, [hero])
-
   return (
-    <div className={'screen on' + (hero ? ' has-hero' : '')} id={'s-' + id} ref={root}>
-      {hero && <div className="hero">{hero}</div>}
+    <div className="screen on" id={'s-' + id} ref={root}>
       <StatusBar />
       <Header back={!!back} onBack={back} title={title} steps={steps}
               gear={nav && nav.active !== 'Settings' ? () => nav.go('settings') : undefined} />
-      {/* Распорка под фото, а НЕ padding-top у .bd: sticky внутри скролл-
-          контейнера отсчитывает top:0 ниже его padding, и липкий заголовок
-          вставал бы на 468px ниже шапки вместо того, чтобы встать под неё. */}
-      <div className="bd" ref={bd}>
-        {hero && <div className="hero-gap" aria-hidden="true" />}
-        {children}
-      </div>
+      <div className="bd" ref={bd}>{children}</div>
       {foot && <div className="foot">{foot}</div>}
       {nav && <Nav {...nav} />}
       {overlay}

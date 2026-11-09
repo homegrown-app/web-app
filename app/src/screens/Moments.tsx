@@ -106,8 +106,8 @@ export function SeasonEndScreen({ go }: { go: Go }) {
             : <div className="recap-ph"
                    style={photoStyle(s.plants[0] ? s.plants[0].s : SPECIES[0])} />}
           <span className="pill b-lime" style={{ alignSelf: 'flex-start', marginTop: 16 }}>
-            {outdoor ? `SEASON 2026 · ${zipInfo(s.choices.zip).city.toUpperCase()}`
-                     : 'YOUR YEAR · YEAR-ROUND'}
+            {outdoor ? `Season 2026 · ${zipInfo(s.choices.zip).city}`
+                     : 'Your year · year-round'}
           </span>
           <div className="cap-f recap-h">
             {outdoor
