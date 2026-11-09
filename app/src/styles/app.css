@@ -156,7 +156,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── навигация */
 .nav{position:absolute;left:16px;right:16px;z-index:21;
-     bottom:calc(24px + env(safe-area-inset-bottom));height:68px;border-radius:34px;
+     bottom:calc(24px + var(--sab,0px));height:68px;border-radius:34px;
      background:var(--surface);box-shadow:var(--sh-nav);
      display:grid;grid-template-columns:1fr 72px 1fr;align-items:center;padding:0 8px}
 .ni{height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -317,8 +317,8 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* ───── тёмный экран (paywall / harvest) */
 .scan-shot{position:absolute;inset:0;background:#1C1548 center/cover no-repeat}
 .scan-ov{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 20px;
-     padding-top:calc(24px + env(safe-area-inset-top))}
-.mile-ov{padding-top:calc(24px + env(safe-area-inset-top))}
+     padding-top:calc(24px + var(--sat,0px))}
+.mile-ov{padding-top:calc(24px + var(--sat,0px))}
 .scan-frame{flex:1;border-radius:var(--r-2xl);box-shadow:inset 0 0 0 3px rgba(182,243,74,.7);margin-bottom:16px;
      position:relative;animation:scanpulse 1.2s ease-in-out infinite}
 .scan-frame.ok{box-shadow:inset 0 0 0 3px var(--lime);animation:none}
@@ -694,7 +694,7 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 
 /* Тост. Стили потерялись при переносе из proto.py (строки 536–541), и все
    тосты — Undo удаления, покупка, подсказка про Pro — были невидимы. */
-#toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
+#toast{position:absolute;left:12px;right:12px;top:calc(8px + var(--sat,0px));background:var(--deepest);color:#fff;
        border-radius:var(--r-lg);padding:16px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;
        font-size:var(--t-14);opacity:0;transform:translateY(-12px);pointer-events:none;
        transition:opacity .22s ease-out,transform .22s cubic-bezier(.32,.72,0,1);z-index:70}
@@ -704,7 +704,7 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 /* Плашка новой версии (UpdateBanner) — тот же тост, но не прячется сама. Под
    тостом по z-index: короткое сообщение перекроет её и уйдёт. */
-.upd{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));background:var(--deepest);color:#fff;
+.upd{position:absolute;left:12px;right:12px;top:calc(8px + var(--sat,0px));background:var(--deepest);color:#fff;
      border-radius:var(--r-lg);padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;
      font-size:var(--t-14);opacity:0;transform:translateY(-12px);pointer-events:none;
      transition:opacity .22s ease-out,transform .22s cubic-bezier(.32,.72,0,1);z-index:69}
@@ -722,13 +722,15 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .scan-x{position:absolute;left:12px;top:12px;width:40px;height:40px;border-radius:50%;background:rgba(18,53,31,.55);
   display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 
-/* Таб-бар над контентом: кнопка Scan выступает вверх, и лист с z-index её
-   перекрывал — кружок обрезался. */
-.nav{position:relative;z-index:6}
 /* Низ прокрутки на экранах с таб-баром. Пилюля плавает НАД листом: 68 высоты
    + 24 зазора снизу + 24 воздуха под последним блоком = 116, ровно столько же
-   отбивает канвас распоркой перед <nav>. */
-.screen:has(.ni-scan) .bd{padding-bottom:116px}
+   отбивает канвас распоркой перед <nav>. Плюс домашняя полоса: на айфоне
+   пилюля поднимается над ней, и лист обязан отбить столько же.
+   Правила .nav{position:relative;z-index:6} здесь больше нет: оно осталось
+   от прежней раскладки, где таб-бар стоял в потоке, и перебивало
+   position:absolute редизайна — пилюля не плавала, а занимала место,
+   которое .bd отбивал второй раз. */
+.screen:has(.ni-scan) .bd{padding-bottom:calc(116px + var(--sab,0px))}
 .screen.has-hero:has(.ni-scan) .bd{padding-bottom:0}
 
 /* ───── Маршрут-лист (RouteSheet): добавление растения, настройки.
@@ -762,7 +764,7 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
 .pw{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;
      background:var(--screen);color:var(--ink)}
 .pw-hd{flex:none;height:56px;display:flex;align-items:center;justify-content:space-between;
-     padding:0 16px;margin-top:env(safe-area-inset-top)}
+     padding:0 16px;margin-top:var(--sat,0px)}
 .pw-hd .wm{display:flex;align-items:center;gap:8px}
 .pw .bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px var(--foot-h,140px);
      scrollbar-width:none;min-height:0}

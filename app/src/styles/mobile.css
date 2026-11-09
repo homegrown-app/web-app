@@ -10,18 +10,36 @@ html,body{height:100%}
 body[data-mode="app"]{display:block;padding:0;background:var(--ground);overflow:hidden}
 /* снято при переносе: этой разметки в React нет — .stage{display:contents} */
 /* снято при переносе: этой разметки в React нет — .side,.stage-bar,.hint{display:none!important} */
-.mob{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--ground)}
+
+/* ───── Масштаб. Макет нарисован на 390; на экране другой ширины приложение
+   целиком идёт в масштабе --k (см. lib/scale.ts), а не растягивается по месту.
+   zoom, а не transform: zoom меняет РАСКЛАДКУ, поэтому прокрутка, попадание
+   пальцем и толщина волосяных линий остаются настоящими, а числа в CSS —
+   теми же, что в макете.
+   inset:0 вместо width/height — ноль от масштаба не зависит, поэтому коробка
+   при любом --k садится ровно в экран, а её размер в единицах макета выходит
+   «ширина экрана ÷ k», то есть ровно 390. */
+.mob{position:fixed;inset:0;zoom:var(--k,1);
+     display:flex;flex-direction:column;background:var(--ground);
+     /* Вырез и домашняя полоса приходят в НАСТОЯЩИХ пикселях, а внутри
+        масштаба каждый px умножается на k. Делим заранее — тогда в вёрстке
+        можно писать var(--sat) наравне с обычными числами. */
+     --sat:calc(env(safe-area-inset-top,0px) / var(--k,1));
+     --sab:calc(env(safe-area-inset-bottom,0px) / var(--k,1))}
 .mob .screen{position:absolute;inset:0}
 [data-mode="app"] .sb{display:none}
-.hd{padding-top:calc(8px + env(safe-area-inset-top))}
-.overlay .wm,.dark>*:first-child{margin-top:env(safe-area-inset-top)}
-.overlay,.dark{padding-top:calc(24px + env(safe-area-inset-top))}
+.hd{padding-top:calc(8px + var(--sat,0px))}
+/* Верхний вырез отбивается ОДИН раз — полем самого слоя. Раньше его добавлял
+   ещё и первый ребёнок (.dark>*:first-child), и на айфоне содержимое тёмного
+   экрана уезжало вниз на две высоты выреза; заодно это правило гасило
+   margin-top:auto у .mile-tx. На десктопе вырез нулевой — дефекта не видно. */
+.overlay,.dark{padding-top:calc(24px + var(--sat,0px))}
 .shot,.scrim{top:0!important}
-.nav{padding-bottom:env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom))}
-#toast{top:calc(8px + env(safe-area-inset-top));bottom:auto}
+#toast{top:calc(8px + var(--sat,0px));bottom:auto}
 @media (min-width:768px){
+  /* Рамка телефона: показывает макет как он нарисован — 390x844, масштаб 1. */
   body[data-mode="app"]{background:#E4E0F0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
-  body[data-mode="app"] .mob{position:relative;inset:auto;width:375px;height:812px;flex:none;border-radius:40px;overflow:hidden;
+  body[data-mode="app"] .mob{position:relative;inset:auto;width:390px;height:844px;flex:none;border-radius:40px;overflow:hidden;
        box-shadow:0 24px 64px rgba(18,24,32,.28)}
   .hd{padding-top:16px}
   .overlay,.dark{padding-top:24px}

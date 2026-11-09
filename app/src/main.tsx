@@ -12,11 +12,15 @@ import { App } from './App'
 import { StoreProvider } from './state/store'
 // аудит модели сезона доступен как window.__audit() — страховка порта
 import { stats } from './lib/audit'
+// масштаб макета под ширину экрана — ставит --k до первого кадра
+import { watchScale } from './lib/scale'
 // проверка слияния доступна как window.__syncAudit() — там же, почему в бандле
 import './lib/sync-audit'
 
 // сверка чисел ухода с прототипом: __stats(plants)
 window.__stats = stats
+
+watchScale()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

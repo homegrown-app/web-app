@@ -96,7 +96,9 @@
 .screen.has-hero:has(.ni-scan) .bd,
 .screen.has-hero:has(.foot) .bd { padding-bottom: 0 }
 /* Низ листа под плавающим таб-баром: 68 + 24 зазора + 24 воздуха. */
-.has-hero .dash { padding-bottom: 116px }
+/* Домашняя полоса: таб-бар поднимается над ней, значит блок обязан отбить
+   столько же — иначе последняя строка списка садится под пилюлю. */
+.has-hero .dash { padding-bottom: calc(116px + var(--sab, 0px)) }
 .dash-sec { margin-top: 0 }
 
 /* Блок дашборда стоит НА фото: приветствие, счёт, вердикт и две карточки.

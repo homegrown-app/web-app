@@ -17,7 +17,7 @@ export function RouteSheet({ label, onClose, children }:
   const box = useRef<HTMLDivElement>(null)
   const [dy, setDy] = useState(0)
   const [leaving, setLeaving] = useState(false)
-  const drag = useRef<{ y0: number; t0: number; last: number; tl: number } | null>(null)
+  const drag = useRef<{ y0: number; t0: number; last: number; tl: number; k: number } | null>(null)
 
   const close = () => {
     if (leaving) return
@@ -31,15 +31,19 @@ export function RouteSheet({ label, onClose, children }:
     return () => document.removeEventListener('keydown', onKey)
   })
 
+  // Палец идёт в настоящих пикселях, а лист живёт внутри масштаба --k:
+  // сдвиг переводим в единицы макета, иначе лист едет быстрее пальца.
   const down = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
-    drag.current = { y0: e.clientY, t0: e.timeStamp, last: e.clientY, tl: e.timeStamp }
+    const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--k')) || 1
+    drag.current = { y0: e.clientY / k, t0: e.timeStamp, last: e.clientY / k, tl: e.timeStamp, k }
   }
   const move = (e: React.PointerEvent) => {
     const g = drag.current
     if (!g) return
-    g.last = e.clientY; g.tl = e.timeStamp
-    setDy(Math.max(0, e.clientY - g.y0))
+    const y = e.clientY / g.k
+    g.last = y; g.tl = e.timeStamp
+    setDy(Math.max(0, y - g.y0))
   }
   const up = () => {
     const g = drag.current
