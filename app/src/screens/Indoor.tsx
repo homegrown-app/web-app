@@ -36,8 +36,8 @@ export function IndoorScreen({ go }: { go: Go }) {
                  tabIndex={i === 0 ? 0 : undefined}
                  onClick={i === 0 ? () => go('plant') : undefined}>
               <div className="rw">
-                <Ring pct={pct} dark />
-                <i><Icon name={icon} color="var(--lime)" size={15} sw={1.9} /></i>
+                <Ring pct={pct} />
+                <i><Icon name={icon} color="var(--primary-d)" size={15} sw={1.9} /></i>
               </div>
               <div className="nm"><b>{name}</b><s>{sub}</s></div>
               <div className="rt">{right}</div>
@@ -46,7 +46,7 @@ export function IndoorScreen({ go }: { go: Go }) {
         </div>
         <div className="duo">
           <div className="cell"><s>Cuts this year</s>
-            <b style={{ color: 'var(--lime)' }}>23</b></div>
+            <b>23</b></div>
           <div className="cell"><s>Season ends</s><b>never</b></div>
         </div>
       </div>

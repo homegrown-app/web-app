@@ -36,7 +36,7 @@ function Context({ ctx, openCount }: { ctx: Ctx; openCount: number }) {
   const cell = (icon: string, label: string, val: string) => (
     <div key={label} className="cell">
       <s style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-8)' }}>
-        <Icon name={icon} color="var(--lime)" size={14} />{label}
+        <Icon name={icon} color="var(--primary-d)" size={14} />{label}
       </s>
       <b>{val}</b>
     </div>
@@ -45,7 +45,7 @@ function Context({ ctx, openCount }: { ctx: Ctx; openCount: number }) {
     <div className="acc">
       <div className="row1">
         <span className="tag">{z.city.toUpperCase()}</span>
-        <span style={{ fontSize: 'var(--t-12)', color: 'rgba(255,255,255,.8)' }}>
+        <span style={{ fontSize: 'var(--t-13)', fontWeight: 600, color: 'var(--muted)' }}>
           zone {z.zone} · {seasonDays(ctx.zip)}-day season
         </span>
       </div>

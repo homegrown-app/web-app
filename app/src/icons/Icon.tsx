@@ -55,7 +55,7 @@ export const IcBig = ({ name }: { name: string }) =>
  * двух знаков на одном экране хватило бы, чтобы они подрались за один id.
  */
 let seedN = 0
-export function Seed({ size = 24, color = 'var(--ink)' }: { size?: number; color?: string }) {
+export function Seed({ size = 24, color = 'currentColor' }: { size?: number; color?: string }) {
   const id = useMemo(() => 'sd' + (++seedN), [])
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
