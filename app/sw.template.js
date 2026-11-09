@@ -21,7 +21,13 @@ const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(at)))
+  // cache: 'reload' обязателен. addAll ходит через HTTP-кэш браузера, а
+  // GitHub Pages отдаёт index.html с max-age=600 — воркер новой сборки клал
+  // себе страницу десятиминутной давности со старыми хешами ассетов и честно
+  // раздавал её как «новую версию». Снаружи это выглядело как невыложенный
+  // деплой: на сервере лежит новая сборка, в браузере крутится прошлая.
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(FILES.map(f => new Request(at(f), { cache: 'reload' }))))
     .then(() => self.skipWaiting()))
 })
 
