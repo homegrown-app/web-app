@@ -304,7 +304,7 @@ export function SignInScreen({ go }: { go: Go }) {
   return (
     <Screen id="signin" back={() => go('landing')} scrollKey="signin">
       <div className="h1" style={{ marginTop: 16 }}>Welcome back</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         Your plants and their schedule are waiting.
       </div>
       {err && <WhyNote err={err} mt={16} />}
@@ -338,7 +338,7 @@ export function EmailScreen({ go }: { go: Go }) {
               </div>
             }>
       <div className="h1" style={{ marginTop: 16 }}>What’s your email?</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         We send a 6-digit code. No password to remember.
       </div>
 
@@ -410,7 +410,7 @@ export function CodeScreen({ go }: { go: Go }) {
               </div>
             }>
       <div className="h1" style={{ marginTop: 16 }}>Enter the code</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         {s.authEmail
           ? <>Sent to <b style={{ color: 'var(--ink)' }}>{s.authEmail}</b></>
           : 'Six digits from the email we just sent.'}

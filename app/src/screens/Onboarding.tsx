@@ -117,7 +117,7 @@ export function QWhatScreen({ go }: { go: Go }) {
     <Screen id="qwhat" steps={<Pg id="qwhat" />} back={() => go('q0')} scrollKey="qwhat"
             foot={<StepBtn on={!!pick} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>What are you growing?</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         This decides the rest of the questions.
       </div>
       <div style={{ marginTop: 16 }}>

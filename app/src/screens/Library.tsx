@@ -131,7 +131,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
                    role="button" tabIndex={0} onClick={submit}>{cta}</div>
             }>
       <div className="h1" style={{ marginTop: 16 }}>{own ? 'What do you have?' : 'Add a plant'}</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         {/* Подзаголовок обещал один вид («finishes in one season»), а в списке
             теперь оба — это было бы неправдой про половину списка. */}
         {own ? 'Everything we know how to look after' : LIBNOTE.both}

@@ -6,18 +6,19 @@
 // таким он был и в прототипе, менять это при переносе не стали.
 
 import { Screen } from '../components/Chrome'
-import { Ring } from '../components/bits'
 import { Task } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { bg } from '../lib/assets'
 
 type Go = (id: string) => void
 
-const ROWS: Array<[string, string, string, string, number]> = [
-  ['leaf', 'Basil', 'Cut 7 times · regrows in 10d', 'ready', 100],
-  ['grains', 'Microgreens', 'Tray 3 · day 8', '~2d', 80],
-  ['leaf', 'Cilantro', 'Cut 2 times · next in 9d', '~9d', 60],
-  ['plant', 'Garlic chives', 'Day 34 · first cut Jun 8', '~50d', 40],
+/** Фото, название, строка состояния, плашка справа. Готовое к срезке помечено
+    лаймом, остальное — серым сроком: срок это справка, а не действие. */
+const ROWS: Array<[string, string, string, string, boolean]> = [
+  ['basil', 'Basil', 'Cut 7 times · regrows in 10d', 'Ready', true],
+  ['microgreens', 'Microgreens', 'Tray 3 · day 8', '~2d', false],
+  ['cilantro', 'Cilantro', 'Cut 2 times · next in 9d', '~9d', false],
+  ['chives', 'Garlic chives', 'Day 34 · first cut Jun 8', '~50d', false],
 ]
 
 export function IndoorScreen({ go }: { go: Go }) {
@@ -27,35 +28,40 @@ export function IndoorScreen({ go }: { go: Go }) {
       <div className="greet">Good morning · week 12</div>
       <div className="h1">Basil is ready<br /><span className="m">to cut again.</span></div>
 
-      <div className="acc">
-        <div className="acc-photo" style={{ backgroundImage: bg('basil') }} />
-        <div className="row1"><span className="tag">WINDOWSILL · YEAR-ROUND</span></div>
-        <div className="plants">
-          {ROWS.map(([icon, name, sub, right, pct], i) => (
-            <div className="prow" key={name} role={i === 0 ? 'button' : undefined}
+      <div className="bed">
+        <div className="bed-ph" style={{ backgroundImage: bg('basil') }}>
+          <span className="pill b-photo">Windowsill · year-round</span>
+        </div>
+        <div className="bed-rows">
+          {ROWS.map(([pic, name, sub, right, ready], i) => (
+            <div className="bed-row" key={name} role={i === 0 ? 'button' : undefined}
                  tabIndex={i === 0 ? 0 : undefined}
                  onClick={i === 0 ? () => go('plant') : undefined}>
-              <div className="rw">
-                <Ring pct={pct} />
-                <i><Icon name={icon} color="var(--primary-d)" size={15} sw={1.9} /></i>
-              </div>
+              <span className="bed-th" style={{ backgroundImage: bg(pic) }} />
               <div className="nm"><b>{name}</b><s>{sub}</s></div>
-              <div className="rt">{right}</div>
+              <span className={'pill ' + (ready ? 'b-lime' : 'b-meta')}>
+                {ready && <Icon name="check-circle" color="var(--ink)" size={14} />}
+                {right}
+              </span>
             </div>
           ))}
         </div>
-        <div className="duo">
-          <div className="cell"><s>Cuts this year</s>
-            <b>23</b></div>
-          <div className="cell"><s>Season ends</s><b>never</b></div>
-        </div>
       </div>
 
-      <div className="sl">This week</div>
-      <Task t={['Cut 6 basil leaves from the top', '2 min',
-                'Cut above a leaf pair — it branches and doubles.']} />
-      <Task t={['Sow a new microgreens tray', '5 min']} />
-      <Task t={['Water check: soil top dry?', '2 min']} />
+      {/* Два числа, которые объясняют подоконник: срезок много, а сезон не
+          кончается — на улице так не бывает. */}
+      <div className="duo2">
+        <div><b>23</b><s>Cuts this year</s></div>
+        <div><b>never</b><s>Season ends</s></div>
+      </div>
+
+      <div className="tasks" style={{ marginTop: 24 }}>
+        <h2>This week</h2>
+        <Task t={['Cut 6 basil leaves from the top', '2 min',
+                  'Cut above a leaf pair — it branches and doubles.']} />
+        <Task t={['Sow a new microgreens tray', '5 min']} />
+        <Task t={['Water check: soil top dry?', '2 min']} />
+      </div>
     </Screen>
   )
 }

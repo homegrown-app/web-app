@@ -208,14 +208,20 @@ export function ShoppingScreen({ go }: { go: Go }) {
     <Screen id="shopping" back={() => go('home')} nav={{ active: 'Week', go }}
             scrollKey="shopping">
       <div className="h1" style={{ marginTop: 16 }}>Shopping list</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet">
         Everything for {plan.length} {plan.length === 1 ? 'plant' : 'plants'} · about ${total}
       </div>
+      {/* Две группы: горшки с грунтом и семена. Каждая — одна карточка со
+          строками, как в канвасе: это один список, а не стопка дел. */}
       <div className="sl">Pots and soil</div>
-      {gear.map((x, i) => <Task key={i} t={[x[0], `~$${x[1]}`, x[2]]} />)}
+      <div className="tasks">
+        {gear.map((x, i) => <Task key={i} t={[x[0], `~$${x[1]}`, x[2]]} />)}
+      </div>
       {edible.length > 0 && <>
         <div className="sl">Seed</div>
-        <Task t={[items[items.length - 1][0], `~$${items[items.length - 1][1]}`, '']} />
+        <div className="tasks">
+          <Task t={[items[items.length - 1][0], `~$${items[items.length - 1][1]}`, '']} />
+        </div>
       </>}
       {/* Печать средствами браузера: @media print в app.css прячет хром
           и печатает один список. Отдельного экспортёра в приложении нет. */}

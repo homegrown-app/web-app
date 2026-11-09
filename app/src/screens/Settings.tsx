@@ -191,7 +191,7 @@ export function PickScreen({ go }: { go: Go }) {
     <Screen id="pick" back={() => go('settings')} nav={{ active: 'Settings', go }}
             scrollKey={'pick' + key}>
       <div className="h1" style={{ marginTop: 16 }}>{meta.title}</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>{meta.note}</div>
+      <div className="greet">{meta.note}</div>
       <div style={{ marginTop: 16 }}>
         <div className="plist">
           {opts.map(o => (
