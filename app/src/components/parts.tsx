@@ -3,25 +3,48 @@
 // на те же имена классов и ту же вложенность.
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
+import { Icon, IcCheck2, IcCheckG, IcChev } from '../icons/Icon'
 import { useStore } from '../state/store'
 import { STEPS } from '../data/onboarding'
 import { useUpdate } from '../lib/pwa'
 
-/** Опция онбординга. Ни одна не выбрана заранее — состояние появляется от тапа. */
-export function Opt({ label, sub, meta, wide, on, multi, dim, onPick }:
-    { label: string; sub?: string | null; meta?: string; wide?: boolean
+/**
+ * Опция онбординга. Ни одна не выбрана заранее — состояние появляется от тапа.
+ *
+ * Одна разметка на четыре формы канваса: строка (qwhat, q2i, q3, q5), большая
+ * карточка развилки (q0, big), плитка в сетке (q1) и короткий чип цели
+ * (q4, chip). Отличает их CSS, а не четыре разных компонента: в канвасе это
+ * тоже один блок с модификаторами.
+ *
+ *   pic      вырезанное фото в колодец — путь уже готовый, см. lib/assets.cut
+ *   wellIcon глиф вместо фото в том же колодце: вариант «не знаю» на q2i
+ *   icon     имя глифа плитки
+ *   small колодец 56 вместо 76 (q2i: вариантов четыре, карточки ниже)
+ */
+export function Opt({ label, sub, meta, pic, wellIcon, icon, big, chip, small, wide, on, multi, dim, onPick }:
+    { label: string; sub?: string | null; meta?: ReactNode; pic?: string; wellIcon?: string; icon?: string
+      big?: boolean; chip?: boolean; small?: boolean; wide?: boolean
       on?: boolean; multi?: boolean; dim?: boolean; onPick: () => void }) {
+  const cls = 'opt' + (on ? ' sel' : '') + (dim ? ' dim' : '') + (wide ? ' wide' : '')
+            + (big ? ' big' : '') + (chip ? ' chip' : '') + (small ? ' small' : '')
   return (
-    <div className={'opt' + (on ? ' sel' : '') + (dim ? ' dim' : '') + (wide ? ' wide' : '')}
+    <div className={cls}
          role={multi ? 'checkbox' : 'radio'} tabIndex={0} aria-checked={!!on}
          onClick={onPick}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick() } }}>
-      <div>{label}{sub && <s>{sub}</s>}</div>
+      {pic && <span className="well"><img src={pic} alt="" /></span>}
+      {wellIcon && <span className="well"><Icon name={wellIcon} size={26} color="var(--muted)" /></span>}
+      {/* Без фото глиф идёт в плитку; с фото плитка живёт внутри текста (q0). */}
+      {icon && !big && <span className="opt-i"><Icon name={icon} size={20} /></span>}
+      <div className="opt-t">
+        {big && icon && <span className="opt-i"><Icon name={icon} size={22} /></span>}
+        {label}{sub && <s>{sub}</s>}
+      </div>
       {meta && <i className="opt-m">{meta}</i>}
     </div>
   )
 }
+
 
 /* Подвал больше не отдельный компонент: он обязан быть соседом .bd, а не его
    потомком, поэтому живёт пропом foot у Screen — см. components/Chrome.tsx. */

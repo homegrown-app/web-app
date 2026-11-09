@@ -10,6 +10,10 @@ export const ASSET_ROOT = BASE.endsWith('react/')
 /** Путь к фото вида или журнала: img('radish') -> '/web-app/img/radish.jpg' */
 export const img = (name: string) => `${ASSET_ROOT}img/${name}.jpg`
 
+/** Вырезанное фото без фона для колодца онбординга:
+    cut('tomato') -> '/web-app/img/cut-tomato.webp' */
+export const cut = (name: string) => `${ASSET_ROOT}img/cut-${name}.webp`
+
 /** CSS-значение для background-image. Пустое имя даёт 'none', а не битую ссылку. */
 export const bg = (name: string | null | undefined) =>
   name ? `url(${img(name)})` : 'none'

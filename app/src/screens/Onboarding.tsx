@@ -6,15 +6,16 @@ import { useState } from 'react'
 import { NO_AUTH } from '../lib/demo'
 import { Screen } from '../components/Chrome'
 import { Opt, Pg, PickRow } from '../components/parts'
-import { Icon } from '../icons/Icon'
-import { bg } from '../lib/assets'
+import { Icon, SeedLine } from '../icons/Icon'
+import { bg, cut } from '../lib/assets'
 import { trackOfPlants } from '../lib/plants'
 import {
-  GOALS, Q4TITLE, SPACES, SUNLABEL, SUNRANK, TRACKOF, goalTag, isOutdoorSpace,
+  CUTS, GOALS, Q4TITLE, SPACES, SUNLABEL, SUNRANK, TRACKOF, goalIcon, goalTag,
+  isOutdoorSpace, spaceIcon,
 } from '../data/onboarding'
 import { ZIPS } from '../data/zips'
 import { useStore } from '../state/store'
-import { seasonDays } from '../lib/season'
+import { frostDates, seasonDays } from '../lib/season'
 
 type Go = (id: string) => void
 
@@ -80,14 +81,23 @@ export function Q0Screen({ go }: { go: Go }) {
   return (
     <Screen id="q0" steps={<Pg id="q0" />} back={() => go('landing')} scrollKey="q0"
             foot={<StepBtn on={own !== null} onNext={next} />}>
-      <div className="h1" style={{ marginTop: 16 }}>Where are you<br />starting from?</div>
+      {/* Семечко встречает человека на первом вопросе и больше в онбординге
+          не появляется: по правилу канваса знак живёт там, где эмоция. */}
+      <div className="h1 h1-seed" style={{ marginTop: 16 }}>
+        Where are you<br />starting from?
+        <i><SeedLine size={64} /></i>
+      </div>
       <div className="greet" style={{ marginTop: 8 }}>
         Two very different jobs, so we ask different things.
       </div>
+      {/* Развилка — единственный экран с крупными карточками: два пути стоят
+          рядом целиком, с растением и глифом, а не строкой текста. */}
       <div style={{ marginTop: 16 }}>
-        <Opt label="I already have plants" sub="Get them on a care schedule"
+        <Opt big label="I already have plants" sub="Get them on a care schedule"
+             pic={cut(CUTS.house)} icon="potted-plant"
              on={own === true} onPick={() => setOwn(true)} />
-        <Opt label="I want to start growing" sub="Tell me what to plant and buy"
+        <Opt big label="I want to start growing" sub="Tell me what to plant and buy"
+             pic={cut(CUTS.edible)} icon="trowel"
              on={own === false} onPick={() => setOwn(false)} />
       </div>
     </Screen>
@@ -112,10 +122,13 @@ export function QWhatScreen({ go }: { go: Go }) {
       </div>
       <div style={{ marginTop: 16 }}>
         <Opt label="Something to eat" sub="Radishes, greens, tomatoes in pots"
+             pic={cut(CUTS.edible)}
              on={pick === 'Something to eat'} onPick={() => setPick('Something to eat')} />
         <Opt label="Houseplants" sub="Monstera, pothos, snake plant"
+             pic={cut(CUTS.house)}
              on={pick === 'Houseplants'} onPick={() => setPick('Houseplants')} />
         <Opt label="Both" sub="Something edible, plants inside too"
+             pic={cut(CUTS.both)}
              on={pick === 'Both'} onPick={() => setPick('Both')} />
       </div>
     </Screen>
@@ -152,6 +165,7 @@ export function Q1Screen({ go }: { go: Go }) {
       <div className="optgrid">
         {opts.map(([label, sub, to]) => (
           <Opt key={label} label={label} sub={sub} wide={!!sub} on={sel?.[0] === label}
+               icon={spaceIcon(label)}
                meta={odd !== null && isOutdoorSpace(label) !== odd
                      ? (isOutdoorSpace(label) ? 'Outside' : 'Inside') : undefined}
                onPick={() => setSel([label, to])} />
@@ -182,27 +196,27 @@ export function Q2Screen({ go }: { go: Go }) {
     <Screen id="q2" steps={<Pg id="q2" />} back={() => go('q1')} scrollKey="q2"
             foot={<StepBtn on={!!known} onNext={() => go('q3')} />}>
       <div className="h1" style={{ marginTop: 16 }}>What’s your ZIP?</div>
-      <div style={{ fontSize: 'var(--t-14)', color: 'var(--muted)', marginTop: 4 }}>
+      <div className="greet" style={{ marginTop: 8 }}>
         Frost dates decide what can go outside, and when.
       </div>
 
-      <label className={'fld' + (full && !known ? ' bad' : '')} style={{ marginTop: 16 }}>
-        <span className="fld-l">ZIP code</span>
+      {/* Одно поле, а не пять: пять input-ов ломают вставку и автозаполнение
+          индекса. Клетки — рисунок поверх, поле лежит прозрачным сверху.
+          Тот же приём, что у кода из письма (Auth). */}
+      <div className="ziplbl">ZIP code</div>
+      <label className={'zipc' + (full && !known ? ' bad' : '')}>
         <input inputMode="numeric" autoComplete="postal-code" pattern="[0-9]*" maxLength={5}
-               enterKeyHint="done" placeholder="00000" aria-label="Your ZIP code"
+               enterKeyHint="done" aria-label="Your ZIP code"
                value={val} onChange={e => type(e.target.value)} />
+        <span className="zipc-cells" aria-hidden="true">
+          {[0, 1, 2, 3, 4].map(i => (
+            <i key={i} className={val.length === i ? 'on' : undefined}>{val[i] || ''}</i>
+          ))}
+        </span>
       </label>
 
       {known ? (
-        <div className="acc" style={{ marginTop: 16 }}>
-          <div className="row1"><span className="tag">Matched</span></div>
-          <div className="lbl">Climate profile</div>
-          <div className="big">{known.city}</div>
-          <div className="duo">
-            <div className="cell"><s>Last frost</s><b>{known.last}</b></div>
-            <div className="cell"><s>Season</s><b>{seasonDays(known.zip)} days</b></div>
-          </div>
-        </div>
+        <ZipCard z={known} />
       ) : (
         <>
           {/* Честно про охват: даты сверены со станциями по четырём индексам, и
@@ -224,6 +238,53 @@ export function Q2Screen({ go }: { go: Go }) {
   )
 }
 
+/**
+ * Климат найденного индекса. Всё на карточке считается из дат заморозков:
+ * длина сезона, доли полосы года и её подпись — ни одно число не вписано.
+ *
+ * Сноска про станционные нормали стоит ТОЛЬКО у сверенных индексов. У Нью-Йорка
+ * в справочнике checked:false — его станцию не сверяли, и подписывать его
+ * нормалями NOAA значило бы соврать на экране (см. data/zips.ts).
+ */
+function ZipCard({ z }: { z: typeof ZIPS[number] }) {
+  const { last, first } = frostDates(z.zip)
+  const JAN = new Date(2026, 0, 1)
+  const doy = (d: Date) => Math.round((+d - +JAN) / 86400000)
+  const a = doy(last)                 // зима до последних заморозков
+  const b = doy(first) - a            // сезон
+  const c = 365 - a - b               // зима после первых
+  return (
+    <div className="zcard">
+      <div className="zc-top">
+        <span className="zc-pin"><Icon name="map-pin" color="var(--primary)" size={22} /></span>
+        <span className="zc-nm"><b>{z.city}</b><s>Zone {z.zone}</s></span>
+        <span className="pill b-lime">
+          <Icon name="check-circle" color="var(--ink)" size={14} />Matched
+        </span>
+      </div>
+      <div className="zc-stats">
+        <div><s>Last frost</s><b>{z.last}</b></div>
+        <div><s>First frost</s><b>{z.first}</b></div>
+        <div><s>Season</s><b>{seasonDays(z.zip)} <u>days</u></b></div>
+      </div>
+      <div className="zc-year">
+        <div className="zc-bar" role="img"
+             aria-label={`Frost until ${z.last}, growing season to ${z.first}`}
+             style={{ gridTemplateColumns: `${a}fr ${b}fr ${c}fr` }}>
+          <span /><span /><span />
+        </div>
+        <div className="zc-leg"><span>Jan</span><b>{z.last} → {z.first}</b><span>Dec</span></div>
+      </div>
+      <p className="zc-note">
+        <Icon name="seal-check" color={z.checked ? 'var(--primary)' : 'var(--muted)'} size={16} />
+        {z.checked
+          ? 'Station dates · NOAA normals 1991–2020'
+          : 'Dates inherited, not yet checked against a station'}
+      </p>
+    </div>
+  )
+}
+
 // ─────────────────────────────────────────── Q3 / Q2i: свет
 const SUN_OUT: Array<[string, string]> = [
   ['3–5 hours', 'Mostly shade or morning sun'],
@@ -237,6 +298,12 @@ const SUN_IN: Array<[string, string]> = [
   ['North window', 'Low light — pothos, ZZ, snake plant'],
   ['Not sure', 'We’ll start you safe'],
 ]
+/** Растение в колодце подобрано под свет: алоэ на юг, кинза на восток-запад,
+    листья замиокулькаса на север. У «не знаю» растения нет — там глиф. */
+const IN_CUT: Record<string, string> = {
+  'South window': CUTS.south, 'East or West': CUTS.eastwest, 'North window': CUTS.north,
+}
+
 /** Ключ ранга у внутренних вариантов короче подписи на экране. */
 const IN_KEY: Record<string, string> = {
   'South window': 'South', 'East or West': 'East or West',
@@ -290,15 +357,16 @@ export function Q2iScreen({ go }: { go: Go }) {
       <div className="h1" style={{ marginTop: 16 }}>How bright is<br />that spot?</div>
       <div style={{ marginTop: 16 }}>
         {SUN_IN.map(([l, sub]) => (
-          <Opt key={l} label={l} sub={sub} on={sel === l} onPick={() => setSel(l)} />
+          <Opt key={l} small label={l} sub={sub} on={sel === l} onPick={() => setSel(l)}
+               pic={IN_CUT[l] ? cut(IN_CUT[l]) : undefined}
+               wellIcon={IN_CUT[l] ? undefined : 'question'} />
         ))}
       </div>
-      <div className="card" style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
-        <Icon name="lightbulb" color="var(--primary)" size={24} />
-        <div style={{ fontSize: 'var(--t-14)', color: 'var(--ink-2)', lineHeight: 1.4 }}>
-          Got a grow light? <b style={{ color: 'var(--ink)' }}>Tell us</b> — it upgrades your options.
-        </div>
-      </div>
+      {/* Приписка, а не карточка: это замечание к списку, и в канвасе оно
+          идёт обычной строкой под ним. Карточка равняла его с вариантами. */}
+      <p className="optnote">
+        Got a grow light? <b>Tell us</b> — it upgrades your options.
+      </p>
     </Screen>
   )
 }
@@ -327,15 +395,17 @@ export function Q4Screen({ go }: { go: Go }) {
               <StepBtn on={!!picked.length} onNext={() => go('q5')} />
             </>}>
       <div className="h1" style={{ marginTop: 16 }}>{Q4TITLE[s.choices.track] || Q4TITLE.both}</div>
-      <div className="greet" style={{ marginTop: 8 }}>
+      {/* Счёт выбранного — часть вопроса, поэтому тем же весом, что заголовок
+          подводки, а не вполсилы: по нему решают, можно ли взять ещё. */}
+      <div className="greet strong" style={{ marginTop: 8 }}>
         Up to 3 · {picked.length ? `${picked.length} selected` : 'nothing selected yet'}
       </div>
       <div className="optgrid">
         {opts.map(([label, tag]) => {
           const on = picked.indexOf(tag) > -1
           // лишние гаснут, а не исчезают
-          return <Opt key={tag} label={label} multi on={on} dim={full && !on}
-                      onPick={() => toggle(label)} />
+          return <Opt key={tag} chip label={label} multi on={on} dim={full && !on}
+                      icon={goalIcon(tag)} onPick={() => toggle(label)} />
         })}
       </div>
     </Screen>
@@ -343,6 +413,17 @@ export function Q4Screen({ go }: { go: Go }) {
 }
 
 // ─────────────────────────────────────────── Q5: время в неделю
+/** Ряд горшков: столько растений даст план этого варианта. */
+function Pots({ n }: { n: number }) {
+  return (
+    <span className="pots" aria-hidden="true">
+      {Array.from({ length: n }, (_, i) => (
+        <span key={i}><Icon name="potted-plant" size={18} /></span>
+      ))}
+    </span>
+  )
+}
+
 export function Q5Screen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const many = s.choices.track === 'edible' ? 'a real garden' : 'a real collection'
@@ -356,12 +437,16 @@ export function Q5Screen({ go }: { go: Go }) {
     <Screen id="q5" steps={<Pg id="q5" />} back={() => go('q4')} scrollKey="q5"
             foot={<StepBtn on={sel !== null} onNext={next} />}>
       <div className="h1" style={{ marginTop: 16 }}>How much time can<br />you give it?</div>
+      {/* Размер плана виден горшками, а не только числом в строке: три, четыре
+          и «до шести» — ряд из стольких же глифов. Шесть горшков в ряд не
+          влезают и читались бы как точный счёт, поэтому там плашка. */}
       <div style={{ marginTop: 16 }}>
         <Opt label="About 10 minutes" sub="Keep it very simple · 3 plants"
-             on={sel === 3} onPick={() => setSel(3)} />
+             meta={<Pots n={3} />} on={sel === 3} onPick={() => setSel(3)} />
         <Opt label="About 20 minutes" sub="I can do a bit more · 4 plants"
-             on={sel === 4} onPick={() => setSel(4)} />
+             meta={<Pots n={4} />} on={sel === 4} onPick={() => setSel(4)} />
         <Opt label="30+ minutes" sub={`I want ${many} · up to 6 plants`}
+             meta={<span className="pill b-meta">up to 6</span>}
              on={sel === 6} onPick={() => setSel(6)} />
       </div>
     </Screen>

@@ -75,6 +75,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .greet{font-size:var(--t-16);line-height:24px;font-weight:500;color:var(--muted);margin-top:16px}
 .h1{font-weight:500;font-size:var(--t-31);line-height:36px;letter-spacing:-.02em;margin-top:8px}
 .h1 .m{color:#5C5670}
+/* Семечко в углу заголовка. Абсолютом, чтобы не отнимать строку у текста:
+   знак стоит НАД второй строкой справа, где её всё равно нет. */
+.h1-seed{position:relative;padding-right:72px}
+.h1-seed>i{position:absolute;right:4px;top:-10px;line-height:0}
 .sl{font-size:var(--t-12);font-weight:600;letter-spacing:-.02em;color:var(--muted);margin:20px 0 8px}
 
 /* ───── ACCENT BLOCK (референс 1) */
@@ -185,11 +189,117 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
      justify-content:space-between;gap:8px}
 .optgrid .opt.wide{grid-column:span 2;flex-direction:row;align-items:center;
      min-height:72px;font-size:var(--t-20);line-height:24px}
+/* Приписка под списком вариантов: замечание, а не ещё один вариант. */
+.optnote{margin:16px 8px 0;font-size:var(--t-14);line-height:20px;font-weight:500;color:var(--muted)}
+.optnote b{color:var(--primary);font-weight:600;cursor:pointer}
 .opt-m{font-style:normal;font-size:var(--t-12);line-height:16px;font-weight:600;color:var(--muted)}
+/* Ряд горшков на q5. Квадратики светлеют вместе с карточкой — как плитка глифа. */
+.pots{display:flex;gap:4px;margin-left:auto;flex:none}
+.pots>span{width:32px;height:32px;border-radius:10px;background:var(--meta);color:var(--ink);
+     display:flex;align-items:center;justify-content:center}
+.opt.sel .pots>span{background:var(--surface)}
+/* Вариант «до шести»: точного счёта нет, поэтому плашка вместо ряда. */
+.b-meta{background:var(--meta);color:var(--muted)}
+/* Подводка в полный вес: счёт выбранного — часть вопроса, а не сноска. */
+.greet.strong{font-weight:600}
 .optgrid .opt.wide .opt-m{margin-left:auto;flex:none}
+/* ───── Внутренности варианта: колодец с фото, плитка глифа, текст.
+   В канвасе это четыре формы одного блока, поэтому и здесь один .opt с
+   модификаторами, а не четыре компонента.
+
+   Колодец — мягкая лиловая ямка, в которой стоит вырезанное фото: контуром
+   растения, а не квадратом кадра. Отсюда contain и тень от самого растения.
+   На выбранной карточке подложка светлеет до белой — фото выходит вперёд. */
+.well{flex:none;width:var(--well,76px);height:var(--well,76px);border-radius:18px;overflow:hidden;
+     display:flex;align-items:flex-end;justify-content:center;
+     background:radial-gradient(circle at 50% 80%,#ECE7FF 0%,#F3F1F8 70%)}
+.well img{height:88%;max-width:88%;object-fit:contain;
+     filter:drop-shadow(0 6px 6px rgba(18,24,32,.1))}
+.opt.sel .well{background:radial-gradient(circle at 50% 80%,#FFFFFF 0%,#F3F1F8 70%)}
+/* Глиф «не знаю» встаёт в тот же колодец, но по центру: это не растение. */
+.well>svg{align-self:center}
+
+/* Плитка глифа. Светлеет на выбранном варианте и гаснет на погашенном —
+   вместе с самой карточкой, иначе плитка остаётся ярче своего текста. */
+.opt-i{flex:none;width:40px;height:40px;border-radius:14px;background:var(--meta);
+     display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.opt.sel .opt-i{background:var(--surface)}
+.opt.dim .opt-i{background:#E4E0EE;color:#5C5670}
+
+/* Строка с колодцем: он прижат к краю карточки, поэтому слева поле 8. */
+.opt:has(.well){min-height:96px;padding:8px 16px 8px 8px;gap:12px;justify-content:flex-start}
+.opt:has(.well) .opt-t{font-size:var(--t-20);line-height:24px}
+.opt.small:has(.well){--well:56px;min-height:80px;padding:12px 16px 12px 12px}
+.opt.small .well img{filter:none}
+
+/* Большая карточка развилки (q0): фото во всю высоту слева, под текстом
+   плитка глифа. Тень глубже обычной — это первый выбор в приложении. */
+.opt.big{min-height:152px;border-radius:28px;padding:12px;gap:16px;
+     align-items:stretch;justify-content:flex-start;box-shadow:var(--sh-lift)}
+.opt.big .well{--well:128px;height:auto;border-radius:20px;
+     background:radial-gradient(circle at 50% 80%,#ECE7FF 0%,#F8F6FF 70%)}
+.opt.big .well img{height:92%;max-width:92%;filter:drop-shadow(0 10px 10px rgba(18,24,32,.1))}
+.opt.big.sel .well{background:radial-gradient(circle at 50% 80%,#FFFFFF 0%,#F8F6FF 70%)}
+.opt.big .opt-t{display:flex;flex-direction:column;justify-content:center;gap:4px;
+     padding:4px 16px 4px 0;font-size:var(--t-20);line-height:24px}
+.opt.big .opt-i{margin-bottom:8px}
+
+/* Плитка в сетке: глиф сверху, под ним название и сторона. */
+.optgrid .opt .opt-i{margin-bottom:0}
+/* Короткий чип цели: глиф и подпись в строку. */
+.optgrid .opt.chip{flex-direction:row;align-items:center;gap:12px;
+     padding:8px 12px 8px 8px;justify-content:flex-start}
+
 .opt.dim{background:#EEEBF5;box-shadow:none;color:#5C5670;pointer-events:none}
 .opt.dim s,.opt.dim .opt-m{color:#8E88A8}
 .btn.off{background:#E9E5F5;color:#5C5670;pointer-events:none;box-shadow:none}
+/* ───── ZIP: пять клеток и карточка климата.
+   Клетки — рисунок поверх одного прозрачного поля: пять input-ов ломают
+   вставку индекса и автозаполнение. Тот же приём, что у кода из письма. */
+.ziplbl{font-size:var(--t-12);line-height:16px;font-weight:600;color:var(--muted);
+     margin:16px 0 8px 8px}
+.zipc{position:relative;display:block;height:64px}
+.zipc input{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+     border:0;background:transparent;font:inherit;color:transparent;caret-color:transparent}
+.zipc-cells{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;
+     height:100%;pointer-events:none}
+.zipc-cells i{display:flex;align-items:center;justify-content:center;
+     border-radius:18px;background:var(--surface);box-shadow:var(--sh-card);
+     font-style:normal;font-size:28px;line-height:32px;font-weight:500;
+     font-variant-numeric:tabular-nums}
+.zipc-cells i.on{box-shadow:0 0 0 2px var(--primary) inset,var(--sh-card)}
+.zipc.bad .zipc-cells i{box-shadow:0 0 0 2px var(--red) inset,var(--sh-card)}
+
+/* Карточка климата: кто ты по широте, в трёх числах и полосе года. */
+.zcard{background:var(--surface);border-radius:var(--r-2xl);box-shadow:var(--sh-card);
+     margin-top:16px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.zc-top{display:flex;align-items:center;gap:12px}
+.zc-pin{width:44px;height:44px;border-radius:14px;background:var(--lilac);flex:none;
+     display:flex;align-items:center;justify-content:center}
+.zc-nm{flex:1;min-width:0}
+.zc-nm b{display:block;font-size:var(--t-20);line-height:26px;font-weight:600}
+.zc-nm s{display:block;text-decoration:none;font-size:var(--t-14);line-height:20px;
+     font-weight:500;color:var(--muted)}
+.zc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.zc-stats>div{background:var(--ground);border-radius:18px;padding:12px}
+.zc-stats s{display:block;text-decoration:none;font-size:var(--t-13);line-height:16px;
+     font-weight:600;color:var(--muted)}
+.zc-stats b{display:block;font-size:var(--t-20);line-height:26px;font-weight:600;
+     margin-top:4px;white-space:nowrap}
+.zc-stats u{text-decoration:none;font-size:var(--t-14)}
+/* Полоса года: доли — настоящие дни до заморозков, между ними и после. */
+.zc-year{display:flex;flex-direction:column;gap:8px}
+.zc-bar{display:grid;gap:3px;height:10px}
+.zc-bar>span{background:#E4DCFF;border-radius:2px}
+.zc-bar>span:first-child{border-radius:5px 2px 2px 5px}
+.zc-bar>span:nth-child(2){background:var(--lime)}
+.zc-bar>span:last-child{border-radius:2px 5px 5px 2px}
+.zc-leg{display:flex;justify-content:space-between;font-size:var(--t-13);line-height:16px;
+     font-weight:600;color:var(--muted)}
+.zc-leg b{color:var(--ink);font-weight:600}
+.zc-note{display:flex;align-items:center;gap:4px;font-size:var(--t-13);line-height:18px;
+     font-weight:600;color:var(--muted)}
+
 .zip.ph{color:#8E88A8;letter-spacing:.22em}
 .tglrow{cursor:pointer}
 .pickrow .picktick{display:none;flex:none}

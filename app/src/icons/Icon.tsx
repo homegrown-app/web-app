@@ -82,3 +82,34 @@ export function Seed({ size = 24, color = 'currentColor' }: { size?: number; col
   )
 }
 
+/**
+ * Контурное начертание того же знака. Канвас делит их по размеру: заливка —
+ * мелко и в системных местах (шапка), контур — крупно и там, где у человека
+ * эмоция. Правый глаз точкой: на артборде q0 Семечко подмигивает.
+ * Контуры сняты с канваса дословно, включая дрожание линии.
+ */
+let seedLineN = 0
+export function SeedLine({ size = 64, color = 'var(--ink)' }: { size?: number; color?: string }) {
+  const id = useMemo(() => 'sl' + (++seedLineN), [])
+  const st = { fill: 'none', stroke: color, strokeWidth: 6, strokeLinecap: 'round' as const,
+               strokeLinejoin: 'round' as const }
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <filter id={id} x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="4" />
+          <feDisplacementMap in="SourceGraphic" scale="1.8" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+      <g filter={`url(#${id})`}>
+        <path d="M60,34 C88,33 106,50 106,72 C106,96 88,108 60,108 C32,108 14,96 14,72 C14,50 32,35 60,34Z" {...st} />
+        <path d="M60,34 C60,26 60,20 61,14" {...st} />
+        <path d="M60,22 C52,24 42,20 40,10 C50,8 58,12 60,22Z" {...st} />
+        <path d="M61,16 C66,8 76,4 86,8 C82,18 72,20 61,16Z" {...st} />
+        <path d="M40,66 Q46,58 52,66" {...st} />
+        <circle cx="74" cy="64" r="4.5" fill={color} />
+        <path d="M44,80 Q60,94 76,80" {...st} />
+      </g>
+    </svg>
+  )
+}

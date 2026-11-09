@@ -81,6 +81,33 @@ export const LIBNOTE: Record<Track, string> = {
   both: 'Houseplants, then edible',
 }
 
+/** Глиф плитки места. Имена взяты с канваса (онбординг q1), где он их назвал.
+    Комнатам канвас плитку не рисовал: там общий горшок — сетка остаётся
+    ровной, а глиф не выдуман под каждую комнату отдельно. */
+const SPACE_ICON: Record<string, string> = {
+  Patio: 'umbrella', Deck: 'picnic-table', Porch: 'door', Backyard: 'tree',
+  'Raised bed': 'trowel', 'Apartment balcony': 'buildings', Balcony: 'buildings',
+  'Windowsill / indoors': 'sun-horizon', Windowsill: 'sun-horizon',
+}
+export const spaceIcon = (label: string) => SPACE_ICON[label] || 'potted-plant'
+
+/** Глиф плитки цели. Съедобные — с канваса (q4) дословно; комнатные канвас не
+    рисовал, им подобран глиф из того же набора по смыслу. */
+const GOAL_ICON: Record<string, string> = {
+  salads: 'leaf', herbs: 'plant', fast: 'lightning', tomatoes: 'orange',
+  peppers: 'pepper', beans: 'grains', roots: 'carrot', kids: 'smiley',
+  hardy: 'shield-check', lowlight: 'lightbulb', statement: 'potted-plant',
+  flowers: 'flower', trailing: 'leaf', air: 'drop',
+}
+export const goalIcon = (tag: string) => GOAL_ICON[tag] || 'leaf'
+
+/** Вырезанное фото для колодца. Снимки взяты из канваса — те же, что на его
+    артбордах q0, qwhat и q2i. */
+export const CUTS = {
+  edible: 'tomato', house: 'snakeplant', both: 'cilantro',
+  south: 'aloe', eastwest: 'cilantro', north: 'zz',
+} as const
+
 /** Уличные места. Только они включают outdoor и вопрос про ZIP. */
 const OUTDOOR = ['Patio', 'Deck', 'Porch', 'Backyard', 'Raised bed',
                  'Apartment balcony', 'Balcony']
