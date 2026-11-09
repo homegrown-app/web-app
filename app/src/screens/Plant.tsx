@@ -8,7 +8,7 @@
 // картинка: выдумывать ассеты нельзя.
 
 import { Screen } from '../components/Chrome'
-import { DropLevel, Note, PhotoTile, Ring, RingBig, dropTone } from '../components/bits'
+import { Dial, DropLevel, Note, PhotoTile, Ring, dropTone } from '../components/bits'
 import { useCamera } from '../components/parts'
 import { Icon, IcPlus } from '../icons/Icon'
 import { img } from '../lib/assets'
@@ -93,6 +93,13 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
   // Кольцо комнатного пустеет по мере высыхания: полный круг сразу после
   // полива, пустой — в день следующего.
   const wLeft = Math.max(0, Math.min(100, (due / Math.max(1, p.s.water)) * 100))
+  // Шкала роста: конец окна сбора приходит на 87.5% круга, как в канвасе
+  // (у редиса окно 25–35 дней при шкале в 40). Длину округляем вверх до пяти,
+  // иначе засечки и окно разъезжаются на доли дня.
+  const dMax = p.s.daysMax || p.s.days
+  const span = Math.max(5, Math.ceil(dMax / 0.875 / 5) * 5)
+  const band: [number, number] | undefined =
+    dMax > 0 ? [p.s.days / span, dMax / span] : undefined
 
   return (
     <Screen id="plant" back={() => go('home')} nav={{ active: 'Week', go }}
@@ -158,7 +165,8 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
             </div>
             <div className="ph-r">
               <span style={{ width: 180, height: 180 }}>
-                <RingBig pct={hPct(p)} sz={180} />
+                <Dial sz={180} r={70} sw={8} disc={58} discFill="rgba(18,24,32,.28)" ticks={40}
+                      pct={(p.day / span) * 100} band={band} />
                 <span><b>{p.day}</b><u>days</u></span>
               </span>
             </div>

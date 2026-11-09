@@ -9,8 +9,9 @@
 
 import { Suspense, lazy } from 'react'
 import { Screen } from '../components/Chrome'
-import { RingBig } from '../components/bits'
-import { Icon, IcCheck2, IcChevD } from '../icons/Icon'
+import { Dial } from '../components/bits'
+import { Icon } from '../icons/Icon'
+import { Task as TaskRow } from '../components/parts'
 import { bg, img } from '../lib/assets'
 import {
   hEta, hPct, isEdible, lc, pState, phUrl, tkey, verdict, wDue, weekTasks,
@@ -90,7 +91,7 @@ function Health() {
         </div>
         <div className="ph-r">
           <span style={{ width: 200, height: 200 }}>
-            <RingBig pct={sc} sz={200} />
+            <Dial sz={200} r={84} sw={6} disc={66} discFill="rgba(18,53,31,.28)" ticks={60} pct={sc} />
             <span><b>{sc}</b><u>of 100</u></span>
           </span>
         </div>
@@ -110,10 +111,14 @@ function NextPick({ go }: { go: (id: string) => void }) {
   const eds = s.plants.filter(isEdible).slice().sort((a, b) => hPct(b) - hPct(a))
   if (!eds.length) return null
   const first = eds.slice(0, 2)
+  // hEta у созревшего отдаёт «ready», и с приставкой выходит «in ready».
+  const ripe = hPct(eds[0]) >= 100
   return (
     <div className="card nxt" role="button" tabIndex={0} onClick={() => go('calendar')}
          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('calendar') } }}>
-      <span className="nxt-d"><s>in</s><b>{hEta(eds[0])}</b></span>
+      <span className="nxt-d">
+        {ripe ? <><s>ready</s><b>now</b></> : <><s>in</s><b>{hEta(eds[0])}</b></>}
+      </span>
       <span className="nxt-ph">
         {first.map(p => (
           <i key={p.id} style={{ backgroundImage: `url(${shotOf(p) || ''})` }} />
@@ -132,6 +137,8 @@ const KIND_WORD: Record<string, string> = {
   pick: 'Picking', check: 'Soil checks', water: 'Watering',
   rotate: 'Rotating', wipe: 'Wiping leaves', feed: 'Feeding',
 }
+/** Краска доли по её месту в списке: первая — основная, дальше светлее. */
+const tone = (i: number) => 'tw-c' + Math.min(4, i + 1)
 function TimeWeek({ week }: { week: Task[] }) {
   const total = week.reduce((a, t) => a + minsOf(t), 0)
   if (!total) return null
@@ -140,17 +147,30 @@ function TimeWeek({ week }: { week: Task[] }) {
   const parts = Object.keys(by).sort((a, b) => by[b] - by[a])
   return (
     <div className="card tw">
-      <span className="tw-n">
-        <span className="lbl">Time this week</span>
-        <b>{total} min</b>
-      </span>
-      <div className="tw-bar">
+      <div className="tw-top">
+        <span className="tw-n">
+          <span className="lbl">Time this week</span>
+          <b>{total} min</b>
+        </span>
+        <div className="tw-bar">
+          {parts.map((k, i) => {
+            const pct = Math.round((by[k] / total) * 100)
+            // Засечка стоит у каждой доли, число — только там, где помещается:
+            // при ширине макета 375 полоса выходит ~232, и доля меньше 18%
+            // даёт колонку уже 31px, в которую «18%» не влезает. Обрезанное
+            // число врёт («18%» превращается в «1»), поэтому его нет.
+            return (
+              <span key={k} style={{ flex: by[k] }}>
+                <u>{pct >= 18 ? pct + '%' : ''}</u>
+                <i className={tone(i)} />
+              </span>
+            )
+          })}
+        </div>
+      </div>
+      <div className="tw-key">
         {parts.map((k, i) => (
-          <span key={k} style={{ flex: by[k] }}>
-            <u>{Math.round((by[k] / total) * 100)}%</u>
-            <i className={i ? 'r' + Math.min(3, i) : undefined} />
-            <em>{KIND_WORD[k] || k}</em>
-          </span>
+          <span key={k}><i className={tone(i)} />{KIND_WORD[k] || k}</span>
         ))}
       </div>
     </div>
@@ -158,9 +178,9 @@ function TimeWeek({ week }: { week: Task[] }) {
 }
 
 /** Срочное: задачи, у которых есть своё действие прямо здесь. */
-function NeedsNow({ week, go }: { week: Task[]; go: (id: string) => void }) {
+function NeedsNow({ week, urgent, go }:
+    { week: Task[]; urgent: Task[]; go: (id: string) => void }) {
   const { s, d } = useStore()
-  const urgent = week.filter(t => kindOf(t) === 'water' || kindOf(t) === 'pick')
   if (!urgent.length) return null
   const done = week.filter(t => s.done[tkey(t)]).length
   return (
@@ -169,22 +189,29 @@ function NeedsNow({ week, go }: { week: Task[]; go: (id: string) => void }) {
         <span>Needs you now</span>
         <i className="hint" aria-hidden="true">{done} of {week.length} this week</i>
       </div>
-      {urgent.slice(0, 2).map(t => {
+      {urgent.map(t => {
         const i = +(t[3] || '').split(':')[1]
         const pick = kindOf(t) === 'pick'
+        const shot = s.plants[i] ? shotOf(s.plants[i]) : null
         return (
           <div className="card urg" key={t[3]}>
-            <div className="urg-h">
-              <span className={'pill ' + (pick ? 'b-lime' : 'b-act')}>
-                <Icon name={pick ? 'scissors' : 'drop'} color="currentColor" size={14} />
-                {pick ? 'Ready' : 'Thirsty'}
+            <div className="urg-b">
+              <span className="urg-ph" style={shot ? { backgroundImage: `url(${shot})` } : undefined} />
+              <span className="urg-t">
+                <span className="urg-h">
+                  <span className={'pill ' + (pick ? 'b-lime' : 'b-act')}>
+                    <Icon name={pick ? 'scissors' : 'drop'} color="currentColor" size={14} />
+                    {pick ? 'Ready' : 'Thirsty'}
+                  </span>
+                  <i>{t[1]}</i>
+                </span>
+                <b>{t[0]}</b>
+                {t[2] && <s>{t[2]}</s>}
               </span>
-              <i>{t[1]}</i>
             </div>
-            <b>{t[0]}</b>
-            {t[2] && <s>{t[2]}</s>}
             <div className={'btn ' + (pick ? 'b-white' : 'b-pri')} role="button" tabIndex={0}
                  onClick={() => { if (pick) { d({ t: 'select', v: i }); go('harvest') } else d({ t: 'water', v: i }) }}>
+              <Icon name={pick ? 'scissors' : 'drop'} color={pick ? 'var(--ink)' : '#fff'} size={18} />
               {pick ? 'Pick it — first harvest' : 'Water it now'}
             </div>
           </div>
@@ -195,6 +222,14 @@ function NeedsNow({ week, go }: { week: Task[]; go: (id: string) => void }) {
 }
 
 /** Список растений: кадр, день и состояние. Открывает карточку растения. */
+/** Строка про полив под именем: отдельно от плашки сбора на кадре. */
+function waterLine(p: Plant): [string, boolean] {
+  const d = wDue(p)
+  if (d <= 0) return ['Needs water', true]
+  if (d <= 2) return ['Water soon', false]
+  return [`Water in ${d}d`, false]
+}
+
 function PlantRows({ onOpen, go }: { onOpen: (i: number) => void; go: (id: string) => void }) {
   const { s } = useStore()
   return (
@@ -204,24 +239,80 @@ function PlantRows({ onOpen, go }: { onOpen: (i: number) => void; go: (id: strin
         <i role="button" tabIndex={0} onClick={() => go('add-plant')}
            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('add-plant') } }}>Add</i>
       </div>
-      <div className="bed-rows plist-c">
+      <div className="pcar">
         {s.plants.map((p, i) => {
-          const st = pState(p)
+          const ed = isEdible(p)
+          const ripe = ed && hPct(p) >= 100
+          const [wl, bad] = waterLine(p)
           return (
-            <div className="bed-row" key={p.id} role="button" tabIndex={0}
+            <div className="card" key={p.id} role="button" tabIndex={0}
                  onClick={() => onOpen(i)}
                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i) } }}>
-              <span className="bed-th" style={{ backgroundImage: `url(${shotOf(p) || ''})` }} />
-              <div className="nm"><b>{p.s.name}</b><s>Day {p.day}</s></div>
-              <span className={'pill ' + (TONE[st[1]] || 'b-meta')}>
-                {st[1] === 'ok' && <Icon name="check-circle" color="var(--ink)" size={14} />}
-                {st[0]}
+              <span className="pcar-ph" style={{ backgroundImage: `url(${shotOf(p) || ''})` }}>
+                {ripe && (
+                  <span className="pill b-lime">
+                    <Icon name="check-circle" color="var(--ink)" size={14} />Ready
+                  </span>
+                )}
+                {ed && !ripe && <span className="pill b-photo">{hEta(p)}</span>}
               </span>
+              <b>{p.s.name}</b>
+              <s>Day {p.day}</s>
+              <i className={bad ? 'bad' : undefined}>
+                <Icon name="drop" color={bad ? 'var(--red)' : 'var(--muted)'} size={14} />{wl}
+              </i>
             </div>
           )
         })}
       </div>
     </>
+  )
+}
+
+/**
+ * Когда что созреет. Ось — шесть недель от сегодня, как подписано в канвасе:
+ * засечки на 0/2/4/6 неделях делят её на три равных куска. Растение дальше
+ * шести недель упирается в правый край, и это честно: точного дня у него
+ * всё равно нет.
+ */
+const SPAN = 42
+function HarvestTimeline() {
+  const { s } = useStore()
+  const rows = s.plants
+    .map((p, i) => ({ p, i, eta: p.s.days - p.day }))
+    .filter(r => isEdible(r.p))
+    .sort((a, b) => a.eta - b.eta)
+  if (!rows.length) return null
+  return (
+    <div className="card htl">
+      <div className="htl-h"><b>Harvest timeline</b><i>next 6 weeks</i></div>
+      <div className="htl-g">
+        {[0, 33.33, 66.67, 100].map(x => <u key={x} style={{ left: x + '%' }} />)}
+        {rows.map(({ p, eta }) => {
+          // Готовому — короткий огрызок полосы: кружок должен сесть у самого
+          // начала оси, но полоса нулевой длины не рисуется вовсе.
+          const at = Math.max(3.33, Math.min(100, (eta / SPAN) * 100))
+          const tone = eta <= 0 ? 'now' : eta <= SPAN ? 'soon' : 'late'
+          const far = at > 55           // подписи справа уже не хватит места
+          return (
+            <div className="htl-r" key={p.id}>
+              <i className={tone} style={{ width: at + '%' }} />
+              <span className="htl-th" style={{ left: `calc(${at}% - 14px)`,
+                    backgroundImage: `url(${shotOf(p) || ''})` }} />
+              <span className="htl-lb" style={far ? { left: 12 } : { left: `calc(${at}% + 20px)` }}>
+                {p.s.name} <u>{eta <= 0 ? 'Ready' : hEta(p)}</u>
+              </span>
+            </div>
+          )
+        })}
+        {([[0, 'Now'], [33.33, '2 wk'], [66.67, '4 wk'], [100, '6 wk']] as const).map(([x, w], n) => (
+          <span key={w} className="htl-x"
+                style={{ left: x + '%', transform: `translateX(${n === 0 ? '0' : n === 3 ? '-100%' : '-50%'})` }}>
+            {w}
+          </span>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -268,41 +359,34 @@ function GardenView({ onOpen }: { onOpen: (i: number) => void }) {
 }
 
 /** Остальная неделя: всё, что не вынесено в «Needs you now». */
-function Week({ week }: { week: Task[] }) {
+/**
+ * Неделя одной карточкой: счёт, полоса по клетке на дело и список остального.
+ *
+ * Раскрывающийся блок снят. В канвасе неделя на Home всегда открыта: полоса
+ * показывает, сколько уже сделано, и прятать под неё четыре строки незачем —
+ * ради них и стоит карточка. Отмечать дела по-прежнему можно прямо здесь.
+ */
+function WeekCard({ week, rest }: { week: Task[]; rest: Task[] }) {
   const { s, d } = useStore()
+  if (!week.length) return null
   const n = week.filter(t => s.done[tkey(t)]).length
-  const m = week.length
-  const pct = m ? Math.round((n / m) * 100) : 0
   return (
-    <div className={'wk' + (s.weekOpen ? ' open' : '')}>
-      <div className="wk-h" role="button" tabIndex={0}
-           onClick={() => d({ t: 'weekOpen', v: !s.weekOpen })}
-           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d({ t: 'weekOpen', v: !s.weekOpen }) } }}>
-        <div className="wk-title">{m} {m === 1 ? 'thing to do' : 'things to do'}</div>
-        <div className="wk-row">
-          <span className="pb-n">{n} of {m}</span>
-          <span className="pb-track"><i style={{ width: pct + '%' }} /></span>
-          <span className="pb-pct">{pct}%</span>
-          <span className="pb-chev"><IcChevD /></span>
-        </div>
+    <div className="tasks" style={{ marginTop: 32 }}>
+      <div className="tasks-h">
+        <h2>This week</h2>
+        <span>{n} of {week.length} done</span>
       </div>
-      {s.weekOpen && (
-        <div className="wk-list">
-          {week.map((t, i) => {
-            const on = !!s.done[tkey(t)]
-            return (
-              <div key={i} className="br-row" role="checkbox" tabIndex={0} aria-checked={on}
-                   onClick={() => d({ t: 'toggleTask', v: t })}
-                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d({ t: 'toggleTask', v: t }) } }}>
-                <span className={'br-dot' + (on ? ' on' : '')}>{on && <IcCheck2 />}</span>
-                <span className={'br-t' + (on ? ' done' : '')}>
-                  {t[0]}{t[2] && !on && <s>{t[2]}</s>}
-                </span>
-                <span className="br-m">{t[1]}</span>
-              </div>
-            )
-          })}
-        </div>
+      <div className="wkbar" style={{ gridTemplateColumns: `repeat(${week.length}, minmax(0,1fr))` }}>
+        {week.map((t, i) => <i key={i} className={s.done[tkey(t)] ? 'on' : undefined} />)}
+      </div>
+      {rest.length > 0 && (
+        <>
+          <p className="tasks-l">Also this week</p>
+          {rest.map((t, i) => (
+            <TaskRow key={i} t={[t[0], t[1], t[2]]} done={!!s.done[tkey(t)]}
+                  onToggle={() => d({ t: 'toggleTask', v: t })} />
+          ))}
+        </>
       )}
     </div>
   )
@@ -316,20 +400,24 @@ export function HomeScreen({ go }: { go: (id: string) => void }) {
   const sc = healthScore(s.plants)
   const due = s.plants.filter(p => wDue(p) <= 0).length
   const v = verdict(sc, due)
+  // Срочное считаем здесь: тот же список нужен карточке недели, чтобы не
+  // повторять в ней дела, которые уже стоят выше со своими кнопками.
+  const urgent = week.filter(t => kindOf(t) === 'water' || kindOf(t) === 'pick').slice(0, 2)
+  const rest = week.filter(t => !urgent.includes(t))
   return (
     <Screen id="home" nav={{ active: 'Week', badge: true, go }} scrollKey="home">
       {has ? (
         <>
-          <div className="greet">Good morning, plant parent</div>
+          <div className="greet tight">Good morning, plant parent</div>
           <div className="h1">{v[1]}</div>
           <Health />
           <NextPick go={go} />
           <TimeWeek week={week} />
-          <NeedsNow week={week} go={go} />
+          <NeedsNow week={week} urgent={urgent} go={go} />
           <PlantRows onOpen={open} go={go} />
+          <HarvestTimeline />
           <GardenView onOpen={open} />
-          <div className="sl">This week</div>
-          <Week week={week} />
+          <WeekCard week={week} rest={rest} />
         </>
       ) : (
         <>

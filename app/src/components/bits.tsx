@@ -115,17 +115,55 @@ export function Arc({ pct, sz }: { pct: number; sz: number }) {
 }
 
 /** Большое кольцо на тёмном (health score). ringBig() из proto.py. */
-export function RingBig({ pct, sz }: { pct: number; sz: number }) {
-  const sw = 6
-  const r = (sz - sw) / 2
-  const c = 2 * Math.PI * r
-  const off = c * (1 - pct / 100)
+/**
+ * Циферблат: шкала засечек, дуга значения и точка на её конце — так нарисованы
+ * оба тёмных прибора в канвасе.
+ *
+ * Геометрия приходит числами, а не считается от размера: в канвасе это два
+ * разных прибора, и пропорции у них не совпадают (200: кольцо 84 при обводке 6,
+ * диск 66, 60 засечек; 180: кольцо 70 при обводке 8, диск 58, 40 засечек).
+ * Общим остаётся устройство шкалы: засечки идут от disc−4 внутрь, каждая
+ * пятая длиннее (6 против 3) и ярче.
+ *
+ * band — лаймовая дуга поверх дорожки: на экране растения ей отмечено окно
+ * сбора, то есть куда дуга роста должна прийти.
+ */
+export function Dial({ sz, r, sw, disc, discFill, ticks, pct, band }: {
+  sz: number; r: number; sw: number; disc: number; discFill: string
+  ticks: number; pct: number; band?: [number, number]
+}) {
+  const c = sz / 2
+  const circ = 2 * Math.PI * r
+  const v = Math.max(0, Math.min(100, pct)) / 100
+  const end = (v * 360 - 90) * (Math.PI / 180)
+  const t0 = disc - 4                       // засечки начинаются внутри диска
+  const at = (rad: number, a: number) => [c + rad * Math.cos(a), c + rad * Math.sin(a)]
+  const [dx, dy] = at(r, end)
   return (
     <svg aria-hidden="true" width={sz} height={sz} viewBox={`0 0 ${sz} ${sz}`}>
-      <circle cx={sz / 2} cy={sz / 2} r={r} fill="none" stroke="rgba(255,255,255,.16)" strokeWidth={sw} />
-      <circle cx={sz / 2} cy={sz / 2} r={r} fill="none" stroke="var(--lime)" strokeWidth={sw}
-              strokeLinecap="round" strokeDasharray={c.toFixed(1)} strokeDashoffset={off.toFixed(1)}
-              transform={`rotate(-90 ${sz / 2} ${sz / 2})`} />
+      <circle cx={c} cy={c} r={r} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth={sw} />
+      {band && (
+        <circle cx={c} cy={c} r={r} fill="none" stroke="var(--lime)" strokeWidth={sw}
+                strokeDasharray={`${(circ * (band[1] - band[0])).toFixed(1)} ${circ.toFixed(1)}`}
+                strokeDashoffset={(-circ * band[0]).toFixed(1)}
+                transform={`rotate(-90 ${c} ${c})`} />
+      )}
+      <circle cx={c} cy={c} r={r} fill="none" stroke="#FFFFFF" strokeWidth={sw} strokeLinecap="round"
+              strokeDasharray={`${(circ * v).toFixed(1)} ${circ.toFixed(1)}`}
+              transform={`rotate(-90 ${c} ${c})`} />
+      {v > 0 && <circle cx={dx.toFixed(1)} cy={dy.toFixed(1)} r={7} fill="#FFFFFF" />}
+      <circle cx={c} cy={c} r={disc} fill={discFill} />
+      {Array.from({ length: ticks }, (_, i) => {
+        const big = i % 5 === 0
+        const a = (i * 360 / ticks) * (Math.PI / 180)
+        const [x1, y1] = at(t0, a)
+        const [x2, y2] = at(t0 - (big ? 6 : 3), a)
+        return (
+          <line key={i} x1={x1.toFixed(1)} y1={y1.toFixed(1)} x2={x2.toFixed(1)} y2={y2.toFixed(1)}
+                stroke={big ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)'}
+                strokeWidth={big ? 2 : 1.2} strokeLinecap="round" />
+        )
+      })}
     </svg>
   )
 }

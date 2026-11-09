@@ -44,8 +44,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .sb{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex:none;
     font-size:var(--t-13);font-weight:600}
 .hd{padding:4px 12px 8px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;
-    flex:none;min-height:52px;position:relative;z-index:5;
-    background:linear-gradient(180deg,#EFEBFF 0%,#F4F1FB 58%,var(--ground) 100%)}
+    flex:none;min-height:52px;position:relative;z-index:5}
 .hd-steps{display:flex;align-items:center;gap:16px;padding:0 16px;grid-template-columns:none}
 .hd-steps .back{margin-left:-8px}
 .pg-n{flex:none;font-size:var(--t-13);line-height:16px;font-weight:600;color:var(--muted);
@@ -72,6 +71,16 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .foot .btn{margin-top:0}
 .bd::-webkit-scrollbar{display:none}
 .greet{font-size:var(--t-16);line-height:24px;font-weight:500;color:var(--muted);margin-top:16px}
+/* На Home приветствие стоит в 8 от шапки, и эти 8 уже даёт сам лист; дальше до
+   заголовка 4. Модификатор, а не общее правило: на остальных экранах с .greet
+   свои артборды, и они здесь ещё не сверены. */
+.greet.tight{margin-top:0}
+.greet.tight + .h1{margin-top:4px}
+/* На Home приветствие стоит в 8 от шапки, и эти 8 уже даёт сам лист; дальше до
+   заголовка 4. Модификатор, а не общее правило: на остальных экранах с .greet
+   свои артборды, и они здесь ещё не сверены. */
+.greet.tight{margin-top:0}
+.greet.tight + .h1{margin-top:4px}
 .h1{font-weight:500;font-size:var(--t-31);line-height:36px;letter-spacing:-.02em;margin-top:8px}
 .h1 .m{color:#5C5670}
 /* Семечко в углу заголовка. Абсолютом, чтобы не отнимать строку у текста:
@@ -129,6 +138,18 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 /* Заголовок раздела живёт внутри карточки списка, а не ярлыком над ней:
    так в канвасе устроена «This week». */
 .tasks>h2{font-size:var(--t-24);line-height:28px;font-weight:500;margin:16px 0 4px}
+/* «This week» на Home: к той же карточке добавлены счёт справа от заголовка и
+   полоса недели — по клетке на дело. Ниже только то, чего НЕ было в «Needs you
+   now»: полив и сбор уже стоят там карточками со своими кнопками. */
+.tasks-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:16px}
+.tasks-h h2{margin:0;font-size:var(--t-24);line-height:28px;font-weight:500}
+.tasks-h span{flex:none;font-size:var(--t-13);line-height:16px;font-weight:600;
+     color:var(--muted);font-variant-numeric:tabular-nums}
+.wkbar{display:grid;gap:4px;margin-top:12px}
+.wkbar>i{height:6px;border-radius:3px;background:#ECE8F6}
+.wkbar>i.on{background:var(--primary)}
+.tasks-l{margin:16px 0 4px;font-size:var(--t-13);line-height:16px;font-weight:600;
+     color:var(--muted)}
 
 /* Карточка грядки: фото сверху, под ним строки растений. Плашка места лежит
    НА фотографии — она описывает именно её, а не список под ней. */
@@ -163,40 +184,99 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .nxt-t s{display:block;text-decoration:none;font-size:var(--t-13);line-height:18px;
      font-weight:500;color:var(--muted)}
 
-/* Время недели: сумма слева, справа — из чего она складывается. */
-.tw{display:flex;align-items:flex-end;gap:16px;padding:16px;margin-top:8px}
+/* Время недели: сумма слева, справа — из чего она складывается.
+   Подписи не живут в колонках полосы: ширина колонки — это доля времени, и
+   у доли в 5% она выходит 11px. Слово в такой колонке рассыпается по буквам
+   («Soil checks» → «S o i l»). В канвасе подписи собраны отдельной строкой под
+   полосой и переносятся как обычный текст. */
+.tw{display:flex;flex-direction:column;gap:12px;padding:16px;margin-top:8px}
+.tw-top{display:flex;align-items:flex-end;gap:16px}
 .tw-n{flex:none}
 .tw-n b{display:block;margin-top:2px;font-size:32px;line-height:36px;font-weight:500;
      letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .tw-bar{flex:1;min-width:0;display:flex;gap:4px;padding-bottom:6px}
 .tw-bar>span{display:flex;flex-direction:column;gap:6px;min-width:0}
 .tw-bar u{text-decoration:none;font-size:var(--t-11);line-height:14px;font-weight:600;
-     color:var(--muted);border-left:1px dashed rgba(18,53,31,.25);padding-left:4px;height:14px}
-/* Полосы одной краской разной густоты: это доли одного и того же времени, а
-   не разные сущности. Густота идёт по величине доли, а не по виду работы:
-   так самая крупная всегда самая заметная, чем бы неделя ни оказалась занята.
-   Что есть что, говорит подпись под полосой, а не цвет. */
-.tw-bar i{display:block;height:10px;border-radius:5px;background:var(--primary)}
-.tw-bar i.r1{background:#7E68FF}
-.tw-bar i.r2{background:#9583FF}
-.tw-bar i.r3{background:#AC9CFF}
-/* Подпись в две строки, а не многоточием: «Soil chec…» не читается. */
-.tw-bar em{font-style:normal;font-size:var(--t-11);line-height:14px;font-weight:600;
-     color:var(--muted);overflow-wrap:anywhere}
+     color:var(--muted);border-left:1px dashed rgba(18,53,31,.25);padding-left:4px;height:14px;
+     overflow:hidden}
+/* Четыре краски по величине доли, как в канвасе: самая крупная — основная,
+   дальше светлее. Цвет сам по себе ничего не сообщает: рядом с каждой точкой
+   в легенде стоит слово, поэтому к контрасту нетекстовой графики (3:1) эти
+   точки не относятся — они дублируют подпись, а не заменяют её. */
+.tw-bar i{display:block;height:10px;border-radius:5px}
+.tw-c1{background:#6A4CFF}
+.tw-c2{background:#CDBFFF}
+.tw-c3{background:#B6F34A}
+.tw-c4{background:#E4DCFF}
+/* Легенда: переносится по словам, как любой текст. */
+.tw-key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-12);line-height:16px;
+     font-weight:600;color:var(--muted)}
+.tw-key>span{display:inline-flex;align-items:center;gap:6px}
+.tw-key i{flex:none;width:8px;height:8px;border-radius:4px}
 
-/* Срочное: карточка с плашкой, сроком и своим действием. */
-.urg{margin-top:8px;padding:16px;display:flex;flex-direction:column}
-.urg-h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+/* Срочное: снимок растения, плашка со сроком и своё действие. В канвасе это
+   ряд из фотографии 88 и колонки текста, кнопка — под ними во всю ширину. */
+.urg{margin-top:8px;padding:12px;display:flex;flex-direction:column}
+.urg-b{display:flex;gap:12px}
+.urg-ph{flex:none;width:88px;height:88px;border-radius:16px;
+     background:var(--meta) center/cover no-repeat}
+.urg-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.urg-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .urg-h i{font-style:normal;font-size:var(--t-13);line-height:16px;font-weight:600;
      color:var(--muted)}
-.urg>b{display:block;margin-top:12px;font-size:var(--t-20);line-height:24px;font-weight:600}
-.urg>s{display:block;margin-top:2px;text-decoration:none;font-size:var(--t-14);
-     line-height:20px;font-weight:500;color:var(--muted)}
-.urg .btn{margin-top:12px}
+.urg-t b{font-size:var(--t-20);line-height:22px;font-weight:600}
+.urg-t s{text-decoration:none;font-size:var(--t-14);line-height:20px;font-weight:500;
+     color:var(--muted)}
+.urg .btn{height:48px;margin-top:12px;font-size:var(--t-16)}
 
-/* Список растений карточкой — та же форма, что на подоконнике. */
-.plist-c{background:var(--surface);border-radius:var(--r-2xl);box-shadow:var(--sh-card);
-     padding:4px 16px;margin-top:0}
+/* Растения на Home — карусель карточек 152, а не список строками: в канвасе
+   кадр занимает всю ширину карточки, а сами карточки уезжают за правый край.
+   Лента выходит за поля листа и возвращает их отступом, иначе первая карточка
+   встала бы в 32 от края, а прокрутка обрывалась бы на 16 от правого. */
+.pcar{display:flex;gap:8px;margin:0 -16px;padding:0 16px;
+     overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+     /* Прилипание считает от края окна прокрутки, а не от поля: без
+        scroll-padding лента сама сдвигалась на 16 и первая карточка вставала
+        впритык к краю экрана. Замер: scrollLeft 16.1 при поле 16. */
+     scroll-padding-inline:16px;
+     scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pcar::-webkit-scrollbar{display:none}
+.pcar>div{flex:none;width:152px;padding:8px 8px 12px;scroll-snap-align:start;cursor:pointer}
+.pcar-ph{position:relative;display:block;height:136px;border-radius:16px;overflow:hidden;
+     background:var(--meta) center/cover no-repeat}
+.pcar-ph .pill{position:absolute;left:8px;top:8px}
+.pcar b{display:block;margin:8px 4px 0;font-size:var(--t-16);line-height:22px;font-weight:600;
+     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcar s{display:block;margin:0 4px;text-decoration:none;font-size:var(--t-13);line-height:18px;
+     font-weight:500;color:var(--muted)}
+.pcar i{display:flex;align-items:center;gap:4px;margin:8px 4px 0;font-style:normal;
+     font-size:var(--t-13);line-height:16px;font-weight:600;color:var(--muted)}
+.pcar i.bad{color:var(--red)}
+
+/* Когда что созреет: полоса от сегодня до готовности на оси в шесть недель.
+   Кружок на конце полосы — снимок растения, подпись идёт за ним; у растения,
+   которое выходит за шесть недель, подписи справа места нет, и она встаёт в
+   начало полосы. */
+.htl{margin-top:8px;padding:16px}
+.htl-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.htl-h b{font-size:var(--t-20);line-height:22px;font-weight:600}
+.htl-h i{font-style:normal;font-size:var(--t-12);line-height:16px;font-weight:600;
+     color:var(--muted)}
+.htl-g{position:relative;margin:12px 8px 0 14px;padding-bottom:22px}
+.htl-g>u{position:absolute;top:0;bottom:22px;border-left:1px dashed rgba(18,53,31,.14)}
+.htl-r{position:relative;height:36px}
+.htl-r>i{position:absolute;left:0;top:8px;height:20px;border-radius:10px}
+.htl-r>i.now{background:var(--lime)}
+.htl-r>i.soon{background:#CDBFFF}
+.htl-r>i.late{background:#E4DCFF}
+.htl-th{position:absolute;top:4px;width:28px;height:28px;border-radius:14px;
+     background:var(--meta) center/cover no-repeat;
+     box-shadow:0 0 0 2px var(--surface),0 2px 6px rgba(18,24,32,.12)}
+.htl-lb{position:absolute;top:9px;white-space:nowrap;font-size:var(--t-12);line-height:18px;
+     font-weight:600}
+.htl-lb u{text-decoration:none;color:var(--muted);font-weight:500}
+.htl-x{position:absolute;bottom:0;white-space:nowrap;font-size:var(--t-11);line-height:14px;
+     font-weight:600;color:var(--muted)}
 .sec-h span u{text-decoration:none;color:var(--muted);font-weight:600;margin-left:4px}
 /* Правый край ярлыка бывает действием («Add») и бывает справкой. Справку
    красим как справку: лиловая она обещала бы нажатие, которого нет. */

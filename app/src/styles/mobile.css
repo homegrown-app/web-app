@@ -20,7 +20,11 @@ body[data-mode="app"]{display:block;padding:0;background:var(--ground);overflow:
    при любом --k садится ровно в экран, а её размер в единицах макета выходит
    «ширина экрана ÷ k», то есть ровно 390. */
 .mob{position:fixed;inset:0;zoom:var(--k,1);
-     display:flex;flex-direction:column;background:var(--ground);
+     display:flex;flex-direction:column;
+     /* Вся заливка экрана, как в канвасе: лиловый сверху расходится в фон к
+        320-й строке. Раньше тот же переход был зажат в шапку высотой 115
+        (52 + вырез) и читался полосой поперёк экрана. */
+     background:linear-gradient(180deg,#EFEBFF 0,var(--ground) 320px,var(--ground) 100%);
      /* Вырез и домашняя полоса приходят в НАСТОЯЩИХ пикселях, а внутри
         масштаба каждый px умножается на k. Делим заранее — тогда в вёрстке
         можно писать var(--sat) наравне с обычными числами. */
