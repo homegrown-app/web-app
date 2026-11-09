@@ -22,7 +22,21 @@ export function useUpdate(): (() => void) | null {
     const base = import.meta.env.BASE_URL
     const sw = navigator.serviceWorker
     // Контроллера нет — это первая установка воркера, а не обновление.
-    const found = (w: ServiceWorker) => { if (sw.controller) setWaiting(w) }
+    //
+    // Во вкладке новая сборка включается сама. Плашка тут не нужна и вредна:
+    // человек её не ждёт, не понимает, что она предлагает, и закрывает — а
+    // приложение так и остаётся на старой сборке до следующего раза. В
+    // установленном приложении наоборот: там перезагрузка выглядит как
+    // падение, поэтому спрашиваем. Состояние лежит в localStorage, так что
+    // перезагрузка ничего не теряет.
+    const installed = matchMedia('(display-mode: standalone)').matches
+                   || matchMedia('(display-mode: minimal-ui)').matches
+    const found = (w: ServiceWorker) => {
+      if (!sw.controller) return
+      if (installed) { setWaiting(w); return }
+      sw.addEventListener('controllerchange', () => location.reload(), { once: true })
+      w.postMessage('skip')
+    }
     let reg: ServiceWorkerRegistration | undefined
     const check = () => { if (document.visibilityState === 'visible') reg?.update().catch(() => {}) }
 

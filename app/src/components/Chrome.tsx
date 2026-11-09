@@ -222,7 +222,7 @@ export function Screen({ id, title, children, back, nav, foot, scrollKey, hero, 
     const ro = new ResizeObserver(() => { measure(); onScroll() })
     ro.observe(el)
     // И сам блок: его высота меняется не только от размера экрана. На холодной
-    // загрузке первый кадр рисуется системным шрифтом, Caprasimo подменяется
+    // загрузке первый кадр рисуется системным шрифтом, Inter Tight подменяется
     // позже — блок вырастает, а отступ листа остаётся от прежней высоты, и на
     // невысоком экране (Safari отдаёт 714, а не 844) лист наезжал на виджеты.
     const inn0 = el.querySelector<HTMLElement>('.hero-in')
