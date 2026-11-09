@@ -99,6 +99,32 @@ export function pState(p: Plant): [string, StateTone] {
   return ['Healthy', 'ok']
 }
 
+/**
+ * Шкалы света и влажности на карточке комнатного растения.
+ *
+ * В справочнике это строка, а не число, поэтому шкала ЧИТАЕТ строку, а не
+ * выдумывает ранг: вернулось null — ступени нет и полоса не рисуется.
+ * У съедобных свет меряется часами солнца, в ступени их не переводим.
+ *
+ * Запись вроде «Low to bright» покрывает сразу три ступени — её и
+ * подсвечиваем целиком, а не выбираем из неё одну.
+ */
+export const LIGHT_STEPS = ['Low', 'Medium', 'Bright indirect', 'Direct']
+export const HUM_STEPS = ['Low', 'Medium', 'High']
+
+const LIGHT_SPAN: Record<string, [number, number]> = {
+  'Low light': [0, 0],
+  'Low to bright': [0, 2],
+  'Medium indirect': [1, 1],
+  'Bright indirect': [2, 2],
+  'Bright direct': [3, 3],
+}
+export const lightSpan = (v: string): [number, number] | null => LIGHT_SPAN[v] || null
+export const humSpan = (v: string): [number, number] | null => {
+  const i = HUM_STEPS.indexOf(v)
+  return i < 0 ? null : [i, i]
+}
+
 export interface JournalShot { f?: string; u?: string; n: string; day: number; st: string }
 export const allPhotos = (plants: Plant[]): JournalShot[] =>
   plants.flatMap(p => p.photos.map(x => ({

@@ -1,14 +1,70 @@
-// Карточка растения. Второй виджет зависит от вида: комнатному — свет и
-// влажность, съедобному — прогресс до сбора и «типичный диапазон».
+// Карточка растения. Два вида — два прибора, как в канвасе: съедобному нужен
+// срок до сбора, комнатному — то, что оно пережило неделю.
+//
+//   съедобное  фраза о поливе + три ближайших дня + тёмная карточка роста
+//   комнатное  кольцо, которое пустеет, пока сохнет земля, + шкалы условий
+//
 // Если у вида нет настоящей фотографии, стоит плитка с иконкой, а не битая
 // картинка: выдумывать ассеты нельзя.
 
 import { Screen } from '../components/Chrome'
-import { Arc, DropLevel, MetricRow, Note, PhotoTile, dropTone } from '../components/bits'
+import { DropLevel, Note, PhotoTile, Ring, RingBig, dropTone } from '../components/bits'
 import { useCamera } from '../components/parts'
-import { IcPlus } from '../icons/Icon'
-import { fmtPot, hPct, isEdible, pState, wDue, phUrl } from '../lib/plants'
+import { Icon, IcPlus } from '../icons/Icon'
+import { img } from '../lib/assets'
+import {
+  HUM_STEPS, LIGHT_STEPS, fmtPot, hPct, humSpan, isEdible, lightSpan, pState, phUrl, wDue,
+} from '../lib/plants'
+import type { Plant } from '../lib/plants'
 import { useStore } from '../state/store'
+
+/** Плашка состояния: лайм у здорового, лиловая у «скоро», красная у просроченного. */
+const TONE: Record<string, string> = { ok: 'b-lime', warn: 'b-act', bad: 'b-warn' }
+
+/**
+ * Три ближайших дня. Фиолетовый — полив уже был сегодня, лиловый с обводкой —
+ * следующий. Третья клетка подписана настоящим сроком, если он дальше завтра:
+ * иначе она обещала бы «через 2 дня» там, где полив уже назначен раньше.
+ */
+function WaterDays({ p }: { p: Plant }) {
+  const due = wDue(p)
+  const far = Math.max(2, due)
+  const days: Array<[string, number]> = [['Today', 0], ['Tomorrow', 1], [`In ${far}d`, far]]
+  return (
+    <div className="wdays" aria-hidden="true">
+      {days.map(([label, n]) => {
+        const was = n === 0 && p.since === 0
+        const next = n === due && due >= 0
+        return (
+          <span key={label} className={next ? 'next' : was ? 'was' : undefined}>
+            <i>{(was || next) && <Icon name="drop" color="currentColor" size={16} />}</i>
+            {label}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Шкала условия: ступень вида подсвечена, всё ниже — «тоже годится». */
+function Scale({ icon, label, value, steps, span }:
+    { icon: string; label: string; value: string; steps: string[]; span: [number, number] }) {
+  return (
+    <div className="happy-g">
+      <div className="scale-h">
+        <Icon name={icon} color="var(--primary-d)" size={16} />
+        <b>{label}</b><s>{value}</s>
+      </div>
+      <div className="scale">
+        {steps.map((t, i) => (
+          <span key={t} className={i >= span[0] && i <= span[1] ? 'on' : i < span[0] ? 'near' : undefined}>
+            <i /><u>{t}</u>
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export function PlantScreen({ go }: { go: (id: string) => void }) {
   const { s, d } = useStore()
@@ -29,71 +85,107 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
 
   const st = pState(p)
   const due = wDue(p)
-  const ready = isEdible(p) && hPct(p) >= 100
+  const edible = isEdible(p)
+  const ready = edible && hPct(p) >= 100
+  const pic = p.photos[0] ? phUrl(p.photos[0]) : (p.s.img ? img(p.s.img) : null)
+  const light = lightSpan(p.s.light)
+  const hum = humSpan(p.s.hum)
+  // Кольцо комнатного пустеет по мере высыхания: полный круг сразу после
+  // полива, пустой — в день следующего.
+  const wLeft = Math.max(0, Math.min(100, (due / Math.max(1, p.s.water)) * 100))
 
   return (
     <Screen id="plant" back={() => go('home')} nav={{ active: 'Week', go }}
             scrollKey={'plant' + s.selected}>
       <PhotoTile s={p.s} cls="det-ph" style={{ marginTop: 8 }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+      <div className="pt-top">
         <div>
-          <div style={{ fontSize: 'var(--t-24)', fontWeight: 600, letterSpacing: '-.02em' }}>
-            {p.s.name}
-          </div>
-          {p.s.latin && (
-            <div style={{ fontSize: 'var(--t-13)', color: 'var(--muted)', fontStyle: 'italic' }}>
-              {p.s.latin}
-            </div>
-          )}
+          <div className="h1">{p.s.name}</div>
+          {p.s.latin && <div className="pt-lat">{p.s.latin}</div>}
         </div>
-        <div style={{ flex: 1 }} />
-        <span className={'pill st-pill st-' + st[1]}>{st[0]}</span>
+        <span className={'pill ' + (TONE[st[1]] || 'b-meta')}>
+          {st[1] === 'ok' && <Icon name="check-circle" color="var(--ink)" size={14} />}
+          {st[0]}
+        </span>
       </div>
 
-      <div className="wgrid" style={{ marginTop: 12 }}>
-        {/* Белая, как и вторая: карточка полива на Home и здесь — один и тот же
-            факт, и до этого он был тёмным на одном экране и белым на другом.
-            Кольцо тоже переехало в светлую раскраску: лаймовое на белом давало
-            1.31:1 и пропадало. */}
-        <div className="wg wg-lite">
-          <div className="wg-top">
-            <div className="num">{Math.max(0, due)}<span>d</span></div>
-            {/* Было кольцо на 100 − wPct: тот же остаток воды, но нечитаемый.
-                Полное кольцо неотличимо от обводки, пустое — от дырки, подписи
-                нет. Капля говорит то же самое и объясняет себя сама.
-                Кольцо в соседней карточке остаётся: там прогресс до сбора,
-                другой смысл, и оно живёт в середине диапазона, где читается. */}
+      {edible ? (
+        <div className="card wcard">
+          <div className="wcard-h">
+            <span>
+              <b>{due <= 0 ? 'Water it today' : `Next water in ${due} ${due === 1 ? 'day' : 'days'}`}</b>
+              <s>Every {p.s.water}d · last {p.since === 0 ? 'today' : `${p.since}d ago`}</s>
+            </span>
             <DropLevel tone={dropTone(p)} />
           </div>
-          <div className="lbl">{due <= 0 ? 'Water it today' : 'Until next water'}</div>
-          <MetricRow items={[['Every', p.s.water + 'd'], ['Last', p.since + 'd ago']]} />
+          <WaterDays p={p} />
         </div>
+      ) : (
+        <div className="card wcard wring">
+          <span className="wring-r">
+            <Ring pct={wLeft} sz={88} sw={10} />
+            <span><b>{Math.max(0, due)}d</b><u>to water</u></span>
+          </span>
+          <span style={{ flex: 1 }}>
+            <b style={{ display: 'block', fontSize: 'var(--t-20)', lineHeight: '22px', fontWeight: 600 }}>
+              {due <= 0 ? 'Water it today' : p.since === 0 ? 'Watered today' : `Watered ${p.since}d ago`}
+            </b>
+            <s style={{ display: 'block', marginTop: 2, textDecoration: 'none',
+                        fontSize: 'var(--t-13)', lineHeight: '18px', fontWeight: 500,
+                        color: 'var(--muted)' }}>
+              Every {p.s.water} days. The ring empties as the soil dries.
+            </s>
+          </span>
+        </div>
+      )}
 
-        {isEdible(p)
-          ? <div className="wg wg-lite">
-              <div className="wg-top">
-                <div className="num">{hPct(p)}<span>%</span></div>
-                <Arc pct={hPct(p)} sz={44} />
-              </div>
-              <div className="lbl">{ready ? 'Ready to pick' : 'To first pick'}</div>
-              <MetricRow items={[
-                ['Pot', fmtPot(p.s.pot, s.units)],
-                ['Typical', p.s.days + (p.s.daysMax !== p.s.days ? '–' + p.s.daysMax : '') + 'd'],
-              ]} />
-            </div>
-          : <div className="wg wg-lite">
-              <div className="wg-h"><b>Conditions</b></div>
-              <MetricRow items={[['Light', p.s.light]]} />
-              <MetricRow items={[['Humidity', p.s.hum]]} />
-            </div>}
-      </div>
+      {edible ? (
+        <div className="grow">
+          {pic && <div className="grow-bg" style={{ backgroundImage: `url(${pic})` }} />}
+          <div className="grow-sc" />
+          <div className="grow-in">
+          <div className="grow-h">
+            <span>
+              <b>Growth</b>
+              <s>Pick window {p.s.days}–{p.s.daysMax} days</s>
+            </span>
+            {ready && (
+              <span className="pill b-lime">
+                <Icon name="check-circle" color="var(--ink)" size={14} />Ready
+              </span>
+            )}
+          </div>
+          <div className="grow-r">
+            <span>
+              <RingBig pct={hPct(p)} sz={180} />
+              <span><b>{p.day}</b><u>days</u></span>
+            </span>
+          </div>
+          <div className="grow-chips">
+            <span><b>{hPct(p)}%</b><u>{ready ? 'ready to pick' : 'to first pick'}</u></span>
+            <span><b>{fmtPot(p.s.pot, s.units)}</b><u>pot</u></span>
+            <span><b>{p.s.days}–{p.s.daysMax}d</b><u>typical</u></span>
+          </div>
+          </div>
+        </div>
+      ) : (light || hum) && (
+        <div className="card happy">
+          <b>Where it’s happy</b>
+          {light && <Scale icon="sun" label="Light" value={p.s.light}
+                           steps={LIGHT_STEPS} span={light} />}
+          {hum && <Scale icon="drop" label="Humidity" value={p.s.hum}
+                         steps={HUM_STEPS} span={hum} />}
+        </div>
+      )}
 
       <div className="btn b-pri" role="button" tabIndex={0}
-           onClick={() => d({ t: 'water', v: s.selected })}>Water it now</div>
+           onClick={() => d({ t: 'water', v: s.selected })}>
+        <Icon name="drop" color="#fff" size={20} />Water it now
+      </div>
       {ready && (
-        <div className="btn b-ghost" role="button" tabIndex={0} onClick={() => go('harvest')}>
-          Pick it — first harvest
+        <div className="btn b-white" role="button" tabIndex={0} onClick={() => go('harvest')}>
+          <Icon name="scissors" color="currentColor" size={20} />Pick it — first harvest
         </div>
       )}
 
@@ -117,7 +209,7 @@ export function PlantScreen({ go }: { go: (id: string) => void }) {
       </div>
       {cam.input}
 
-      <div className="btn b-ghost" role="button" tabIndex={0}
+      <div className="danger" role="button" tabIndex={0}
            onClick={() => { d({ t: 'remove', v: s.selected }); go('home') }}>
         Remove from my plants
       </div>

@@ -240,6 +240,10 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .opt.sel .pots>span{background:var(--surface)}
 /* Вариант «до шести»: точного счёта нет, поэтому плашка вместо ряда. */
 .b-meta{background:var(--meta);color:var(--muted)}
+/* Плашки состояния из набора канваса: лиловая — нужно действие, красная —
+   уже просрочено. Лайм (b-lime) остаётся за «всё в порядке». */
+.b-act{background:var(--lilac);color:var(--primary-d)}
+.b-warn{background:var(--red-bg);color:var(--red)}
 /* Подводка в полный вес: счёт выбранного — часть вопроса, а не сноска. */
 .greet.strong{font-weight:600}
 .optgrid .opt.wide .opt-m{margin-left:auto;flex:none}
@@ -594,7 +598,96 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .no-ph{position:relative;overflow:hidden}
 .no-ph .ph-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .no-ph .ph-ic svg{width:52%;height:52%}
-.det-ph{height:220px;border-radius:var(--r-2xl);background-size:cover;background-position:center}
+.det-ph{height:240px;border-radius:var(--r-2xl);background-size:cover;background-position:center}
+
+/* ───── Карточка растения.
+   Шапка: название, латынь и плашка состояния в одну строку. */
+.pt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:20px}
+.pt-top .h1{margin:0}
+.pt-lat{margin-top:4px;font-size:var(--t-15);line-height:20px;font-weight:500;
+     color:var(--muted);font-style:italic}
+.pt-top .pill{margin-top:4px;flex:none}
+
+/* Полив. У съедобных — фраза, капля и три ближайших дня; у комнатных —
+   кольцо, которое пустеет, пока сохнет земля. Разные ритмы, разные приборы. */
+.wcard{margin-top:20px;padding:16px}
+.wcard-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.wcard-h b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
+.wcard-h s{display:block;text-decoration:none;margin-top:2px;font-size:var(--t-13);
+     line-height:18px;font-weight:500;color:var(--muted)}
+.wdays{display:flex;gap:6px;margin-top:12px}
+.wdays>span{flex:1;height:64px;border-radius:14px;background:var(--meta);
+     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+     font-size:var(--t-12);line-height:16px;font-weight:600;color:var(--muted)}
+.wdays>span>i{height:16px;display:flex;align-items:center}
+.wdays>span.was{background:var(--primary);color:#fff}
+.wdays>span.next{background:var(--lilac);color:var(--primary-d);
+     box-shadow:0 0 0 2px var(--primary) inset}
+
+/* Кольцо полива комнатного: число дней внутри. */
+.wring{display:flex;align-items:center;gap:16px}
+.wring-r{position:relative;width:88px;height:88px;flex:none;
+     display:flex;align-items:center;justify-content:center}
+.wring-r>span{position:absolute;inset:0;display:flex;flex-direction:column;
+     align-items:center;justify-content:center}
+.wring-r b{font-size:var(--t-24);line-height:28px;font-weight:500;
+     font-variant-numeric:tabular-nums}
+.wring-r u{text-decoration:none;font-size:var(--t-11);line-height:14px;
+     font-weight:600;color:var(--muted)}
+
+/* Рост съедобного: фото того же растения в расфокусе под тёмной заливкой.
+   Кадр даёт карточке цвет самого растения, заливка — читаемость белого. */
+.grow{position:relative;margin-top:8px;border-radius:28px;overflow:hidden;color:#fff;
+     padding:18px 16px 16px}
+.grow-bg{position:absolute;inset:-24px;background-size:cover;background-position:center;
+     filter:blur(18px) saturate(1.1)}
+/* Заливка плотнее, чем в канвасе (.45 сверху): там карточка нарисована
+   только на тёмном редисе. В приложении под ней окажется любое фото из
+   справочника, включая микрозелень и салат. Считано на белом кадре —
+   худшем из возможных: при .62 белый текст даёт 4.95:1, при .45 — 3.3:1,
+   то есть AA не проходит. */
+.grow-sc{position:absolute;inset:0;background:linear-gradient(160deg,
+     rgba(18,24,32,.62) 0%,rgba(18,24,32,.74) 60%,rgba(18,24,32,.88) 100%)}
+/* Содержимое отдельным слоем, а не правилом на всех детей: такое правило
+   перебивало absolute у самих фона и заливки, и они вставали в поток. */
+.grow-in{position:relative}
+.grow-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.grow-h b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
+.grow-h s{display:block;text-decoration:none;margin-top:2px;font-size:var(--t-13);
+     line-height:18px;font-weight:500;color:rgba(255,255,255,.8)}
+.grow-r{display:flex;justify-content:center;margin-top:4px}
+.grow-r>span{position:relative;width:180px;height:180px;display:flex;
+     align-items:center;justify-content:center}
+.grow-r>span>span{position:absolute;inset:0;display:flex;flex-direction:column;
+     align-items:center;justify-content:center}
+.grow-r b{font-size:var(--t-40);line-height:42px;font-weight:500;letter-spacing:-.02em;
+     font-variant-numeric:tabular-nums}
+.grow-r u{text-decoration:none;font-size:var(--t-12);line-height:16px;font-weight:600;
+     color:rgba(255,255,255,.8)}
+.grow-chips{display:flex;gap:8px;margin-top:12px}
+.grow-chips>span{flex:1;min-width:0;padding:10px 12px;border-radius:16px;
+     background:rgba(255,255,255,.14);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset}
+.grow-chips b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
+.grow-chips u{display:block;text-decoration:none;font-size:var(--t-12);line-height:16px;
+     font-weight:600;color:rgba(255,255,255,.8)}
+
+/* Шкала условий: ступень вида подсвечена, всё ниже — «тоже годится». */
+.scale-h{display:flex;align-items:center;gap:8px}
+.scale-h b{font-size:var(--t-13);line-height:16px;font-weight:600}
+.scale-h s{margin-left:auto;text-decoration:none;font-size:var(--t-13);
+     font-weight:600;color:var(--primary-d)}
+.scale{display:flex;gap:4px;margin-top:8px}
+.scale>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:center}
+.scale i{display:block;width:100%;height:8px;border-radius:4px;background:var(--meta)}
+.scale>span.near i{background:#CDBFFF}
+.scale>span.on i{background:var(--primary)}
+.scale u{text-decoration:none;font-size:var(--t-11);line-height:14px;font-weight:600;
+     color:var(--muted);text-align:center}
+.scale>span.on u{color:var(--ink)}
+.happy{margin-top:8px;padding:16px}
+.happy>b{display:block;font-size:var(--t-20);line-height:22px;font-weight:600}
+.happy-g{margin-top:14px}
+.happy-g+.happy-g{margin-top:14px}
 
 /* ───── экран-момент (milestone) */
 .mile-scrim{height:58%;background:linear-gradient(180deg,rgba(18,53,31,.45),
