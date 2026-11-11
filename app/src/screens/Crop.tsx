@@ -175,20 +175,20 @@ export function CropScreen({ go }: { go: (id: string) => void }) {
 
   return (
     <Screen id="crop" back={() => go('calendar')} nav={{ active: 'Calendar', go }} scrollKey={sp.id}>
-      <div className="score" style={{ marginTop: 8 }}>
-        <div className="score-ph" style={{ backgroundImage: bg(sp.img) }} />
-        <div className="score-sc" />
-        <div className="score-in">
-          <b style={{ display: 'block', fontSize: 'var(--t-24)', lineHeight: '32px',
-                      fontWeight: 600, letterSpacing: '-.02em', color: '#fff' }}>{sp.name}</b>
-          {sp.latin && <s style={{ display: 'block', fontSize: 'var(--t-13)', lineHeight: '20px',
-                                   color: 'rgba(255,255,255,.8)', fontStyle: 'italic',
-                                   textDecoration: 'none' }}>{sp.latin}</s>}
-        </div>
+      {/* Имя под фотографией, а не на ней: в канвасе (app-16) кадр чистый,
+          а заголовок, латынь и срок стоят текстом под ним. */}
+      <div className="crop-ph" style={{ backgroundImage: bg(sp.img) }} role="img"
+           aria-label={sp.name} />
+      <div className="crop-h">
+        <div className="h1">{sp.name}</div>
+        {sp.latin && <p className="crop-lat">{sp.latin}</p>}
+        <span className={'pill ' + (open ? 'b-act' : 'b-meta')}>
+          <Icon name="clock" color="currentColor" size={14} />
+          {st.t}{st.e ? ` · ${st.e}` : ''}
+        </span>
       </div>
 
       <div className="wbox" style={{ marginTop: 16 }}>
-        <span className={'wpill ' + st.k}>{st.t}{st.e && <em>&nbsp;· {st.e}</em>}</span>
         <Strip sp={sp} w={w} ctx={ctx} />
       </div>
 

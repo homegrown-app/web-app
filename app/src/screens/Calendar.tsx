@@ -21,7 +21,7 @@ import { isEdible, lc, wDue, type Plant } from '../lib/plants'
 import type { Species as Sp } from '../data/species'
 import {
   MON, MONF, daysBetween, entries, fmtMD, fmtRange, frostDates,
-  live, nextWin, nowMonth, seasonDays, today, windows, zipInfo, type Ctx, type Range,
+  live, nextWin, nowMonth, today, windows, zipInfo, type Ctx, type Range,
 } from '../lib/season'
 import { useStore } from '../state/store'
 
@@ -30,30 +30,16 @@ const dur = (sp: Sp) => (sp.days === sp.daysMax ? `${sp.days}` : `${sp.days}–$
 const inMonth = (r: Range | undefined, m: number) =>
   !!r && r[0].getMonth() <= m && r[1].getMonth() >= m
 
-/* ── шапка: город и две даты заморозков вместо героя на пол-экрана ── */
-function Context({ ctx, openCount }: { ctx: Ctx; openCount: number }) {
+/* ── шапка: город, зона и две даты заморозков одной строкой ── */
+function Context({ ctx }: { ctx: Ctx }) {
   const z = zipInfo(ctx.zip)
-  const cell = (icon: string, label: string, val: string) => (
-    <div key={label} className="cell">
-      <s style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-8)' }}>
-        <Icon name={icon} color="var(--primary-d)" size={14} />{label}
-      </s>
-      <b>{val}</b>
-    </div>
-  )
   return (
-    <div className="acc">
-      <div className="row1">
-        <span className="tag">{z.city}</span>
-        <span style={{ fontSize: 'var(--t-13)', fontWeight: 600, color: 'var(--muted)' }}>
-          zone {z.zone} · {seasonDays(ctx.zip)}-day season
-        </span>
-      </div>
-      <div className="duo">
-        {cell('snowflake', 'Last frost', z.last)}
-        {cell('snowflake', 'First frost', z.first)}
-        {cell('grains', 'Open now', `${openCount} crops`)}
-      </div>
+    <div className="cmeta">
+      <span className="cmeta-p">
+        <Icon name="map-pin" color="var(--ink)" size={14} />{z.city}
+      </span>
+      <span>zone {z.zone}</span>
+      <span>Frost {z.last} – {z.first}</span>
     </div>
   )
 }
@@ -68,33 +54,24 @@ function MonthPicker({ pool, ctx, month, pick }:
     if (!w || w.any) return false
     return entries(w).some(r => inMonth(r, m))
   }).length)
-  const max = Math.max(...load, 1)
-  const n = load[month]
-  const label = n ? '' : (month >= 4 && month <= 6 ? 'too hot to start' : 'too cold to start')
-
-  const cell = (m: number) => {
-    const h = load[m] ? 9 + Math.round(load[m] / max * 17) : 4
-    const cls = [load[m] ? 'has' : '', m === month ? 'on' : '', m === nowMonth() ? 'now' : '']
-      .filter(Boolean).join(' ')
-    return (
-      <button key={m} className={cls} aria-pressed={m === month} onClick={() => pick(m)}
-              aria-label={`${MONF[m]} — ${load[m] ? load[m] + ' crops' : 'nothing to do'}`}>
-        <i style={{ height: h }} /><span aria-hidden="true">{MON[m]}</span>
-      </button>
-    )
-  }
+  // Двенадцать клеток в два ряда, как в канвасе: видно сразу весь год, а не
+  // четыре квартала по очереди. Столбиков «сколько культур» больше нет —
+  // точка отвечает на один вопрос: есть в этом месяце что сажать или нет.
   return (
-    <div className="mcard">
-      <div className="mtop"><b>{MONF[month]}</b>{label && <s>{label}</s>}</div>
-      <div className="mbars" role="group" aria-label="Pick a month">
-        {[0, 1, 2, 3].map(q => (
-          <div key={q} className={'mq' + (Math.floor(month / 3) === q ? ' on' : '')}>
-            <div className="mqb">{[0, 1, 2].map(i => cell(q * 3 + i))}</div>
-            <s>Q{q + 1}</s>
-          </div>
+    <>
+      <div className="mgrid" role="group" aria-label="Pick a month">
+        {MON.map((name, m) => (
+          <button key={m} aria-pressed={m === month} onClick={() => pick(m)}
+                  className={(load[m] ? 'has' : '') + (m === month ? ' on' : '')
+                             + (m === nowMonth() ? ' now' : '')}
+                  aria-label={`${MONF[m]} — ${load[m] ? load[m] + ' crops' : 'nothing to do'}`}>
+            <span aria-hidden="true">{name}</span>
+            <i aria-hidden="true" />
+          </button>
         ))}
       </div>
-    </div>
+      <p className="mlegend"><i aria-hidden="true" />Something to plant that month</p>
+    </>
   )
 }
 
@@ -163,8 +140,21 @@ function Feed({ pool, ctx, month, open }:
   ]
   const cur = TABS.find(t => t[0] === tab)!
 
+  // Срок у самой близкой открытой форточки: в канвасе он стоит плашкой рядом
+  // с названием месяца, а не растворён в строках списка.
+  const soon = b.now.filter(x => x.hot).map(x => +x.rt).filter(n => n > 0).sort((a, c) => a - c)[0]
+
   return (
     <>
+      <div className="mhead">
+        <h2>{MONF[month]}</h2>
+        {soon !== undefined && (
+          <span className="pill b-act">
+            <Icon name="clock" color="currentColor" size={14} />
+            Sow now · closes in {soon} {soon === 1 ? 'day' : 'days'}
+          </span>
+        )}
+      </div>
       <div className="ftabs" role="tablist" ref={box}>
         {TABS.map(([k, t, list]) => (
           <button key={k} role="tab" aria-selected={k === tab} className={k === tab ? 'on' : ''}
@@ -178,8 +168,11 @@ function Feed({ pool, ctx, month, open }:
             <button key={sp.id} className="frow" onClick={() => open(sp)}>
               <span className="fth" style={{ backgroundImage: bg(sp.img) }} />
               <span className="ftx"><b>{sp.name}</b><s>{sub}</s></span>
-              {hot ? <span className="frt hot">{rt} <em>d</em></span>
-                   : <span className="frt">{rt}</span>}
+              {hot
+                ? <span className="pill b-act">
+                    <Icon name="clock" color="currentColor" size={14} />{rt} d left
+                  </span>
+                : <span className="frt">{rt}</span>}
               <span className="fca"><Icon name="chevron-right" size={18} sw={2} /></span>
             </button>
           ))
@@ -350,16 +343,13 @@ export function CalendarScreen({ go, openSpecies }:
   const view = s.calView
   const month = s.calMonth ?? nowMonth()
   const f = frostDates(ctx.zip)
-  const openNow = crops.filter(sp => entries(windows(sp, ctx)).some(r => live(r, NOW))).length
 
   const calTitle = houses.length && harvest ? 'Calendar'
     : houses.length ? 'Care calendar' : 'Harvest calendar'
   return (
     <Screen id="calendar" title={calTitle} nav={{ active: 'Calendar', go }} scrollKey="calendar">
       <div className="h1" style={{ marginTop: 16 }}>{calTitle}</div>
-      {harvest && <Context ctx={ctx} openCount={openNow} />}
-
-      {!!houses.length && <CareCalendar plants={houses} />}
+      {harvest && <Context ctx={ctx} />}
 
       {harvest && (
         <>
@@ -393,6 +383,11 @@ export function CalendarScreen({ go, openSpecies }:
           </p>
         </>
       )}
+
+      {/* Полив и подкормка идут ПОСЛЕ календаря урожая: в канвасе этого блока
+          нет вовсе, и вклинивать его между шапкой места и сеткой месяцев
+          значит рвать порядок чтения, ради которого экран и сделан. */}
+      {!!houses.length && <CareCalendar plants={houses} />}
     </Screen>
   )
 }
