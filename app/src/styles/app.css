@@ -58,6 +58,14 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .hd-l{justify-content:flex-start}
 .hd-r{justify-content:flex-end}
 .hd .wm{text-align:center}
+/* Логотип слева: без кнопки «назад» пустая клетка 44 слева не нужна, и
+   вордмарк встаёт в ту же колонку, что заголовок страницы — 24 от края
+   (12 у шапки + 12 здесь). Шестерёнка держит правый край: её глиф выходит
+   на те же 24. С кнопкой «назад» вордмарк остаётся по центру — иначе он
+   упёрся бы в стрелку. */
+.hd-lead{grid-template-columns:1fr 44px}
+.hd-lead>.wm,.hd-lead>.wm-swap{justify-content:flex-start;justify-items:start;
+     text-align:left;padding-left:12px}
 .back{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .back svg{transform:rotate(180deg)}
 .back:active{background:#EFEBFF}
@@ -425,7 +433,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── навигация */
 .nav{position:absolute;left:16px;right:16px;z-index:21;
-     bottom:calc(var(--nav-gap) + var(--sab,0px));height:68px;border-radius:34px;
+     bottom:var(--nav-gap);height:68px;border-radius:34px;
      background:var(--surface);box-shadow:var(--sh-nav);
      display:grid;grid-template-columns:1fr 72px 1fr;align-items:center;padding:0 8px}
 .ni{height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -1238,7 +1246,7 @@ button.wk-h:focus-visible{outline:2px solid var(--bright);outline-offset:-3px}
    от прежней раскладки, где таб-бар стоял в потоке, и перебивало
    position:absolute редизайна — пилюля не плавала, а занимала место,
    которое .bd отбивал второй раз. */
-.screen:has(.ni-scan) .bd{padding-bottom:calc(116px + var(--sab,0px))}
+.screen:has(.ni-scan) .bd{padding-bottom:calc(68px + var(--nav-gap) + var(--sp-32))}
 
 /* ───── Маршрут-лист (RouteSheet): добавление растения, настройки.
    Лист 92% высоты: полоса скрима сверху остаётся видимой — это вторая дверь. */

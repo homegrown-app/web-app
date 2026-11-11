@@ -42,17 +42,17 @@ export function Header({ back, onBack, title, gear, steps }:
     )
   }
   return (
-    <div className="hd">
-      <div className="hd-l">
-        {back && (
+    <div className={'hd' + (back ? '' : ' hd-lead')}>
+      {back && (
+        <div className="hd-l">
           <div className="back" role="button" tabIndex={0} aria-label="Back"
                onClick={onBack} onKeyDown={e => {
                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBack?.() }
                }}>
             <Icon name="caret-right" color="var(--ink)" size={20} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {/* С title логотип уступает место названию раздела, когда крупный
           заголовок страницы уезжает под шапку (класс is-titled на .screen). */}
       {title
