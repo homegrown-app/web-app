@@ -18,6 +18,7 @@ import {
 import { AccountScreen } from './screens/Account'
 import { BoothHubScreen, BoothScreen } from './screens/Booth'
 import { CodeScreen, EmailScreen, SignInScreen } from './screens/Auth'
+import { NotifScreen } from './screens/Notif'
 import { PreviewScreen, SaveScreen } from './screens/Preview'
 import { PickScreen, SettingsScreen } from './screens/Settings'
 import {
@@ -95,6 +96,12 @@ export const ROUTES: Route[] = [
         + 'ломают вставку кода из письма. Таймер повторной отправки 30 с. Любые шесть цифр '
         + 'впускают, 000000 показывает состояние ошибки — это демо, и так подписано.',
     render: p => <CodeScreen go={p.go} /> },
+
+  { id: 'notif', title: 'Напоминания', group: 'Онбординг',
+    note: 'Системное окно рисует браузер или ОС, приложение только спрашивает — так и '
+        + 'подписано на артборде. В обычной вкладке Safari на айфоне спросить нельзя: '
+        + 'объект Notification там отсутствует, и экран говорит, что делать вместо этого.',
+    render: p => <NotifScreen go={p.go} /> },
 
   // ── Home
   { id: 'home', title: 'Home', group: 'Home',

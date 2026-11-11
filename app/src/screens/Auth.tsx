@@ -387,7 +387,10 @@ export function CodeScreen({ go }: { go: Go }) {
       return
     }
     d({ t: 'signIn', v: { email: s.authEmail, via: 'email', demo: true } })
-    go(s.authFrom === 'save' ? 'paywall' : 'home')
+    // Новичок после входа видит экран напоминаний — в канвасе это последний шаг
+    // онбординга. Дальше он уходит туда, куда раньше вёл этот переход.
+    if (s.authFrom === 'save') { d({ t: 'nfFrom', v: 'paywall' }); go('notif') }
+    else go('home')
   }
 
   // Шестая цифра отправляет сама: на телефоне клавиатура накрывает подвал, и

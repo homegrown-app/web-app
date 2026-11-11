@@ -14,9 +14,9 @@
 // сменилась, перезагрузку он выбирает сам (src/lib/pwa.ts).
 // Корневой ../sw.js прототипа сюда не ходит: он пропускает всё под /react/.
 
-const VERSION = '55f663959a'
+const VERSION = '9d39f052d8'
 const CACHE = 'hg-react-' + VERSION
-const FILES = ["assets/Garden3D-Qh08kmMs.js","assets/OrbitControls-DVRrwtlK.js","assets/basil-D1Whhq9G.js","assets/cherrytomato-noWfpzwa.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-D-BNZt2L.css","assets/index-DLmInOmW.js","assets/index-DlnUuaYE.js","assets/index-K8ajHGwt.js","assets/lettuce-DJaIjwXs.js","assets/radish-DrHWDMuQ.js","assets/shared-Gr6fiojY.js","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
+const FILES = ["assets/Garden3D-BxJvYfZw.js","assets/OrbitControls-B6Gpf-9q.js","assets/basil-C7DyDzNR.js","assets/cherrytomato-DKwLTcd_.js","assets/index-BJcZCyu0.js","assets/index-BNPNOxMg.js","assets/index-Ba8O3vgQ.js","assets/index-CwYJNqcG.css","assets/index-DlnUuaYE.js","assets/index-K8ajHGwt.js","assets/index-s1rLIGJ-.js","assets/lettuce-pIJoEYgh.js","assets/radish-DsH7_7nC.js","assets/shared-Gr6fiojY.js","fonts/InterTight-400-latin-ext.woff2","fonts/InterTight-400-latin.woff2","index.html","manifest.webmanifest"]
 const SCOPE = new URL(self.registration.scope)
 const at = f => new URL(f, SCOPE).href
 

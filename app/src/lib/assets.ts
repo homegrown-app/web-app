@@ -14,6 +14,9 @@ export const img = (name: string) => `${ASSET_ROOT}img/${name}.jpg`
     cut('tomato') -> '/web-app/img/cut-tomato.webp' */
 export const cut = (name: string) => `${ASSET_ROOT}img/cut-${name}.webp`
 
+/** Иконка приложения: её показывает уведомление рядом с текстом. */
+export const appIcon = () => `${ASSET_ROOT}img/icon-192.png`
+
 /** CSS-значение для background-image. Пустое имя даёт 'none', а не битую ссылку. */
 export const bg = (name: string | null | undefined) =>
   name ? `url(${img(name)})` : 'none'

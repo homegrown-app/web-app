@@ -97,8 +97,8 @@ export function Nav({ active, badge, go }: { active: string; badge?: boolean; go
                }}>
             {badge && name === 'Week' && <div className="bdg" aria-hidden="true" />}
             {name === 'Scan'
-              ? <div className="ni-scan" aria-hidden="true"><Icon name={icon} color="currentColor" size={28} /></div>
-              : <><Icon name={icon} color="currentColor" size={23} /><span>{name}</span></>}
+              ? <div className="ni-scan" aria-hidden="true"><Icon name={icon} color="currentColor" size={26} /></div>
+              : <><Icon name={icon} color="currentColor" size={22} /><span>{name}</span></>}
           </div>
         )
       })}

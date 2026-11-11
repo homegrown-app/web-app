@@ -103,6 +103,8 @@ export interface State {
   session: 'unknown' | 'live' | 'none'
   /** откуда пришли во вход: из онбординга — дальше в пейволл, с возврата — на Home */
   authFrom: string
+  /** Куда уйти с экрана напоминаний: онбординг ведёт дальше, настройки — назад. */
+  nfFrom: string
   /** введённый адрес: экран кода показывает его и подписывает им аккаунт */
   authEmail: string
 }
@@ -165,6 +167,7 @@ export const INIT: State = {
   account: null,
   session: 'unknown',
   authFrom: 'save',
+  nfFrom: 'home',
   authEmail: '',
 }
 
@@ -235,6 +238,7 @@ export type Action =
   | { t: 'signOut' }
   | { t: 'session'; v: State['session'] }
   | { t: 'authFrom'; v: string }
+  | { t: 'nfFrom'; v: string }
   | { t: 'authEmail'; v: string }
   | { t: 'enterCalendar' }
   | { t: 'enterLibrary'; seek: string | null }
@@ -334,6 +338,7 @@ function reducer(s: State, a: Action): State {
     // для удаления есть отдельная строка в настройках.
     case 'signOut': return { ...s, account: null, session: 'none' }
     case 'authFrom': return { ...s, authFrom: a.v }
+    case 'nfFrom': return { ...s, nfFrom: a.v }
     case 'authEmail': return { ...s, authEmail: a.v }
     // Вход на календарь всегда про «сейчас»: пролистанный месяц и раскрытая
     // строка не переживают уход с экрана. Вид — привычка человека, его храним.

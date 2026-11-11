@@ -89,6 +89,43 @@ export function Seed({ size = 24, color = 'currentColor' }: { size?: number; col
  * Контуры сняты с канваса дословно, включая дрожание линии.
  */
 let seedLineN = 0
+let seedAskN = 0
+/**
+ * Семечко с экрана напоминаний: брови домиком, глаза-точки, неуверенный рот и
+ * капля у щеки. Снято с артборда onb-15 как есть — это отдельная гримаса, а не
+ * та же, что в вордмарке.
+ */
+export function SeedAsk({ size = 88, color = 'var(--ink)' }: { size?: number; color?: string }) {
+  const id = useMemo(() => 'sa' + (++seedAskN), [])
+  const cut = { fill: 'none', stroke: '#000', strokeWidth: 6,
+                strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <filter id={'f' + id} x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="4" />
+          <feDisplacementMap in="SourceGraphic" scale="1.8" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <mask id={'m' + id} maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120">
+          <rect width="120" height="120" fill="#fff" />
+          <circle cx="46" cy="66" r="4" fill="#000" />
+          <circle cx="74" cy="66" r="4" fill="#000" />
+          <path d="M40,56 L50,53" {...cut} />
+          <path d="M80,56 L70,53" {...cut} />
+          <path d="M50,86 Q55,82 60,86 T70,86" {...cut} />
+        </mask>
+      </defs>
+      <g filter={`url(#f${id})`}>
+        <path d="M60,34 C88,33 106,50 106,72 C106,96 88,108 60,108 C32,108 14,96 14,72 C14,50 32,35 60,34Z"
+              fill={color} mask={`url(#m${id})`} />
+        <path d="M60,34 C60,26 60,20 61,14" fill="none" stroke={color} strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M60,22 C52,24 42,20 40,10 C50,8 58,12 60,22Z" fill="none" stroke={color} strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M61,16 C66,8 76,4 86,8 C82,18 72,20 61,16Z" fill="none" stroke={color} strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M94,46 C90,52 88,56 91,59 C94,62 98,59 97,55 C96,52 95,49 94,46Z" fill={color} />
+      </g>
+    </svg>
+  )
+}
 export function SeedLine({ size = 64, color = 'var(--ink)' }: { size?: number; color?: string }) {
   const id = useMemo(() => 'sl' + (++seedLineN), [])
   const st = { fill: 'none', stroke: color, strokeWidth: 6, strokeLinecap: 'round' as const,

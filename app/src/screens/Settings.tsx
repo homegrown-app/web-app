@@ -20,6 +20,14 @@ import { useStore, type Units } from '../state/store'
 
 type Go = (id: string) => void
 
+/** Состояние разрешения словами — его держит браузер, не приложение. */
+function pushState(): string {
+  if (typeof window === 'undefined' || !('Notification' in window)) return 'Not available here'
+  return Notification.permission === 'granted' ? 'On'
+       : Notification.permission === 'denied' ? 'Blocked in the browser'
+       : 'Off'
+}
+
 export function SettingsScreen({ go }: { go: Go }) {
   const { s, d } = useStore()
   const c = s.choices
@@ -105,6 +113,11 @@ export function SettingsScreen({ go }: { go: Go }) {
 
       <div className="sl">Reminders</div>
       <div className="plist">
+        {/* Разрешение спрашивает система, а не приложение, поэтому здесь не
+            тумблер, а строка с нынешним состоянием и переход на экран, где
+            это состояние объяснено. */}
+        <SetRow label="Push reminders" value={pushState()}
+                onOpen={() => { d({ t: 'nfFrom', v: 'settings' }); go('notif') }} />
         <SetRow label="Remind me at" value={REMIND_AT[s.remind]} onOpen={() => openPick('remind')} />
         <SwRow label="Weekly task email" on={s.mail.weekly} onToggle={() => d({ t: 'mail', v: 'weekly' })} />
         <SwRow label="Watering reminders" on={s.mail.water} onToggle={() => d({ t: 'mail', v: 'water' })} />
