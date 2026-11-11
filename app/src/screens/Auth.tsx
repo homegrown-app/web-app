@@ -502,7 +502,7 @@ export function AccountRow({ go }: { go: Go }) {
           <s>{via}{s.account.demo ? ' · demo sign-in, not wired yet' : ''}</s>
         </div>
         <span className="acc-go" aria-hidden="true">
-          <Icon name="chevron-right" color="#fff" size={18} sw={2.4} />
+          <Icon name="chevron-right" color="var(--muted)" size={18} sw={2.4} />
         </span>
       </div>
     </div>

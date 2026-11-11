@@ -179,7 +179,7 @@ export function AddPlantScreen({ go }: { go: Go }) {
         : groups.out.map(([label, list, dim]) => (
             <div key={label}>
               <div className="gsec">{label}</div>
-              <div className="plist" style={dim ? { opacity: .5 } : undefined}>
+              <div className="plist sp" style={dim ? { opacity: .5 } : undefined}>
                 {list.map(sp => (
                   <SpRow key={sp.id} sp={sp}
                          note={spSub(sp, s.units, fmtPot)

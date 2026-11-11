@@ -163,6 +163,10 @@ export const LIGHT_RANK_OUT: Record<string, number> = {
 }
 export const REMIND_AT = ['07:00', '09:00', '12:00', '18:00', '21:00']
 
+/** Цена подписки. Лежит здесь, а не на пейволле: её показывают два экрана. */
+export const PLAN_YEAR = 29
+export const PLAN_MONTH = 4
+
 export const POTPRICE: Record<string, number> = {
   '6 inch': 6, '8 inch': 8, '10 inch': 12, '12 inch': 16, tray: 4,
   '1 pint': 3, '1 quart': 4, '0.5 gal': 5, '1 gal': 7, '2 gal': 10, '3 gal': 13, '5 gal': 18,

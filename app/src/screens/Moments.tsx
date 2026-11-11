@@ -7,7 +7,7 @@ import { Task, useCamera } from '../components/parts'
 import { photoStyle } from '../components/bits'
 import { Icon } from '../icons/Icon'
 import { bg, img } from '../lib/assets'
-import { FEATS, POTPRICE } from '../data/onboarding'
+import { FEATS, PLAN_MONTH, PLAN_YEAR, POTPRICE } from '../data/onboarding'
 import { SPECIES } from '../data/species'
 import {
   allPhotos, careStats, fmtPot, hPct, isEdible, lc, wDue,
@@ -214,12 +214,12 @@ export function ShoppingScreen({ go }: { go: Go }) {
       {/* Две группы: горшки с грунтом и семена. Каждая — одна карточка со
           строками, как в канвасе: это один список, а не стопка дел. */}
       <div className="sl">Pots and soil</div>
-      <div className="tasks">
+      <div className="tasks price">
         {gear.map((x, i) => <Task key={i} t={[x[0], `~$${x[1]}`, x[2]]} />)}
       </div>
       {edible.length > 0 && <>
         <div className="sl">Seed</div>
-        <div className="tasks">
+        <div className="tasks price">
           <Task t={[items[items.length - 1][0], `~$${items[items.length - 1][1]}`, '']} />
         </div>
       </>}
@@ -233,8 +233,8 @@ export function ShoppingScreen({ go }: { go: Go }) {
 }
 
 // ─────────────────────────────────────────── Paywall
-const YEAR = 29
-const MONTH = 4
+const YEAR = PLAN_YEAR
+const MONTH = PLAN_MONTH
 
 export function PaywallScreen({ go }: { go: Go }) {
   const { s, d } = useStore()

@@ -3,7 +3,7 @@
 // круглые концы.
 
 import { useId, type ReactNode } from 'react'
-import { Icon, IcBig } from '../icons/Icon'
+import { Icon, IcBig, Seed } from '../icons/Icon'
 import { FILL } from '../icons/paths'
 import { bg } from '../lib/assets'
 import { wDue, type Plant } from '../lib/plants'
@@ -221,15 +221,25 @@ export function SpThumb({ s }: { s: Species }) {
     : <div className="spic"><Icon name={s.icon} color="var(--primary)" size={15} sw={1.9} /></div>
 }
 
-export function Note({ title, children, cta, mt = 16 }:
-                     { title: string; children?: ReactNode; cta?: ReactNode; mt?: number }) {
+export function Note({ title, children, cta, mt = 16, seed }:
+                     { title: string; children?: ReactNode; cta?: ReactNode; mt?: number
+                       seed?: boolean }) {
   // Отступ сверху в прототипе проставлен по месту, а не один на все вызовы:
   // в пустой ветке week-back его нет вовсе.
-  return (
-    <div className="note" style={{ marginTop: mt }}>
+  // seed — знак слева, как на артборде app-07: он там единственный такой,
+  // поэтому это модификатор, а не общее устройство ноты.
+  const body = (
+    <>
       <b>{title}</b>
       {children && <p>{children}</p>}
       {cta}
+    </>
+  )
+  if (!seed) return <div className="note" style={{ marginTop: mt }}>{body}</div>
+  return (
+    <div className="note note-seed" style={{ marginTop: mt }}>
+      <span className="note-ic"><Seed size={56} color="var(--ink)" /></span>
+      <span>{body}</span>
     </div>
   )
 }

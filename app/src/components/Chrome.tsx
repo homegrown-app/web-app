@@ -142,10 +142,11 @@ export function Screen({ id, title, children, back, nav, foot, scrollKey, overla
     if (!el) return
     const navEl = el.querySelector<HTMLElement>('.nav')
     const footEl = el.querySelector<HTMLElement>('.foot')
-    // Таб-бар висит в NAV_GAP от низа экрана, поэтому снизу он занимает
-    // свою высоту плюс этот зазор — подвал садится ровно над ним.
-    const NAV_GAP = 24
-    const nh = navEl ? navEl.offsetHeight + NAV_GAP : 0
+    // Таб-бар висит в --nav-gap от низа экрана, поэтому снизу он занимает
+    // свою высоту плюс этот зазор — подвал садится ровно над ним. Число берём
+    // из той же переменной, что и CSS: копия здесь уже однажды разъехалась.
+    const gap = parseFloat(getComputedStyle(el).getPropertyValue('--nav-gap')) || 16
+    const nh = navEl ? navEl.offsetHeight + gap : 0
     if (footEl) footEl.style.bottom = nh + 'px'
     const fh = footEl ? footEl.offsetHeight : 0
     el.style.setProperty('--foot-h', fh + nh + 16 + 'px')

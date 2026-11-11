@@ -8,7 +8,7 @@ import { Task } from '../components/parts'
 import { Icon } from '../icons/Icon'
 import { inDays } from '../lib/plan'
 import {
-  hEta, hPct, hStage, isEdible, lc, wDue, weekTasks, type Plant,
+  hEta, hPct, hStage, isEdible, lc, tkey, wDue, weekTasks, type Plant,
 } from '../lib/plants'
 import { useStore } from '../state/store'
 
@@ -66,18 +66,25 @@ export function WeekEmptyScreen({ go }: { go: Go }) {
 
 // ─────────────────────────────────────────── Week · возврат
 export function WeekBackScreen({ go }: { go: Go }) {
-  const { s } = useStore()
+  const { s, d } = useStore()
   const t = weekTasks(s.plants, s.care).slice(0, 2)
   return (
     <Screen id="week-back" nav={{ active: 'Week', badge: true, go }} scrollKey="week-back">
       <div className="greet">You were away 2 weeks</div>
       <div className="h1">Welcome back.<br /><span className="m">Here’s what matters now.</span></div>
-      <Note title="Most of it doesn’t matter now">
+      <Note title="Most of it doesn’t matter now" seed>
         Nine tasks stopped being useful and closed themselves. The ones below still pay off.
       </Note>
       <div className="sl">Still worth doing</div>
       {t.length
-        ? t.map((x, i) => <Task key={i} t={[x[0], x[1], x[2]]} />)
+        ? (
+          <div className="tasks">
+            {t.map((x, i) => (
+              <Task key={i} t={[x[0], x[1], x[2]]} done={!!s.done[tkey(x)]}
+                    onToggle={() => d({ t: 'toggleTask', v: x })} />
+            ))}
+          </div>
+        )
         : <Note title="Nothing is waiting" mt={0}>Your plants held out fine.</Note>}
       <div className="btn b-pri" role="button" tabIndex={0} onClick={() => go('home')}>
         Continue with this week

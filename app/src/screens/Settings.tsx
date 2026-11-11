@@ -6,11 +6,12 @@
 
 import { AccountRow } from './Auth'
 import { Screen } from '../components/Chrome'
+import { Icon } from '../icons/Icon'
 import { PickRow, SetRow, SwRow } from '../components/parts'
-import { bg, buildId } from '../lib/assets'
+import { buildId } from '../lib/assets'
 import {
   LIGHT_IN, LIGHT_OUT, LIGHT_RANK_IN, LIGHT_RANK_OUT, PICKS, REMIND_AT,
-  SPACE_OPTS, TRACKWORD, isOutdoorSpace,
+  SPACE_OPTS, TRACKWORD, isOutdoorSpace, PLAN_MONTH, PLAN_YEAR,
 } from '../data/onboarding'
 import { ZIPS } from '../data/zips'
 import { isEdible } from '../lib/plants'
@@ -34,7 +35,6 @@ export function SettingsScreen({ go }: { go: Go }) {
   const mins = c.effort === 3 ? 10 : c.effort === 4 ? 20 : 30
   const hasEdible = s.plants.some(isEdible)
   const openPick = (k: string) => { d({ t: 'pickKey', v: k }); go('pick') }
-  const pic = s.plants.length && s.plants[0].s.img ? s.plants[0].s.img : 'hero-plants'
 
   // Срок Pro. Даты НЕТ, если Pro включили сборкой, которая её не писала, или
   // чипом в /review — тогда молчим, а не выдумываем: биллинга в приложении нет,
@@ -54,23 +54,31 @@ export function SettingsScreen({ go }: { go: Go }) {
       {/* Кто вошёл — выше тарифа: это ответ на «мой ли это аккаунт». */}
       <AccountRow go={go} />
 
-      <div className="acc" style={{ marginTop: 16 }}>
-        <div className="acc-photo" style={{ backgroundImage: bg(pic) }} />
-        <div className="row1">
-          <span className="tag">{planWord || 'Full plan'}</span>
+      {/* Тариф — лиловая карточка с подсветкой, как на артборде app-19: плитка
+          со знаком, название, под ними строки «сколько и до какого числа».
+          Кнопки «Manage subscription» нет: экрана подписки в приложении не
+          существует, и кнопка вела бы в никуда.
+          Срок настоящий: записан в момент покупки на пейволле из системной даты
+          (Moments.tsx). Нет срока — нет и строки. «Renews» не пишем: продлевать
+          некому, биллинга не существует. */}
+      <div className="plan">
+        <i className="plan-g1" aria-hidden="true" />
+        <i className="plan-g2" aria-hidden="true" />
+        <div className="plan-h">
+          <span className="plan-ic"><Icon name="plant" color="var(--ink)" size={38} /></span>
+          <b>{planWord || 'Full plan'}</b>
+          <s>Every week planned, unlimited plants and photos.</s>
         </div>
-        <div className="big" style={{ fontSize: 'var(--t-24)', marginTop: 12 }}>
-          Everything is open
-        </div>
-        {/* Срок настоящий: записан в момент покупки на пейволле из системной
-            даты (Moments.tsx). Если его нет — строки про дату тоже нет.
-            «Renews» здесь не пишем: продлевать некому, биллинга не существует;
-            честное слово — до какого числа доступ открыт. */}
-        <div className="sub">
-          Every week planned, unlimited plants and photos.
-          {termDate && (ended
-            ? ` The ${planWord ? planWord.toLowerCase() : 'plan'} ran to ${termDate}.`
-            : ` Open until ${termDate}.`)}
+        <div className="plan-rows">
+          <div><span>Price</span><u>
+            {s.proPlan === 'month' ? `$${PLAN_MONTH} / month` : `$${PLAN_YEAR} / year`}
+          </u></div>
+          {s.proPlan === 'year' && (
+            <div><span>You save</span><u>${PLAN_MONTH * 12 - PLAN_YEAR} vs monthly</u></div>
+          )}
+          {termDate && (
+            <div><span>{ended ? 'Ran to' : 'Open until'}</span><u>{termDate}</u></div>
+          )}
         </div>
       </div>
 

@@ -127,23 +127,23 @@
 
 /* Кто вошёл. Отдельная строка над тарифом: это ответ на «мой ли аккаунт». */
 .acct { margin-top: var(--s2) }
-/* Скругление полное, а не --r-lg: строка высотой 64 (12 + аватар 40 + 12) с
-   круглым аватаром слева и круглой стрелкой справа — сама по себе пилюля, и
-   радиус 16 обрубал её по обоим торцам. 999px кладёт торец точно по центру
-   аватара: 12 отступа + 20 радиуса = 32, и это ровно половина высоты. */
-.acct .acc-who { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-12);
-                 background: var(--deepest); border-radius: 999px; color: #fff }
-.acct .acc-av { flex: none; width: 40px; height: 40px; border-radius: 50%;
+/* Белая карточка, а не тёмная пилюля: в канвасе (app-19 и app-21) это обычная
+   карточка кита с аватаром 44 и шевроном — тёмная пилюля спорила с лиловой
+   карточкой тарифа прямо под ней и читалась как второй акцент на экране,
+   где акцент один. */
+.acct .acc-who { display: flex; align-items: center; gap: var(--sp-12);
+                 padding: var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-12);
+                 background: var(--surface); border-radius: var(--r-2xl);
+                 box-shadow: var(--sh-card); color: var(--ink); cursor: pointer }
+.acct .acc-av { flex: none; width: 44px; height: 44px; border-radius: 50%;
                 background-size: cover; background-position: center }
 .acct .acc-tx { flex: 1; min-width: 0 }
-.acct .acc-tx b { display: block; font-size: var(--t-15); font-weight: 600;
-                  letter-spacing: -.02em; white-space: nowrap; overflow: hidden;
-                  text-overflow: ellipsis }
-.acct .acc-tx s { display: block; font-size: var(--t-12); color: rgba(255,255,255,.8);
-                  text-decoration: none; margin-top: var(--sp-4) }
-.acct .acc-go { flex: none; width: 32px; height: 32px; border-radius: 50%;
-                background: rgba(255, 255, 255, .14); display: flex; align-items: center;
-                justify-content: center; cursor: pointer }
+.acct .acc-tx b { display: block; font-size: var(--t-16); line-height: 22px; font-weight: 600;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.acct .acc-tx s { display: block; font-size: var(--t-14); line-height: 20px; font-weight: 500;
+                  color: var(--muted); text-decoration: none }
+.acct .acc-go { flex: none; display: flex; align-items: center; justify-content: center;
+                cursor: pointer }
 
 /* ───────────── Подтверждение необратимого
    Единственный диалог в приложении. Лист снизу, а не карточка по центру:

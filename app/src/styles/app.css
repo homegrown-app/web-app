@@ -90,6 +90,31 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .sl{font-size:var(--t-13);line-height:16px;font-weight:600;color:var(--muted);margin:24px 0 8px}
 
 /* ───── ACCENT BLOCK (референс 1) */
+/* Карточка тарифа. Лиловый градиент с двумя подсветками по углам — белой
+   сверху справа и лаймовой снизу слева; они лежат ПОД содержимым и обрезаются
+   карточкой. Плитка со знаком повёрнута на −6°, как на артборде. */
+.plan{position:relative;overflow:hidden;margin-top:8px;padding:24px 16px 16px;
+     border-radius:28px;color:#fff;
+     background:linear-gradient(150deg,#8B6BFF 0%,var(--primary) 45%,#4E2FD6 100%);
+     box-shadow:0 16px 36px rgba(82,54,224,.28),0 0 0 1px rgba(255,255,255,.12) inset}
+.plan-g1{position:absolute;right:-60px;top:-80px;width:220px;height:220px;border-radius:50%;
+     background:radial-gradient(circle,rgba(255,255,255,.28),rgba(255,255,255,0) 70%)}
+.plan-g2{position:absolute;left:-40px;bottom:-90px;width:200px;height:200px;border-radius:50%;
+     background:radial-gradient(circle,rgba(182,243,74,.22),rgba(182,243,74,0) 70%)}
+.plan-h{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.plan-ic{width:72px;height:72px;border-radius:24px;background:var(--lime);
+     display:flex;align-items:center;justify-content:center;transform:rotate(-6deg);
+     box-shadow:0 10px 24px rgba(28,21,72,.25),0 -3px 0 rgba(18,53,31,.12) inset}
+.plan-h b{display:block;margin-top:16px;font-size:var(--t-31);line-height:34px;font-weight:600;
+     letter-spacing:-.02em}
+.plan-h s{display:block;margin-top:4px;text-decoration:none;font-size:var(--t-15);line-height:20px;
+     font-weight:500;color:rgba(255,255,255,.8)}
+.plan-rows{position:relative;display:flex;flex-direction:column;gap:8px;margin:20px 4px 0}
+.plan-rows>div{display:flex;justify-content:space-between;gap:12px;
+     font-size:var(--t-15);line-height:20px;font-weight:500}
+.plan-rows span{color:rgba(255,255,255,.8)}
+.plan-rows u{text-decoration:none;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+
 .acc{border-radius:var(--r-2xl);padding:20px;margin-top:16px;color:var(--ink);position:relative;
      overflow:hidden;background:var(--surface);box-shadow:var(--sh-card)}
 .acc .row1{display:flex;justify-content:space-between;align-items:center;position:relative}
@@ -369,7 +394,7 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 
 /* ───── навигация */
 .nav{position:absolute;left:16px;right:16px;z-index:21;
-     bottom:calc(24px + var(--sab,0px));height:68px;border-radius:34px;
+     bottom:calc(var(--nav-gap) + var(--sab,0px));height:68px;border-radius:34px;
      background:var(--surface);box-shadow:var(--sh-nav);
      display:grid;grid-template-columns:1fr 72px 1fr;align-items:center;padding:0 8px}
 .ni{height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -708,6 +733,29 @@ h1,h2,h3{font-weight:600;letter-spacing:-.015em}
 .pl.locked{opacity:.42;pointer-events:none}
 .note{background:var(--surface);border-radius:var(--r-lg);padding:16px}
 .note b{font-size:var(--t-16);font-weight:600;display:block;line-height:1.3}
+/* Нота со знаком — только на возврате после пропуска (app-07). */
+.note-seed{display:flex;gap:12px;align-items:flex-start}
+.note-seed .note-ic{flex:none;display:flex}
+
+/* Список покупок: справа цена, а не минуты. В канвасе она крупнее и чернилами
+   — это сумма, которую человек понесёт в магазин, а не служебная приписка. */
+.tasks.price .min{font-size:var(--t-15);line-height:20px;font-weight:600;color:var(--ink);
+     font-variant-numeric:tabular-nums}
+
+/* Виды в библиотеке: в канвасе это .row — отдельные карточки с фотографией 56,
+   а не строки в общей карточке. Общей карточкой идут настройки и задачи, и
+   ровно поэтому форма здесь другая: там строки одного списка, тут — объекты,
+   каждый со своим кадром. */
+.plist.sp{background:none;border-radius:0;box-shadow:none;padding:0}
+.plist.sp .pl{min-height:72px;border-radius:20px;background:var(--surface);
+     box-shadow:var(--sh-card);padding:8px 12px 8px 8px;margin-bottom:8px;border-bottom:0}
+.plist.sp .pl:last-child{margin-bottom:0}
+.plist.sp .spic{width:56px;height:56px;border-radius:12px}
+.plist.sp .spic svg{width:26px;height:26px}
+.plist.sp .nm b{font-size:var(--t-16);line-height:22px}
+.plist.sp .nm s{font-size:var(--t-14);line-height:20px;margin-top:0}
+.plist.sp .addbtn{width:36px;height:36px}
+.plist.sp .pl.have .addbtn{background:var(--lilac)}
 .quote{background:var(--surface);border-radius:var(--r-lg);padding:16px;margin-top:16px;position:relative}
 .quote .qmark{font-weight:500;font-size:var(--t-40);line-height:.7;color:var(--bright);
               opacity:.32;height:24px}
