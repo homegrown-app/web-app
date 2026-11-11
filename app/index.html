@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F7F5FD">
 <title>HOMEGROWN</title>
-<!-- Установка на рабочий стол открывает именно эту версию, не прототип у корня. -->
+<!-- Установка на рабочий стол открывает именно эту версию, не прототип у корня.
+     Мета Apple были только у прототипа в корне: без них айфон мог положить на
+     экран обычную вкладку, а во вкладке объекта Notification нет вовсе —
+     разрешение на напоминания там не запросить. black-translucent оставляет
+     содержимое под статус-баром, как и было: отступ даёт --sat. -->
 <link rel="manifest" href="%BASE_URL%manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HOMEGROWN">
 <link rel="apple-touch-icon" href="%BASE_URL%../img/apple-touch-icon.png">
 <!-- @font-face живёт здесь, а не в CSS-модуле: собранный CSS лежит в
      assets/, и относительный путь ./fonts уехал бы в assets/fonts.
